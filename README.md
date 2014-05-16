@@ -3,7 +3,7 @@ A simple text spinner for command line Clojure apps.
 
 What is it useful for?
 
-To give the user of a command line app a simple progres notification
+To give the user of a command line app a simple progress indicator.
 
 Note: currently doesn't handle multi-line output properly, so the best usage is
 to print a calming status message, start the spinner, and then commence whatever
