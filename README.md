@@ -3,11 +3,8 @@ A simple text spinner for command line Clojure apps.
 
 What is it useful for?
 
-To give the user of a command line app a simple progress indicator.
-
-Note: currently doesn't handle multi-line output properly, so the best usage is
-to print a calming status message, start the spinner, and then commence whatever
-lengthy operation you need (without producing output during that operation).
+To give the user of a command line app a simple progress indicator for long running operations.
+Supports output of additional messages while a spinner is active.
 
 ## Installation
 
@@ -72,6 +69,12 @@ spinner.core/stop!
   Stops the given spinner.
    Note: after being stopped, a spinner cannot be restarted.
 nil
+user=> (doc spinner.core/active?)
+-------------------------
+spinner.core/active?
+([spinner])
+  Is the given spinner active?
+nil
 user=> (doc spinner.core/create-and-start!)
 -------------------------
 spinner.core/create-and-start!
@@ -105,12 +108,13 @@ nil
 
 After being started, the spinner will continue spinning at the current cursor location until explicitly stopped.
 While it is strongly recommended that you explicitly stop a spinner before terminating, the spinner runs on a
-daemon thread, so termination should kill the spinner.
+daemon thread, so any termination of the JVM should also kill the spinner.
 
 It's difficult to show examples of the output from the program, but try the following in your REPL:
 
 ```
 user=> (require '[spinner.core :as spin])
+WARNING: print already refers to: #'clojure.core/print in namespace: spinner.core, being replaced by: #'spinner.core/print
 nil
 user=> (def s (spin/create!))
 #'user/s
@@ -120,17 +124,58 @@ user=> (def s (spin/create! { :fg-colour :red :bg-colour :yellow }))
 #'user/s
 user=> (do (spin/start! s) (Thread/sleep 5000) (spin/stop! s))
 nil
-user=> (do
-  #_=> (let [s (spin/create-and-start! { :style :up-and-down })]
-  #_=> (Thread/sleep 5000)
-  #_=> (spin/stop! s)))
+user=> (let [s (spin/create-and-start! { :style :up-and-down })]
+  #_=>   (Thread/sleep 5000)
+  #_=>   (spin/stop! s))
 nil
 user=> (do
-  #_=> (print "Reticulating splines... ")
-  #_=> (flush)
-  #_=> (spin/spin! #(Thread/sleep 5000))
-  #_=> (println))
+  #_=>   (print "Reticulating splines... ")
+  #_=>   (flush)
+  #_=>   (spin/spin! #(Thread/sleep 5000))
+  #_=>   (println))
 Reticulating splines...
+nil
+user=> (do
+  #_=>   (print "Reticulating splines")
+  #_=>   (flush)
+  #_=>   (let [s (spin/create-and-start!)]
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print ".")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print ".")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print ".")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print ".")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print ".")
+  #_=>     (spin/stop! s))
+  #_=>   (println))
+Reticulating splines....
+nil
+user=> (do
+  #_=>   (print "Reticulating splines... ")
+  #_=>   (flush)
+  #_=>   (let [s (spin/create-and-start!)]
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print "\nInserting sublimated messages... ")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print "\nAttempting to lock back buffer... ")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print "\nTime-compressing simulator clock... ")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print "\nLecturing errant subsystems... ")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/print "\nRetracting Phong shader... ")
+  #_=>     (Thread/sleep 1000)
+  #_=>     (spin/stop! s))
+  #_=>   (println))
+Reticulating splines...
+Inserting sublimated messages...
+Attempting to lock back buffer...
+Time-compressing simulator clock...
+Lecturing errant subsystems...
+Retracting Phong shader...
 nil
 ```
 

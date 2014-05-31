@@ -10,7 +10,8 @@
 ;    Peter Monks - initial implementation
 
 (ns spinner.core
-  (:require [jansi-clj.core :as jansi]))
+  (:require [clojure.string :as s]
+            [jansi-clj.core :as jansi]))
 
 (def ^:private os-name (System/getProperty "os.name"))
 
@@ -42,6 +43,19 @@
       default-value
       value)))
 
+(def ^:private pending-messages (atom ""))
+
+(defn- swap*!
+  "Like clojure.core/swap! but returns a vector of [old-value new-value].
+   From http://stackoverflow.com/questions/22409638/remove-first-item-from-clojure-vector-atom-and-return-it"
+  [atom f & args]
+  (loop []
+    (let [ov @atom
+          nv (apply f ov args)]
+      (if (compare-and-set! atom ov nv)
+        [ov nv]
+        (recur)))))
+
 (defn- spinner
   ([] (spinner nil))
   ([options]
@@ -54,15 +68,18 @@
           characters    (spinner-style spinner-styles)]
     (try
       (loop [i (int 0)]
-        (print (str (jansi/a attribute
-                      (jansi/bg bg-colour
-                        (jansi/fg fg-colour (nth characters i))))
-                    " "))
-        (flush)
-        (Thread/sleep delay-in-ms)
-        (print (jansi/cursor-left 2))
-        (flush)
-        (recur (int (mod (inc i) (.length ^String characters)))))
+        (let [message (first (swap*! pending-messages (fn [x] "")))]
+          (print (str (jansi/a attribute
+                        (jansi/bg bg-colour
+                          (jansi/fg fg-colour (nth characters i))))
+                      " "))
+          (flush)
+          (Thread/sleep delay-in-ms)
+          (print (str (jansi/cursor-left 2)
+                      (jansi/erase-line)))
+          (print message)
+          (flush)
+          (recur (int (mod (inc i) (.length ^String characters))))))
       (catch InterruptedException ie
         (comment "Swallow interrupted exception and terminate normally."))
       (finally
@@ -93,7 +110,8 @@
 (defn start!
   "Starts the given spinner."
   [spinner]
-  (.start ^Thread spinner))
+  (.start ^Thread spinner)
+  nil)
 
 (defn create-and-start!
   "Creates and starts a spinner, returning it."
@@ -107,7 +125,14 @@
   "Stops the given spinner.
    Note: after being stopped, a spinner cannot be restarted."
   [spinner]
-  (.interrupt ^Thread spinner))
+  (.interrupt ^Thread spinner)
+  (reset! pending-messages "")
+  nil)
+
+(defn active?
+  "Is the given spinner active?"
+  [spinner]
+  (.isAlive ^Thread spinner))
 
 (defn spin!
   "Creates and starts a spinner, calls fn f, then stops the spinner. Returns the result of f."
@@ -118,3 +143,14 @@
        (f)
        (finally
          (stop! spinner))))))
+
+(defn print
+  "Schedules the given values for printing (ala clojure.core/print), without interrupting the active spinner.  Returns nil.
+   Notes:
+   * will only emit output if a spinner is active
+   * output is emitted in between 'frames' of the spinner, so won't appear immediately
+   * values are space delimited (as in clojure.core/print) - use clojure.core/str if you don't want values to be space delimited
+   * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include them in the values"
+  [& more]
+  (swap! pending-messages str (s/join \space more))
+  nil)
