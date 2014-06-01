@@ -19,8 +19,9 @@
   "Are we running on Windows?"
   (.startsWith (.toLowerCase ^String os-name) "windows"))
 
-(def spinner-styles
-  "The supported styles of spinner. Only :spinner is known to work on Windows."
+(def styles
+  "A selection of predefined styles of spinner. Only :spinner is known to work on Windows
+   (the Windows command prompt is not Unicode capable)."
   {
     :spinner         "|/-\\"
     :dot-spinner     "⋮⋰⋯⋱"
@@ -59,13 +60,12 @@
 (defn- spinner
   ([] (spinner nil))
   ([options]
-    (let [options       (if (nil? options) {} options)
-          delay-in-ms   (:delay options 100)
-          spinner-style (:style options :spinner)
-          fg-colour     (select-value-default options [:fg-colour :fg-color] :default)
-          bg-colour     (select-value-default options [:bg-colour :bg-color] :default)
-          attribute     (:attribute options :default)
-          characters    (spinner-style spinner-styles)]
+    (let [options     (if (nil? options) {} options)
+          delay-in-ms (:delay options 100)
+          characters  (:characters options (:spinner styles))
+          fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
+          bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
+          attribute   (:attribute options :default)]
     (try
       (loop [i (int 0)]
         (let [message (first (swap*! pending-messages (fn [x] "")))]
@@ -76,8 +76,8 @@
           (flush)
           (Thread/sleep delay-in-ms)
           (print (str (jansi/cursor-left 2)
-                      (jansi/erase-line)))
-          (print message)
+                      (jansi/erase-line)
+                      message))
           (flush)
           (recur (int (mod (inc i) (.length ^String characters))))))
       (catch InterruptedException ie
@@ -92,7 +92,7 @@
 
    Optionally accepts an options map - supported options are:
    {
-     :style - key from the spinner-styles map (default is :spinner)
+     :characters - the string of characters to use for the spinner (default is (:spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
      :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
      :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
@@ -145,12 +145,12 @@
          (stop! spinner))))))
 
 (defn print
-  "Schedules the given values for printing (ala clojure.core/print), without interrupting the active spinner.  Returns nil.
+  "Schedules the given values for printing (ala clojure.core/print), without interrupting the active spinner.
    Notes:
-   * will only emit output if a spinner is active
+   * will only produce output if a spinner is active
    * output is emitted in between 'frames' of the spinner, so won't appear immediately
-   * values are space delimited (as in clojure.core/print) - use clojure.core/str if you don't want values to be space delimited
-   * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include them in the values"
+   * values are space delimited (as in clojure.core/print) - use clojure.core/str if you don't want this behaviour
+   * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \newline in the value(s)"
   [& more]
   (swap! pending-messages str (s/join \space more))
   nil)

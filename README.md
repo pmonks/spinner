@@ -47,7 +47,7 @@ spinner.core/create!
 
    Optionally accepts an options map - supported options are:
    {
-     :style - key from the spinner-styles map (default is :spinner)
+     :characters - the string of characters to use for the spinner (default is (:spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
      :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
      :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
@@ -87,14 +87,10 @@ spinner.core/spin!
 ([f] [f options])
   Creates and starts a spinner, calls fn f, then stops the spinner. Returns the result of f.
 nil
-user=> (doc spinner.core/is-windows?)
--------------------------
-spinner.core/is-windows?
-  Are we running on Windows?
-nil
-user=> (source spinner.core/spinner-styles)
-(def spinner-styles
-  "The supported styles of spinner. Only :spinner is known to work on Windows."
+user=> (source spinner.core/styles)
+(def styles
+  "A selection of predefined styles of spinner. Only :spinner is known to work on Windows
+   (the Windows command prompt is not Unicode capable)."
   {
     :spinner         "|/-\\"
     :dot-spinner     "⋮⋰⋯⋱"
@@ -103,6 +99,11 @@ user=> (source spinner.core/spinner-styles)
     :side-to-side    "▉▊▋▌▍▎▏▎▍▌▋▊▉"
     :quadrants       "┤┘┴└├┌┬┐"
   })
+nil
+user=> (doc spinner.core/is-windows?)
+-------------------------
+spinner.core/is-windows?
+  Are we running on Windows?
 nil
 ```
 
@@ -124,7 +125,7 @@ user=> (def s (spin/create! { :fg-colour :red :bg-colour :yellow }))
 #'user/s
 user=> (do (spin/start! s) (Thread/sleep 5000) (spin/stop! s))
 nil
-user=> (let [s (spin/create-and-start! { :style :up-and-down })]
+user=> (let [s (spin/create-and-start! { :characters (:up-and-down spin/styles) })]
   #_=>   (Thread/sleep 5000)
   #_=>   (spin/stop! s))
 nil
@@ -149,9 +150,10 @@ user=> (do
   #_=>     (spin/print ".")
   #_=>     (Thread/sleep 1000)
   #_=>     (spin/print ".")
+  #_=>     (Thread/sleep 1000)
   #_=>     (spin/stop! s))
   #_=>   (println))
-Reticulating splines....
+Reticulating splines.....
 nil
 user=> (do
   #_=>   (print "Reticulating splines... ")
