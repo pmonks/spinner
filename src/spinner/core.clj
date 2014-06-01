@@ -11,7 +11,8 @@
 
 (ns spinner.core
   (:require [clojure.string :as s]
-            [jansi-clj.core :as jansi]))
+            [jansi-clj.core :as jansi])
+  (:refer-clojure :exclude [print]))
 
 (def ^:private os-name (System/getProperty "os.name"))
 
@@ -69,22 +70,22 @@
     (try
       (loop [i (int 0)]
         (let [message (first (swap*! pending-messages (fn [x] "")))]
-          (print (str (jansi/a attribute
-                        (jansi/bg bg-colour
-                          (jansi/fg fg-colour (nth characters i))))
-                      " "))
+          (clojure.core/print (str (jansi/a attribute
+                                   (jansi/bg bg-colour
+                                   (jansi/fg fg-colour (nth characters i))))
+                                   " "))
           (flush)
           (Thread/sleep delay-in-ms)
-          (print (str (jansi/cursor-left 2)
-                      (jansi/erase-line)
-                      message))
+          (clojure.core/print (str (jansi/cursor-left 2)
+                                   (jansi/erase-line)
+                                   message))
           (flush)
           (recur (int (mod (inc i) (.length ^String characters))))))
       (catch InterruptedException ie
         (comment "Swallow interrupted exception and terminate normally."))
       (finally
-        (print (str (jansi/cursor-left 2)
-                    (jansi/erase-line)))
+        (clojure.core/print (str (jansi/cursor-left 2)
+                                 (jansi/erase-line)))
         (flush))))))
 
 (defn create!
