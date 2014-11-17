@@ -9,7 +9,8 @@ Supports output of additional messages while a spinner is active.
 ## Installation
 
 spinner is available as a Maven artifact from [Clojars](https://clojars.org/org.clojars.pmonks/spinner).
-Plonk the following in your project.clj :dependencies, `lein deps` and you should be good to go:
+Plonk the following in your project.clj :dependencies, substitute "#.#.#" for the latest version number,
+`lein deps` and you should be good to go:
 
 ```clojure
 [org.clojars.pmonks/spinner "#.#.#"]
