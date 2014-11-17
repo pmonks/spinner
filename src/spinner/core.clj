@@ -94,6 +94,11 @@
           (flush)))
       nil)))
 
+(defn active?
+  "Is the given spinner active?"
+  [spinner]
+  (.isAlive ^Thread spinner))
+
 (defn create!
   "Creates a spinner and returns it, but does not start it.
 
@@ -110,13 +115,14 @@
   ([] (create! nil))
   ([options]
    (jansi/enable!)
-   (doto
-     (Thread. ^Runnable #(spinner options))
+   (doto (Thread. ^Runnable #(spinner options))
      (.setDaemon true))))
 
 (defn start!
   "Starts the given spinner."
   [spinner]
+  (if (active? spinner)
+    (throw (java.lang.IllegalStateException. "Spinner is already active.")))
   (.start ^Thread spinner)
   nil)
 
@@ -132,15 +138,13 @@
   "Stops the given spinner.
    Note: after being stopped, a spinner cannot be restarted."
   [spinner]
-  (.interrupt ^Thread spinner)
-  (.join ^Thread spinner)
+  (if (not (active? spinner))
+    (throw (java.lang.IllegalStateException. "Spinner is not active.")))
+  (doto ^Thread spinner
+    (.interrupt)
+    (.join))
   (reset! pending-messages "")
   nil)
-
-(defn active?
-  "Is the given spinner active?"
-  [spinner]
-  (.isAlive ^Thread spinner))
 
 (defn spin!
   "Creates and starts a spinner, calls fn f, then stops the spinner. Returns the result of f."
