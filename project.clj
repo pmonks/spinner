@@ -9,7 +9,7 @@
 ; Contributors:
 ;    Peter Monks - initial implementation
 
-(defproject org.clojars.pmonks/spinner "0.3.0-SNAPSHOT"
+(defproject org.clojars.pmonks/spinner "0.3.0"
   :description      "Simple text spinner for command line Clojure apps."
   :url              "https://github.com/pmonks/spinner"
   :license          {:name "Eclipse Public License"
