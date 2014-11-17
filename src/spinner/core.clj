@@ -133,8 +133,7 @@
    Note: after being stopped, a spinner cannot be restarted."
   [spinner]
   (.interrupt ^Thread spinner)
-  (Thread/sleep 100)
-  (flush)
+  (.join ^Thread spinner)
   (reset! pending-messages "")
   nil)
 
