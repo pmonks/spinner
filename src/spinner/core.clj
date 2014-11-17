@@ -58,6 +58,11 @@
         [ov nv]
         (recur)))))
 
+(defn- print-pending-messages
+  []
+  (let [messages (first (swap*! pending-messages (constantly "")))]
+    (clojure.core/print messages)))
+
 (defn- spinner
   ([] (spinner nil))
   ([options]
@@ -67,9 +72,8 @@
           fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
           bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
           attribute   (:attribute options :default)]
-    (try
-      (loop [i (int 0)]
-        (let [message (first (swap*! pending-messages (fn [x] "")))]
+      (try
+        (loop [i (int 0)]
           (clojure.core/print (str (jansi/a attribute
                                    (jansi/bg bg-colour
                                    (jansi/fg fg-colour (nth characters i))))
@@ -77,16 +81,18 @@
           (flush)
           (Thread/sleep delay-in-ms)
           (clojure.core/print (str (jansi/cursor-left 2)
-                                   (jansi/erase-line)
-                                   message))
+                                   (jansi/erase-line)))
+          (print-pending-messages)
           (flush)
-          (recur (int (mod (inc i) (.length ^String characters))))))
-      (catch InterruptedException ie
-        (comment "Swallow interrupted exception and terminate normally."))
-      (finally
-        (clojure.core/print (str (jansi/cursor-left 2)
-                                 (jansi/erase-line)))
-        (flush))))))
+          (recur (int (mod (inc i) (.length ^String characters)))))
+        (catch InterruptedException ie
+          (comment "Swallow the exception silently and terminate."))
+        (finally
+          (clojure.core/print (str (jansi/cursor-left 2)
+                                   (jansi/erase-line)))
+          (print-pending-messages)
+          (flush)))
+      nil)))
 
 (defn create!
   "Creates a spinner and returns it, but does not start it.
@@ -127,6 +133,8 @@
    Note: after being stopped, a spinner cannot be restarted."
   [spinner]
   (.interrupt ^Thread spinner)
+  (Thread/sleep 100)
+  (flush)
   (reset! pending-messages "")
   nil)
 
@@ -149,8 +157,8 @@
   "Schedules the given values for printing (ala clojure.core/print), without interrupting the active spinner.
    Notes:
    * will only produce output if a spinner is active
-   * output is emitted in between 'frames' of the spinner, so won't appear immediately
-   * values are space delimited (as in clojure.core/print) - use clojure.core/str if you don't want this behaviour
+   * output is emitted in between 'frames' of the spinner, so may not appear immediately
+   * values are space delimited (as in clojure.core/print) - use clojure.core/str for finer control
    * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \newline in the value(s)"
   [& more]
   (swap! pending-messages str (s/join \space more))
