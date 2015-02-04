@@ -51,7 +51,7 @@ spinner.core/create!
      :characters - the string of characters to use for the spinner (default is (:spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
      :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
-     :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
+     :bg-colour / :bg-color - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
      :attribute - the attribute of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#attributes for allowed values
    }
 
