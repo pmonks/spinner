@@ -20,7 +20,7 @@
                   [jansi-clj           "0.1.0"]
                 ]
   :profiles {:dev {:dependencies [
-                                   [midje          "1.6.3"]
+                                   [midje          "1.7.0"]
                                    [clj-ns-browser "1.3.1"]
                                  ]
                    :plugins      [[lein-midje "3.1.3"]]}   ; Don't remove this or travis-ci will assplode!
