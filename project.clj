@@ -16,7 +16,7 @@
                      :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.4.0"
   :dependencies [
-                  [org.clojure/clojure "1.6.0"]
+                  [org.clojure/clojure "1.8.0"]
                   [jansi-clj           "0.1.0"]
                 ]
   :profiles {:dev {:dependencies [
