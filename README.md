@@ -7,7 +7,7 @@ A simple text spinner for command line Clojure apps.
 
 What is it useful for?
 
-To give the user of a command line app a simple progress indicator for long running operations.
+To give the user of a command line app a simple indeterminate progress indicator for long running operations.
 Supports output of additional messages while a spinner is active.
 
 ## Installation
