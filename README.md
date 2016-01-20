@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/pmonks/spinner.svg?branch=master)](https://travis-ci.org/pmonks/spinner)
 [![Dependencies Status](http://jarkeeper.com/pmonks/spinner/status.svg)](http://jarkeeper.com/pmonks/spinner)
-[![Downloads](https://jarkeeper.com/pmonks/spinner/downloads.svg)](https://jarkeeper.com/pmonks/spinner)
 
 # spinner
 
