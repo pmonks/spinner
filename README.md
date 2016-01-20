@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/pmonks/spinner.svg?branch=master)](https://travis-ci.org/pmonks/spinner)
+[![Dependencies Status](http://jarkeeper.com/pmonks/spinner/status.svg)](http://jarkeeper.com/pmonks/spinner)
+
 # spinner
 A simple text spinner for command line Clojure apps.
 
@@ -192,6 +195,6 @@ nil
 
 ## License
 
-Copyright © 2014 Peter Monks (pmonks@gmail.com)
+Copyright © 2014-2016 Peter Monks (pmonks@gmail.com)
 
 Distributed under the [Eclipse Public License](http://www.eclipse.org/legal/epl-v10.html) either version 1.0 or (at your option) any later version.
