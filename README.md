@@ -2,6 +2,7 @@
 [![Dependencies Status](http://jarkeeper.com/pmonks/spinner/status.svg)](http://jarkeeper.com/pmonks/spinner)
 
 # spinner
+
 A simple text spinner for command line Clojure apps.
 
 What is it useful for?
