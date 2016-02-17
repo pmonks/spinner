@@ -118,7 +118,7 @@ After being started, the spinner will continue spinning at the current cursor lo
 While it is strongly recommended that you explicitly stop a spinner before terminating, the spinner runs on a
 daemon thread, so any termination of the JVM should also kill the spinner.
 
-It's difficult to show examples of the output from the program, but try the following in your REPL:
+It's difficult to show examples of the output from the program, but try the following in your REPL (remembering to start it via `lein trampoline repl`!):
 
 ```
 user=> (require '[spinner.core :as spin])
