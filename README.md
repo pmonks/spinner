@@ -28,7 +28,7 @@ The latest version is:
 
 The spinner functionality is provided by the `spinner.core` namespace.
 
-Require it in the REPL:
+Require it in the REPL (*note: your REPL must be run in a trampoline `lein trampoline repl` in order for ANSI escape sequences to be available*):
 
 ```clojure
 (require '[spinner.core :as spin])
