@@ -22,14 +22,16 @@
 
 (def styles
   "A selection of predefined styles of spinner. Only :spinner is known to work on Windows
-   (the Windows command prompt is not Unicode capable)."
+   (it is difficult to use Unicode with the Windows command prompt)."
   {
-    :spinner         "|/-\\"
-    :dot-spinner     "⋮⋰⋯⋱"
-    :up-and-down     "▁▃▄▅▆▇█▇▆▅▄▃"
-    :fade-in-and-out " ░▒▓█▓▒░"
-    :side-to-side    "▉▊▋▌▍▎▏▎▍▌▋▊▉"
-    :quadrants       "┤┘┴└├┌┬┐"
+    :spinner          ["|" "/" "-" "\\"]
+    :dot-spinner      ["⋮" "⋰" "⋯" "⋱"]
+    :up-and-down      ["▁" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃"]
+    :fade-in-and-out  [" " "░" "▒" "▓" "█" "▓" "▒" "░"]
+    :side-to-side     ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
+    :quadrants        ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
+    :arrows           ["⬆️" "↗️" "➡️" "↘️" "⬇️" "↙️" "⬅️" "↖️"]
+    :pointing-fingers ["👆" "👉" "👇" "👈"]
   })
 
 (defn- select-values
@@ -44,6 +46,18 @@
     (if (nil? value)
       default-value
       value)))
+
+(def ^:private console-charset (java.nio.charset.Charset/forName
+                                 (.getEncoding (java.io.OutputStreamWriter. System/out))))
+
+(defn- byte-length-in-charset
+  "Returns the length in bytes of s, in charset cs."
+  [^String s ^java.nio.charset.Charset cs]
+  (count (.getBytes s cs)))
+
+(defn- console-byte-length
+  [^String s]
+  (byte-length-in-charset s console-charset))
 
 (def ^:private pending-messages (atom ""))
 
@@ -66,29 +80,35 @@
 (defn- spinner
   ([] (spinner nil))
   ([options]
-    (let [options     (if (nil? options) {} options)
-          delay-in-ms (:delay options 100)
-          characters  (:characters options (:spinner styles))
-          fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
-          bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
-          attribute   (:attribute options :default)]
+    (let [options      (if (nil? options) {} options)
+          delay-in-ms  (:delay options 100)
+          frames       (:frames options (:spinner styles))
+          fg-colour    (select-value-default options [:fg-colour :fg-color] :default)
+          bg-colour    (select-value-default options [:bg-colour :bg-color] :default)
+          attribute    (:attribute options :default)
+          space-length (console-byte-length " ")
+          last-i       (atom 0)]   ; Would love to find a better way to do this...
       (try
         (loop [i (int 0)]
-          (clojure.core/print (str (jansi/a attribute
-                                   (jansi/bg bg-colour
-                                   (jansi/fg fg-colour (nth characters i))))
-                                   " "))
-          (flush)
-          (Thread/sleep delay-in-ms)
-          (clojure.core/print (str (jansi/cursor-left 2)
-                                   (jansi/erase-line)))
-          (print-pending-messages)
-          (flush)
-          (recur (int (mod (inc i) (.length ^String characters)))))
+          (swap! last-i (constantly i))
+          (let [current-frame (nth frames i)
+                erase-length  (+ (console-byte-length current-frame) space-length)]
+            (clojure.core/print (str (jansi/a attribute
+                                     (jansi/bg bg-colour
+                                     (jansi/fg fg-colour current-frame)))
+                                     " "))
+            (flush)
+            (Thread/sleep delay-in-ms)
+            (clojure.core/print (str (jansi/cursor-left erase-length)
+                                     (jansi/erase-line)))
+            (print-pending-messages)
+            (flush)
+            (recur (int (mod (inc i) (count frames))))))
         (catch InterruptedException ie
           (comment "Swallow the exception silently and terminate."))
         (finally
-          (clojure.core/print (str (jansi/cursor-left 2)
+          (comment "But remember to erase the last frame.")
+          (clojure.core/print (str (jansi/cursor-left (+ (console-byte-length (nth frames @last-i)) space-length))
                                    (jansi/erase-line)))
           (print-pending-messages)
           (flush)))
@@ -104,7 +124,7 @@
 
    Optionally accepts an options map - supported options are:
    {
-     :characters - the string of characters to use for the spinner (default is (:spinner styles))
+     :frames - the frames (array of strings) to use for the spinner (default is (:spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
      :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
      :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
