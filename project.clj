@@ -17,7 +17,7 @@
   :min-lein-version "2.4.0"
   :dependencies [
                   [org.clojure/clojure "1.8.0"]
-                  [jansi-clj           "0.1.0"]
+                  [jansi-clj           "0.1.1-SNAPSHOT"]
                 ]
   :profiles {:dev {:dependencies [
                                    [midje          "1.8.3"]

@@ -51,47 +51,35 @@
   (let [s (create! { :frames (:pointing-fingers styles) })]
     (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
 
+(fact "Leading message"
+  (clojure.core/print "\nSome kind of long running processing happens here... ")
+
+  (let [s (create! { :frames (:dot-spinner styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+
+  (let [s (create! { :frames (:up-and-down styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+
+  (let [s (create! { :frames (:fade-in-and-out styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+
+  (let [s (create! { :frames (:side-to-side styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+
+  (let [s (create! { :frames (:quadrants styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+
+  (let [s (create! { :frames (:arrows styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+
+  (let [s (create! { :frames (:pointing-fingers styles) })]
+    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
+
 (fact "Print messages"
   (do
-    (print "Reticulating splines... ")
-    (flush)
-    (let [s (create-and-start!)]
-      (Thread/sleep 500)
-      (print "\nInserting sublimated messages... ")
-      (Thread/sleep 500)
-      (print "\nAttempting to lock back buffer... ")
-      (Thread/sleep 500)
-      (print "\nTime-compressing simulator clock... ")
-      (Thread/sleep 500)
-      (print "\nLecturing errant subsystems... ")
-      (Thread/sleep 500)
-      (print "\nRetracting Phong shader... ")
-      (Thread/sleep 500)
-      (stop! s)
-      (println))) => nil?
-
-  (do
-    (print "Reticulating splines... ")
+    (print "\nReticulating splines... ")
     (flush)
     (let [s (create-and-start! { :fg-colour :white :bg-colour :blue })]
-      (Thread/sleep 500)
-      (print "\nInserting sublimated messages... ")
-      (Thread/sleep 500)
-      (print "\nAttempting to lock back buffer... ")
-      (Thread/sleep 500)
-      (print "\nTime-compressing simulator clock... ")
-      (Thread/sleep 500)
-      (print "\nLecturing errant subsystems... ")
-      (Thread/sleep 500)
-      (print "\nRetracting Phong shader... ")
-      (Thread/sleep 500)
-      (stop! s)
-      (println))) => nil?
-
-  (do
-    (print "Reticulating splines... ")
-    (flush)
-    (let [s (create-and-start! { :frames (:arrows styles) })]
       (Thread/sleep 500)
       (print "\nInserting sublimated messages... ")
       (Thread/sleep 500)

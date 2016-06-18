@@ -21,16 +21,16 @@
   (.startsWith (.toLowerCase ^String os-name) "windows"))
 
 (def styles
-  "A selection of predefined styles of spinner. Only :spinner is known to work on Windows
-   (it is difficult to use Unicode with the Windows command prompt)."
+  "A selection of predefined styles of spinner. Only :spinner is known to work reliably -
+   other styles depend on the encoding of the terminal."
   {
-    :spinner          ["|" "/" "-" "\\"]
-    :dot-spinner      ["⋮" "⋰" "⋯" "⋱"]
-    :up-and-down      ["▁" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃"]
-    :fade-in-and-out  [" " "░" "▒" "▓" "█" "▓" "▒" "░"]
+    :spinner          [\| \/ \- \\]
+    :dot-spinner      [\⋮ \⋰ \⋯ \⋱]
+    :up-and-down      [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]   ; Doesn't work correctly
+    :fade-in-and-out  [\space \░ \▒ \▓ \█ \▓ \▒ \░]
     :side-to-side     ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
     :quadrants        ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
-    :arrows           ["⬆️" "↗️" "➡️" "↘️" "⬇️" "↙️" "⬅️" "↖️"]
+    :arrows           [\↑ \→ \↓ \←]
     :pointing-fingers ["👆" "👉" "👇" "👈"]
   })
 
@@ -51,11 +51,12 @@
                                  (.getEncoding (java.io.OutputStreamWriter. System/out))))
 
 (defn- byte-length-in-charset
-  "Returns the length in bytes of s, in charset cs."
+  "Returns the byte length of s, in charset cs."
   [^String s ^java.nio.charset.Charset cs]
   (count (.getBytes s cs)))
 
 (defn- console-byte-length
+  "Returns the byte length of s, in the charset of the console."
   [^String s]
   (byte-length-in-charset s console-charset))
 
@@ -80,35 +81,30 @@
 (defn- spinner
   ([] (spinner nil))
   ([options]
-    (let [options      (if (nil? options) {} options)
-          delay-in-ms  (:delay options 100)
-          frames       (:frames options (:spinner styles))
-          fg-colour    (select-value-default options [:fg-colour :fg-color] :default)
-          bg-colour    (select-value-default options [:bg-colour :bg-color] :default)
-          attribute    (:attribute options :default)
-          space-length (console-byte-length " ")
-          last-i       (atom 0)]   ; Would love to find a better way to do this...
+    (let [options     (if (nil? options) {} options)
+          delay-in-ms (:delay options 100)
+          frames      (:frames options (:spinner styles))
+          fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
+          bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
+          attribute   (:attribute options :default)]
       (try
         (loop [i (int 0)]
-          (swap! last-i (constantly i))
-          (let [current-frame (nth frames i)
-                erase-length  (+ (console-byte-length current-frame) space-length)]
-            (clojure.core/print (str (jansi/a attribute
-                                     (jansi/bg bg-colour
-                                     (jansi/fg fg-colour current-frame)))
-                                     " "))
-            (flush)
-            (Thread/sleep delay-in-ms)
-            (clojure.core/print (str (jansi/cursor-left erase-length)
-                                     (jansi/erase-line)))
-            (print-pending-messages)
-            (flush)
-            (recur (int (mod (inc i) (count frames))))))
+          (clojure.core/print (str (jansi/a  attribute
+                                   (jansi/bg bg-colour
+                                   (jansi/fg fg-colour (nth frames i))))
+                                   " "))
+          (flush)
+          (Thread/sleep delay-in-ms)
+          (clojure.core/print (str (jansi/cursor-left 2)
+                                   (jansi/erase-line)))
+          (print-pending-messages)
+          (flush)
+          (recur (int (mod (inc i) (count frames)))))
         (catch InterruptedException ie
           (comment "Swallow the exception silently and terminate."))
         (finally
           (comment "But remember to erase the last frame.")
-          (clojure.core/print (str (jansi/cursor-left (+ (console-byte-length (nth frames @last-i)) space-length))
+          (clojure.core/print (str (jansi/cursor-left 2)
                                    (jansi/erase-line)))
           (print-pending-messages)
           (flush)))
