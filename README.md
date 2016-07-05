@@ -31,7 +31,7 @@ The spinner functionality is provided by the `spinner.core` namespace.
 Require it in the REPL:
 
 ```clojure
-(require '[spinner.core :as spin])
+(require '[spinner.core :as spin] :reload-all)
 ```
 
 Require it in your application:
@@ -46,6 +46,8 @@ Note: your REPL must be run in a trampoline (`lein trampoline repl`) in order fo
 The library provides a number of methods to manage the lifecycle of a spinner:
 
 ```
+user=> (require '[spinner.core :as spin] :reload-all)
+nil
 user=> (doc spinner.core/create!)
 -------------------------
 spinner.core/create!
@@ -54,10 +56,10 @@ spinner.core/create!
 
    Optionally accepts an options map - supported options are:
    {
-     :characters - the string of characters to use for the spinner (default is (:spinner styles))
+     :frames - the frames (array of strings) to use for the spinner (default is (:spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
      :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
-     :bg-colour / :bg-color - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
+     :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
      :attribute - the attribute of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#attributes for allowed values
    }
 
@@ -96,15 +98,20 @@ spinner.core/spin!
 nil
 user=> (source spinner.core/styles)
 (def styles
-  "A selection of predefined styles of spinner. Only :spinner is known to work on Windows
-   (the Windows command prompt is not Unicode capable)."
+  "A selection of predefined styles of spinner. Only :spinner is known to work reliably -
+   other styles depend on the operating system, terminal encoding, phase of the moon, and
+   how long since your dog last pooped."
   {
-    :spinner         "|/-\\"
-    :dot-spinner     "⋮⋰⋯⋱"
-    :up-and-down     "▁▃▄▅▆▇█▇▆▅▄▃"
-    :fade-in-and-out " ░▒▓█▓▒░"
-    :side-to-side    "▉▊▋▌▍▎▏▎▍▌▋▊▉"
-    :quadrants       "┤┘┴└├┌┬┐"
+    :spinner          [\| \/ \- \\]
+
+    ; Unicode spinners are unreliable across platforms
+    :dot-spinner      [\⋮ \⋰ \⋯ \⋱]
+    :up-and-down      [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]
+    :fade-in-and-out  [\space \░ \▒ \▓ \█ \▓ \▒ \░]
+    :side-to-side     ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
+    :quadrants        ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
+    :arrows           [\↑ \→ \↓ \←]
+    :pointing-fingers ["👆" "👉" "👇" "👈"]
   })
 nil
 user=> (doc spinner.core/is-windows?)
@@ -121,8 +128,7 @@ daemon thread, so any termination of the JVM should also kill the spinner.
 It's difficult to show examples of the output from the program, but try the following in your REPL (remembering to start it via `lein trampoline repl`!):
 
 ```
-user=> (require '[spinner.core :as spin])
-WARNING: print already refers to: #'clojure.core/print in namespace: spinner.core, being replaced by: #'spinner.core/print
+user=> (require '[spinner.core :as spin] :reload-all)
 nil
 user=> (def s (spin/create!))
 #'user/s
@@ -132,7 +138,7 @@ user=> (def s (spin/create! { :fg-colour :red :bg-colour :yellow }))
 #'user/s
 user=> (do (spin/start! s) (Thread/sleep 5000) (spin/stop! s))
 nil
-user=> (let [s (spin/create-and-start! { :characters (:up-and-down spin/styles) })]
+user=> (let [s (spin/create-and-start! { :frames (:up-and-down spin/styles) })]
   #_=>   (Thread/sleep 5000)
   #_=>   (spin/stop! s))
 nil

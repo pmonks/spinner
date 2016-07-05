@@ -22,11 +22,14 @@
 
 (def styles
   "A selection of predefined styles of spinner. Only :spinner is known to work reliably -
-   other styles depend on the encoding of the terminal."
+   other styles depend on the operating system, terminal encoding, phase of the moon, and
+   how long since your dog last pooped."
   {
     :spinner          [\| \/ \- \\]
+
+    ; Unicode spinners are unreliable across platforms
     :dot-spinner      [\⋮ \⋰ \⋯ \⋱]
-    :up-and-down      [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]   ; Doesn't work correctly
+    :up-and-down      [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]
     :fade-in-and-out  [\space \░ \▒ \▓ \█ \▓ \▒ \░]
     :side-to-side     ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
     :quadrants        ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
