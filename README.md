@@ -200,8 +200,6 @@ nil
 
 [Bug Tracker](https://github.com/pmonks/spinner/issues)
 
-[![endorse](https://api.coderwall.com/pmonks/endorsecount.png)](https://coderwall.com/pmonks)
-
 ## License
 
 Copyright © 2014-2016 Peter Monks (pmonks@gmail.com)
