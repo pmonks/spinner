@@ -23,8 +23,7 @@
                          [jansi-clj           "0.1.1-SNAPSHOT"]
                        ]
   :profiles            {:dev {:dependencies [
-                                              [midje          "1.8.3"]
-                                              [clj-ns-browser "1.3.1"]
+                                              [midje "1.8.3"]
                                             ]
                               :plugins      [[lein-midje "3.2"]]}   ; Don't remove this or travis-ci will assplode!
                         :uberjar {:aot :all}}
@@ -37,8 +36,8 @@
                                        :password :env/clojars_password}]
                        ]
   :codox               {
-                         :source-uri "https://github.com/pmonks/multigrep/blob/master/{filepath}#L{line}"
-;                         :source-uri "https://github.com/pmonks/multigrep/blob/{version}/{filepath}#L{line}"
+                         :source-uri "https://github.com/pmonks/spinner/blob/master/{filepath}#L{line}"
+;                         :source-uri "https://github.com/pmonks/spinner/blob/{version}/{filepath}#L{line}"
 ;                         :metadata   {:doc/format :markdown}
                        }
   )
