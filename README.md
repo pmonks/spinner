@@ -14,7 +14,7 @@ Supports output of additional messages while a spinner is active.
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img width="500px" alt="spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/master/spinner-demo.gif"/>
+  <img alt="spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/master/spinner-demo.gif"/>
 </p>
 
 ## Installation
