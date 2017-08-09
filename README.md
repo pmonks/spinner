@@ -12,6 +12,11 @@ What is it useful for?
 To give the user of a command line app a simple indeterminate progress indicator for long running operations.
 Supports output of additional messages while a spinner is active.
 
+Here it is in action (from the unit tests):
+<p align="center">
+  <img width="500px" alt="spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/master/spinner-demo.gif"/>
+</p>
+
 ## Installation
 
 spinner is available as a Maven artifact from [Clojars](https://clojars.org/org.clojars.pmonks/spinner).
