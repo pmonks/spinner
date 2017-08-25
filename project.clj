@@ -14,7 +14,7 @@
   :url                 "https://github.com/pmonks/spinner"
   :license             {:name "Eclipse Public License"
                         :url  "http://www.eclipse.org/legal/epl-v10.html"}
-  :min-lein-version    "2.5.0"
+  :min-lein-version    "2.7.0"
   :plugins             [
                          [lein-codox "0.10.3"]
                        ]
