@@ -15,17 +15,21 @@
   :license             {:name "Eclipse Public License"
                         :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version    "2.7.0"
+  :repositories        [
+                         ["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
+                         ["jitpack"            {:url "https://jitpack.io"                             :snapshots true}]
+                       ]
   :plugins             [
                          [lein-codox "0.10.3"]
                        ]
   :dependencies        [
-                         [org.clojure/clojure "1.8.0"]
-                         [jansi-clj           "0.1.1-SNAPSHOT"]
+                         [org.clojure/clojure         "1.8.0"]
+                         [com.github.pmonks/jansi-clj "-SNAPSHOT"]  ; While awaiting merge of https://github.com/xsc/jansi-clj/pull/2
                        ]
   :profiles            {:dev {:dependencies [
                                               [midje "1.8.3"]
                                             ]
-                              :plugins      [[lein-midje "3.2"]]}   ; Don't remove this or travis-ci will assplode!
+                              :plugins      [[lein-midje "3.2.1"]]}   ; Don't remove this or travis-ci will assplode!
                         :uberjar {:aot :all}}
   :deploy-repositories [
                          ["snapshots" {:url      "https://clojars.org/repo"
@@ -37,7 +41,5 @@
                        ]
   :codox               {
                          :source-uri "https://github.com/pmonks/spinner/blob/master/{filepath}#L{line}"
-;                         :source-uri "https://github.com/pmonks/spinner/blob/{version}/{filepath}#L{line}"
-;                         :metadata   {:doc/format :markdown}
                        }
   )
