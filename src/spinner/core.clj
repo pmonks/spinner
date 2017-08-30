@@ -25,7 +25,7 @@
 
 (def styles
   "A selection of predefined styles of spinner. Only ASCII spinners are known to work reliably -
-   other styles depend on the operating system, terminal encoding, phase of the moon, and
+   other styles depend on the operating system, terminal font & encoding, phase of the moon, and
    how long since your dog last pooped."
   {
     ; ASCII spinners are reliable across platforms
