@@ -21,61 +21,33 @@
   (let [s (create!)]
     (do (start! s) (stop! s))) => nil?)
 
-(fact "Display"
+(fact "Display - default spinner"
   (let [s (create!)]
     (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
 
-(fact "Custom colours"
+(fact "Display - custom colours"
   (let [s (create! { :fg-colour :white :bg-colour :blue })]
     (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
 
-(fact "Custom styles"
-  (let [s (create! { :frames (:dot-spinner styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
+(fact "Display - custom styles"
+  (doall
+    (for [style (sort (keys styles))]
+      (do
+        (clojure.core/print (str "\n" (name style) ": "))
+        (flush)
+        (let [s (create! { :frames (style styles) })]
+          (do (start! s) (Thread/sleep 2000) (stop! s)))) => nil?)))
 
-  (let [s (create! { :frames (:up-and-down styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:fade-in-and-out styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:side-to-side styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:quadrants styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:arrows styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:pointing-fingers styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
-
-(fact "Leading message"
+(fact "Display - leading message"
   (clojure.core/print "\nSome kind of long running processing happens here... ")
+  (flush)
+  (doall
+    (for [style (sort (keys styles))]
+      (do
+        (let [s (create! { :frames (style styles) })]
+          (do (start! s) (Thread/sleep 1000) (stop! s)))) => nil?)))
 
-  (let [s (create! { :frames (:dot-spinner styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:up-and-down styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:fade-in-and-out styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:side-to-side styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:quadrants styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:arrows styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?
-
-  (let [s (create! { :frames (:pointing-fingers styles) })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
-
-(fact "Print messages"
+(fact "Display - print messages while a spinner is active"
   (do
     (print "\nReticulating splines... ")
     (flush)

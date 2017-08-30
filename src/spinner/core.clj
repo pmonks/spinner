@@ -20,21 +20,41 @@
   "Are we running on Windows?"
   (.startsWith (.toLowerCase ^String os-name) "windows"))
 
+(def default-style :ascii-spinner)
+
 (def styles
-  "A selection of predefined styles of spinner. Only :spinner is known to work reliably -
+  "A selection of predefined styles of spinner. Only ASCII spinners are known to work reliably -
    other styles depend on the operating system, terminal encoding, phase of the moon, and
    how long since your dog last pooped."
   {
-    :spinner          [\| \/ \- \\]
+    ; ASCII spinners are reliable across platforms
+    :ascii-spinner       [\| \/ \- \\]
+    :ascii-bouncing-ball [\. \o \O \° \O \o]
 
-    ; Unicode spinners are unreliable across platforms
-    :dot-spinner      [\⋮ \⋰ \⋯ \⋱]
-    :up-and-down      [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]
-    :fade-in-and-out  [\space \░ \▒ \▓ \█ \▓ \▒ \░]
-    :side-to-side     ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
-    :quadrants        ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
-    :arrows           [\↑ \→ \↓ \←]
-    :pointing-fingers ["👆" "👉" "👇" "👈"]
+    ; Unicode spinners are unreliable across platforms (especially Windows)
+    :box-up-down         [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]
+    :box-around          [\▖ \▘ \▝ \▗]
+    :box-fade            [\space \░ \▒ \▓ \█ \▓ \▒ \░]
+    :box-side-to-side    ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
+    :box-edges           ["▌" "▀" "▐" "▄"]
+    :line-quadrants      ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
+    :line-up-down        ["☱" "☲" "☴" "☲"]
+    :dot-spinner         [\⋮ \⋰ \⋯ \⋱]
+    :dot-waving          ["⢄" "⢂" "⢁" "⡁" "⡈" "⡐" "⡠" "⡐"  "⡈" "⡁" "⢁" "⢂"]
+    :dot-around          ["⢹" "⢺" "⢼" "⣸" "⣇" "⡧" "⡗" "⡏"]
+    :dot-gap-around      ["⣾" "⣽" "⣻" "⢿" "⡿" "⣟" "⣯" "⣷"]
+    :arrows              [\← \↖ \↑ \↗ \→ \↘ \↓ \↙]
+    :circle-halves       ["◐" "◓" "◑" "◒"]
+    :circle-quadrants    ["◴" "◷" "◶" "◵"]
+    :circle-up-down      ["◡" "⊙" "◠" "⊙"]
+    :square-quadrants    ["◰" "◳" "◲" "◱"]
+    :square-shrink       ["■" "□" "▪" "▫"]
+    :triangle-around     ["◢" "◣" "◤" "◥"]
+    :braille             ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
+    :pointing-fingers    ["👆" "👉" "👇" "👈"]
+    :clocks              ["🕐" "🕑" "🕒" "🕓" "🕔" "🕕" "🕖" "🕗" "🕘" "🕙" "🕚" "🕛"]
+    :earth-spinning      ["🌍" "🌎" "🌏"]
+    :moon-phases         ["🌑" "🌒" "🌓" "🌔" "🌕" "🌖" "🌗" "🌘"]
   })
 
 (defn- select-values
@@ -86,7 +106,7 @@
   ([options]
     (let [options     (if (nil? options) {} options)
           delay-in-ms (:delay options 100)
-          frames      (:frames options (:spinner styles))
+          frames      (:frames options (default-style styles))
           fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
           bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
           attribute   (:attribute options :default)]
@@ -123,7 +143,7 @@
 
    Optionally accepts an options map - supported options are:
    {
-     :frames - the frames (array of strings) to use for the spinner (default is (:spinner styles))
+     :frames - the frames (array of strings) to use for the spinner (default is (:ascii-spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
      :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
      :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
