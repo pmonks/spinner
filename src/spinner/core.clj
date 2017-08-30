@@ -20,7 +20,8 @@
   "Are we running on Windows?"
   (.startsWith (.toLowerCase ^String os-name) "windows"))
 
-(def default-style :ascii-spinner)
+(def default-style    :ascii-spinner)
+(def default-delay-ms 100)
 
 (def styles
   "A selection of predefined styles of spinner. Only ASCII spinners are known to work reliably -
@@ -37,19 +38,15 @@
     :box-fade            [\space \░ \▒ \▓ \█ \▓ \▒ \░]
     :box-side-to-side    ["▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉"]
     :box-edges           ["▌" "▀" "▐" "▄"]
-    :line-quadrants      ["┤" "┘" "┴" "└" "├" "┌" "┬" "┐"]
+    :line-quadrants      ["┘" "└" "┌" "┐"]
     :line-up-down        ["☱" "☲" "☴" "☲"]
     :dot-spinner         [\⋮ \⋰ \⋯ \⋱]
     :dot-waving          ["⢄" "⢂" "⢁" "⡁" "⡈" "⡐" "⡠" "⡐"  "⡈" "⡁" "⢁" "⢂"]
-    :dot-around          ["⢹" "⢺" "⢼" "⣸" "⣇" "⡧" "⡗" "⡏"]
-    :dot-gap-around      ["⣾" "⣽" "⣻" "⢿" "⡿" "⣟" "⣯" "⣷"]
+    :dot-around          ["⣷" "⣯" "⣟" "⡿" "⢿" "⣻" "⣽" "⣾"]
     :arrows              [\← \↖ \↑ \↗ \→ \↘ \↓ \↙]
     :circle-halves       ["◐" "◓" "◑" "◒"]
     :circle-quadrants    ["◴" "◷" "◶" "◵"]
-    :circle-up-down      ["◡" "⊙" "◠" "⊙"]
     :square-quadrants    ["◰" "◳" "◲" "◱"]
-    :square-shrink       ["■" "□" "▪" "▫"]
-    :triangle-around     ["◢" "◣" "◤" "◥"]
     :braille             ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
     :pointing-fingers    ["👆" "👉" "👇" "👈"]
     :clocks              ["🕐" "🕑" "🕒" "🕓" "🕔" "🕕" "🕖" "🕗" "🕘" "🕙" "🕚" "🕛"]
@@ -60,7 +57,8 @@
 (defn- select-values
   "Solution 3 from http://blog.jayfields.com/2011/01/clojure-select-keys-select-values-and.html"
   [map ks]
-  (remove nil? (reduce #(conj %1 (map %2)) [] ks)))
+  (if (and map ks)
+    (remove nil? (reduce #(conj %1 (map %2)) [] ks))))
 
 (defn- select-value-default
   "Selects the first value of ks in map, with default-value if none of ks were found."
@@ -104,8 +102,7 @@
 (defn- spinner
   ([] (spinner nil))
   ([options]
-    (let [options     (if (nil? options) {} options)
-          delay-in-ms (:delay options 100)
+    (let [delay-in-ms (:delay options default-delay-ms)
           frames      (:frames options (default-style styles))
           fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
           bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
