@@ -23,8 +23,8 @@
                          [lein-codox "0.10.3"]
                        ]
   :dependencies        [
-                         [org.clojure/clojure         "1.8.0"]
-                         [com.github.pmonks/jansi-clj "-SNAPSHOT"]  ; While awaiting merge of https://github.com/xsc/jansi-clj/pull/2
+                         [org.clojure/clojure      "1.8.0"]
+                         [com.github.xsc/jansi-clj "-SNAPSHOT"]  ; While awaiting a build containing https://github.com/xsc/jansi-clj/pull/2
                        ]
   :profiles            {:dev {:dependencies [
                                               [midje "1.8.3"]
