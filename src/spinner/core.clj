@@ -14,14 +14,17 @@
             [jansi-clj.core :as jansi])
   (:refer-clojure :exclude [print]))
 
-(def ^:private os-name (System/getProperty "os.name"))
-
 (def is-windows?
-  "Are we running on Windows?"
-  (.startsWith (.toLowerCase ^String os-name) "windows"))
+  "Are we running on Windows?  If so, best to stick to the default spinner style. 😢"
+  (s/starts-with? (s/lower-case (System/getProperty "os.name")) "windows"))
 
-(def default-style    :ascii-spinner)
-(def default-delay-ms 100)
+(def default-style
+  "The default spinner style used, if one isn't specified.  This is known to function on all platforms."
+  :ascii-spinner)
+
+(def default-delay-ms
+  "The default delay between frames (in milliseconds), if one isn't specified."
+  100)
 
 (def styles
   "A selection of predefined styles of spinner. Only ASCII spinners are known to work reliably -
@@ -47,7 +50,8 @@
     :circle-halves       ["◐" "◓" "◑" "◒"]
     :circle-quadrants    ["◴" "◷" "◶" "◵"]
     :square-quadrants    ["◰" "◳" "◲" "◱"]
-    :braille             ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
+;    :braille             ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
+    :braille             ["⠋" "⠙" "⠸" "⠴" "⠦" "⠇"]
     :pointing-fingers    ["👆" "👉" "👇" "👈"]
     :clocks              ["🕐" "🕑" "🕒" "🕓" "🕔" "🕕" "🕖" "🕗" "🕘" "🕙" "🕚" "🕛"]
     :earth-spinning      ["🌍" "🌎" "🌏"]
@@ -67,19 +71,6 @@
     (if (nil? value)
       default-value
       value)))
-
-(def ^:private console-charset (java.nio.charset.Charset/forName
-                                 (.getEncoding (java.io.OutputStreamWriter. System/out))))
-
-(defn- byte-length-in-charset
-  "Returns the byte length of s, in charset cs."
-  [^String s ^java.nio.charset.Charset cs]
-  (count (.getBytes s cs)))
-
-(defn- console-byte-length
-  "Returns the byte length of s, in the charset of the console."
-  [^String s]
-  (byte-length-in-charset s console-charset))
 
 (def ^:private pending-messages (atom ""))
 
@@ -198,7 +189,7 @@
    * will only produce output if a spinner is active
    * output is emitted in between 'frames' of the spinner, so may not appear immediately
    * values are space delimited (as in clojure.core/print) - use clojure.core/str for finer control
-   * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \newline in the value(s)"
+   * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \\newline in the value(s)"
   [& more]
   (swap! pending-messages str (s/join \space more))
   nil)
