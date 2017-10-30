@@ -2,7 +2,8 @@ language: clojure
 sudo: false
 jdk:
   - oraclejdk8
-lein: 2.7.1
+  - oraclejdk9
+lein: 2.8.1
 
 env:
   global:
