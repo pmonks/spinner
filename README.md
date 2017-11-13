@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/pmonks/spinner.svg?branch=master)](https://travis-ci.org/pmonks/spinner)
 [![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues)
 [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/master/LICENSE)
-[![Dependencies Status](http://jarkeeper.com/pmonks/spinner/status.svg)](http://jarkeeper.com/pmonks/spinner)
+[![Dependencies Status](https://versions.deps.co/pmonks/spinner/status.svg)](https://versions.deps.co/pmonks/spinner)
 
 # spinner
 
