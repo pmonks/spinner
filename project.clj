@@ -14,7 +14,7 @@
   :url                 "https://github.com/pmonks/spinner"
   :license             {:name "Eclipse Public License"
                         :url  "http://www.eclipse.org/legal/epl-v10.html"}
-  :min-lein-version    "2.7.0"
+  :min-lein-version    "2.8.1"
   :repositories        [
                          ["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
                          ["jitpack"            {:url "https://jitpack.io"                             :snapshots true}]
@@ -23,11 +23,11 @@
                          [lein-codox "0.10.3"]
                        ]
   :dependencies        [
-                         [org.clojure/clojure "1.8.0"]
+                         [org.clojure/clojure "1.9.0"]
                          [jansi-clj           "0.1.1"]
                        ]
   :profiles            {:dev {:dependencies [
-                                              [midje "1.8.3"]
+                                              [midje "1.9.1"]
                                             ]
                               :plugins      [[lein-midje "3.2.1"]]}   ; Don't remove this or travis-ci will assplode!
                         :uberjar {:aot :all}}
