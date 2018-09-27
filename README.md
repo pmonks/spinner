@@ -62,4 +62,4 @@ Require it in your application:
 
 Copyright © 2014 Peter Monks (pmonks@gmail.com)
 
-Distributed under the [Eclipse Public License](http://www.eclipse.org/legal/epl-v10.html) either version 1.0 or (at your option) any later version.
+Distributed under the [Eclipse Public License](http://www.eclipse.org/legal/epl-v20.html) either version 2.0 or (at your option) any later version.

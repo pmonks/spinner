@@ -1,10 +1,10 @@
 ;
-; Copyright © 2014-2017 Peter Monks (pmonks@gmail.com)
+; Copyright © 2014 Peter Monks (pmonks@gmail.com)
 ;
 ; All rights reserved. This program and the accompanying materials
-; are made available under the terms of the Eclipse Public License v1.0
+; are made available under the terms of the Eclipse Public License v2.0
 ; which accompanies this distribution, and is available at
-; http://www.eclipse.org/legal/epl-v10.html
+; http://www.eclipse.org/legal/epl-v20.html
 ;
 ; Contributors:
 ;    Peter Monks - initial implementation

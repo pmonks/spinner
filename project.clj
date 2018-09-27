@@ -1,10 +1,10 @@
 ;
-; Copyright © 2014-2017 Peter Monks (pmonks@gmail.com)
+; Copyright © 2014 Peter Monks (pmonks@gmail.com)
 ;
 ; All rights reserved. This program and the accompanying materials
-; are made available under the terms of the Eclipse Public License v1.0
+; are made available under the terms of the Eclipse Public License v2.0
 ; which accompanies this distribution, and is available at
-; http://www.eclipse.org/legal/epl-v10.html
+; http://www.eclipse.org/legal/epl-v20.html
 ;
 ; Contributors:
 ;    Peter Monks - initial implementation
@@ -12,8 +12,9 @@
 (defproject org.clojars.pmonks/spinner "0.5.0-SNAPSHOT"
   :description         "Simple text spinner for command line Clojure apps."
   :url                 "https://github.com/pmonks/spinner"
-  :license             {:name "Eclipse Public License"
-                        :url  "http://www.eclipse.org/legal/epl-v10.html"}
+  :license             {:spdx-license-identifier "EPL-2.0"
+                        :name                    "Eclipse Public License 2.0"
+                        :url                     "http://www.eclipse.org/legal/epl-v20.html"}
   :min-lein-version    "2.8.1"
   :repositories        [
                          ["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
