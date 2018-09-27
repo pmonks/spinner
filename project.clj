@@ -16,31 +16,24 @@
                         :name                    "Eclipse Public License 2.0"
                         :url                     "http://www.eclipse.org/legal/epl-v20.html"}
   :min-lein-version    "2.8.1"
-  :repositories        [
-                         ["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
-                         ["jitpack"            {:url "https://jitpack.io"                             :snapshots true}]
-                       ]
-  :plugins             [
-                         [lein-codox "0.10.3"]
-                       ]
-  :dependencies        [
-                         [org.clojure/clojure "1.9.0"]
-                         [jansi-clj           "0.1.1"]
-                       ]
-  :profiles            {:dev {:dependencies [
-                                              [midje "1.9.1"]
-                                            ]
-                              :plugins      [[lein-midje "3.2.1"]]}   ; Don't remove this or travis-ci will assplode!
-                        :uberjar {:aot :all}}
-  :deploy-repositories [
-                         ["snapshots" {:url      "https://clojars.org/repo"
-                                       :username :env/clojars_username
-                                       :password :env/clojars_password}]
-                         ["releases"  {:url      "https://clojars.org/repo"
-                                       :username :env/clojars_username
-                                       :password :env/clojars_password}]
-                       ]
-  :codox               {
-                         :source-uri "https://github.com/pmonks/spinner/blob/master/{filepath}#L{line}"
-                       }
-  )
+  :repositories        [["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
+                        ["jitpack"            {:url "https://jitpack.io"}]]
+  :plugins             [[lein-codox "0.10.3"]]
+  :dependencies        [[org.clojure/clojure "1.9.0"]
+                        [jansi-clj           "0.1.1"]]
+  :profiles            {:dev  {:dependencies [[midje         "1.9.2"]]
+                               :plugins      [[lein-licenses "0.2.2"]
+                                              [lein-midje    "3.2.1"]]}
+                        :1.5  {:dependencies [[org.clojure/clojure "1.5.1"]]}
+                        :1.6  {:dependencies [[org.clojure/clojure "1.6.0"]]}
+                        :1.7  {:dependencies [[org.clojure/clojure "1.7.0"]]}
+                        :1.8  {:dependencies [[org.clojure/clojure "1.8.0"]]}
+                        :1.9  {:dependencies [[org.clojure/clojure "1.9.0"]]}
+                        :1.10 {:dependencies [[org.clojure/clojure "1.10.0-master-SNAPSHOT"]]}}
+  :deploy-repositories [["snapshots" {:url      "https://clojars.org/repo"
+                                      :username :env/clojars_username
+                                      :password :env/clojars_password}]
+                        ["releases"  {:url      "https://clojars.org/repo"
+                                      :username :env/clojars_username
+                                      :password :env/clojars_password}]]
+  :codox               {:source-uri "https://github.com/pmonks/spinner/blob/master/{filepath}#L{line}"})
