@@ -14,6 +14,8 @@
             [midje.sweet     :refer :all]
             [spinner.core    :refer :all]))
 
+(println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version"))
+
 (fact "Creation"
   (create!) => truthy)
 
