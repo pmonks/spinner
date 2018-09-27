@@ -16,7 +16,7 @@
 
 (def is-windows?
   "Are we running on Windows?  If so, best to stick to the default spinner style. 😢"
-  (s/starts-with? (s/lower-case (System/getProperty "os.name")) "windows"))
+  (.startsWith ^String (s/lower-case (System/getProperty "os.name")) "windows"))
 
 (def default-style
   "The default spinner style used, if one isn't specified.  This is known to function on all platforms."
