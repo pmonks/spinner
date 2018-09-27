@@ -68,7 +68,7 @@ spinner is [tested on](https://travis-ci.com/pmonks/spinner):
 
 <sup>2</sup> Midje (used for unit testing) only supports Clojure v1.7 and up
 
-<sup>3</sup> Clojure doesn't yet support JVM v11 (see [CLJ-2374](https://dev.clojure.org/jira/browse/CLJ-2374)) - automated unit testing on JVM v11 is configured, but this configuration is currently failing
+<sup>3</sup> Clojure doesn't yet support JVM v11 (see [CLJ-2374](https://dev.clojure.org/jira/browse/CLJ-2374)) - automated unit testing on JVM v11 is configured, but this configuration is currently causing the build to fail
 
 <sup>4</sup> Clojure v1.10 only supports JVM v1.8 and up
 
