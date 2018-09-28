@@ -18,7 +18,7 @@
   :min-lein-version    "2.8.1"
   :repositories        [["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
                         ["jitpack"            {:url "https://jitpack.io"}]]
-  :plugins             [[lein-codox "0.10.3"]]
+  :plugins             [[lein-codox "0.10.4"]]
   :dependencies        [[org.clojure/clojure "1.9.0"]
                         [jansi-clj           "0.1.1"]]
   :profiles            {:dev  {:dependencies [[midje         "1.9.2"]]
