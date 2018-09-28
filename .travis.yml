@@ -22,7 +22,7 @@ script:
   - if [[ $JAVA_HOME != *java-7* ]]; then export PROFILES=${PROFILES}:+1.10; fi
   - lein with-profile ${PROFILES} do version, check, midje
 
-# Note: should use JDK 11 (LTS) for deployments, but it's not yet functional (https://dev.clojure.org/jira/browse/CLJ-2374)
+# Note: should use JDK 11 (LTS) for deployments, but Midje isn't yet functional on it (https://github.com/marick/lein-midje/issues/66)
 deploy:
   # Deploy binaries to Clojars
   - provider: script
