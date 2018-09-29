@@ -18,11 +18,10 @@ env:
     - secure: "aTiUUQ4grdToG4s3RBO/b3+jdGPfqoDQBsZqEH8c4dQqEZiOaSeU59h9ik+4qmvrHP+BYlD1PdjOVeMxiZpZDL7/L0nUlhxjzYHlnB9csTpQuV+PbKQIiv5W4viqm4ESAW/k0lXDsAHwiGOu5XafCpPLzUBIPYxP01Y+nYNdDzT6Sd9JyLUTT7ynJujBvCdP0B7p83N2VQ9PZOL7p3lb0YeXjMNWBNtbqFwiUyE9Dyt5O09DQVkNRbzss6jL0rm1lTS/TlbuXoAo6zj2mIxi0ycRZi4AuHcAqq2A+PqC2WCT/uw9ue5qyVzqlnzBtLgPEYRrE/sKb1iiSxlz4YlwpbKg8Yf9AS7hntkW2Zj6vuAM5APS8AiJhsKqa9f31IgdtwnY6sytgXJ4uAXskWNAAzSYoiTBjJ+n2VC5uatSKSSWRZX0xlPDVkOqo35CQma7Xwnri2tGIT0A+3xYPzI0p3/fB0ChGBMzvYrKcMnv/prYJebCOhCN+fn2Q4IXQ7Q0MOFTtvuAZAkoyqiPWi/NGAml/JM8pruNZMPAurZEpXkf+XKlXZaF1kLGNE99ujAeBiYjiR/g23pt8Hb/tGOCKWElsNdj4ny2XoYYZtBNNM3297DrEyP0MrbL9VYHrrb/Szi1TcGTuF6H6EhjzxwtsGsntyG4mXcxg8HnkUjx1xI="
 
 script:
-  - export PROFILES=+1.7:+1.8:+1.9
+  - export PROFILES=+1.5:+1.6:+1.7:+1.8:+1.9
   - if [[ $JAVA_HOME != *java-7* ]]; then export PROFILES=${PROFILES}:+1.10; fi
-  - lein with-profile ${PROFILES} do version, check, midje
+  - lein with-profile ${PROFILES} do version, check, test
 
-# Note: should use JDK 11 (LTS) for deployments, but Midje isn't yet functional on it (https://github.com/marick/lein-midje/issues/66)
 deploy:
   # Deploy binaries to Clojars
   - provider: script
@@ -30,14 +29,14 @@ deploy:
     script: lein deploy
     on:
       branch: master
-      jdk: oraclejdk8
+      jdk: oraclejdk11
   # Generate documentation
   - provider: script
     skip_cleanup: true
     script: lein codox
     on:
       branch: master
-      jdk: oraclejdk8
+      jdk: oraclejdk11
   # Deploy documentation
   - provider: pages
     skip_cleanup: true
@@ -47,4 +46,4 @@ deploy:
     local_dir: target/doc
     on:
       branch: master
-      jdk: oraclejdk8
+      jdk: oraclejdk11

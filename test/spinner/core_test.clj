@@ -11,59 +11,61 @@
 
 (ns spinner.core-test
   (:require [clojure.java.io :as    io]
-            [midje.sweet     :refer :all]
+            [clojure.test    :refer :all]
             [spinner.core    :refer :all]))
 
 (println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version"))
 
-(fact "Creation"
-  (create!) => truthy)
+(deftest spinner-tests
+  (testing "Creation"
+    (is (create!)))
 
-(fact "Start and stop"
-  (let [s (create!)]
-    (do (start! s) (stop! s))) => nil?)
+  (testing "Start and stop"
+    (let [s (create!)]
+      (is (= (do (start! s) (stop! s)) nil))))
 
-(fact "Display - default spinner"
-  (let [s (create!)]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
+  (testing "Display - default spinner"
+    (let [s (create!)]
+      (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil))))
 
-(fact "Display - custom colours"
-  (let [s (create! { :fg-colour :white :bg-colour :blue })]
-    (do (start! s) (Thread/sleep 1000) (stop! s))) => nil?)
+  (testing "Display - custom colours"
+    (let [s (create! { :fg-colour :white :bg-colour :blue })]
+      (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil))))
 
-(fact "Display - custom styles"
-  (doall
-    (for [style (sort (keys styles))]
-      (do
-        (clojure.core/print (str "\n" (name style) ": "))
-        (flush)
-        (let [s (create! { :frames (style styles) })]
-          (do (start! s) (Thread/sleep 2000) (stop! s)))) => nil?)))
+  (testing "Display - custom styles"
+    (doall
+      (for [style (sort (keys styles))]
+        (do
+          (clojure.core/print (str "\n" (name style) ": "))
+          (flush)
+          (let [s (create! { :frames (style styles) })]
+            (is (= (do (start! s) (Thread/sleep 2000) (stop! s)) nil)))))))
 
-(fact "Display - leading message"
-  (clojure.core/print "\nSome kind of long running processing happens here... ")
-  (flush)
-  (doall
-    (for [style (sort (keys styles))]
-      (do
-        (let [s (create! { :frames (style styles) })]
-          (do (start! s) (Thread/sleep 1000) (stop! s)))) => nil?)))
-
-(fact "Display - print messages while a spinner is active"
-  (do
-    (print "\nReticulating splines... ")
+  (testing "Display - leading message"
+    (clojure.core/print "\nSome kind of long running processing happens here... ")
     (flush)
-    (let [s (create-and-start! { :fg-colour :white :bg-colour :blue })]
-      (Thread/sleep 500)
-      (print "\nInserting sublimated messages... ")
-      (Thread/sleep 500)
-      (print "\nAttempting to lock back buffer... ")
-      (Thread/sleep 500)
-      (print "\nTime-compressing simulator clock... ")
-      (Thread/sleep 500)
-      (print "\nLecturing errant subsystems... ")
-      (Thread/sleep 500)
-      (print "\nRetracting Phong shader... ")
-      (Thread/sleep 500)
-      (stop! s)
-      (println))) => nil?)
+    (doall
+      (for [style (sort (keys styles))]
+        (do
+          (let [s (create! { :frames (style styles) })]
+            (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil)))))))
+
+  (testing "Display - print messages while a spinner is active"
+    (is (= (do
+             (print "\nReticulating splines... ")
+             (flush)
+             (let [s (create-and-start! { :fg-colour :white :bg-colour :blue })]
+               (Thread/sleep 500)
+               (print "\nInserting sublimated messages... ")
+               (Thread/sleep 500)
+               (print "\nAttempting to lock back buffer... ")
+               (Thread/sleep 500)
+               (print "\nTime-compressing simulator clock... ")
+               (Thread/sleep 500)
+               (print "\nLecturing errant subsystems... ")
+               (Thread/sleep 500)
+               (print "\nRetracting Phong shader... ")
+               (Thread/sleep 500)
+               (stop! s)
+               (println)))
+           nil))))

@@ -56,21 +56,21 @@ Require it in your application:
 
 spinner is [tested on](https://travis-ci.com/pmonks/spinner):
 
-|                | JVM v1.6         | JVM v1.7       | JVM v1.8        | JVM v9         | JVM v10        | JVM v11          |
-|           ---: |  :---:           |  :---:         |  :---:          |  :---:         |  :---:         |  :---:           |
-| Clojure 1.6.0  | ❌<sup>1,2</sup> | ❌<sup>2</sup> | ❌<sup>2</sup> | ❌<sup>2</sup> | ❌<sup>2</sup> | ❌<sup>2,3</sup> |
-| Clojure 1.7.0  | ❌<sup>1</sup>   | ✅             | ✅             | ✅             | ✅             | ✅<sup>3</sup>   |
-| Clojure 1.8.0  | ❌<sup>1</sup>   | ✅             | ✅             | ✅             | ✅             | ✅<sup>3</sup>   |
-| Clojure 1.9.0  | ❌<sup>1</sup>   | ✅             | ✅             | ✅             | ✅             | ✅<sup>3</sup>   |
-| Clojure 1.10.0 | ❌<sup>1,4</sup> | ❌<sup>4</sup> | ✅             | ✅             | ✅             | ✅<sup>3</sup>   |
+|                           | JVM v1.6         | JVM v1.7       | JVM v1.8        | JVM v9         | JVM v10        | JVM v11         |
+|                      ---: |  :---:           |  :---:         |  :---:          |  :---:         |  :---:         |  :---:          |
+| Clojure 1.4.0             | ❌<sup>1,2</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> |
+| Clojure 1.5.1             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.6.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.7.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.8.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.9.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.10.0 (snapshot) | ❌<sup>2,3</sup> | ❌<sup>3</sup> | ✅             | ✅             | ✅             | ✅             |
 
-<sup>1</sup> Leiningen v2.8 only supports JVM v1.7 and up
+<sup>1</sup> I chose to only go back as far as Clojure v1.5.1.  If anyone needs this on older versions, PRs are welcome!
 
-<sup>2</sup> Midje (used for unit testing) only supports Clojure v1.7 and up
+<sup>2</sup> Leiningen v2.8 only supports JVM v1.7 and up
 
-<sup>3</sup> Midje (used for unit testing) doesn't function on JVM v11 yet, due to a bug in one of its dependencies (see [CRRBV-18](https://dev.clojure.org/jira/browse/CRRBV-18)) - automated unit testing on JVM v11 is configured, but this configuration is currently causing the build to fail
-
-<sup>4</sup> Clojure v1.10 only supports JVM v1.8 and up
+<sup>3</sup> Clojure v1.10 only supports JVM v1.8 and up
 
 ## Developer Information
 
