@@ -31,6 +31,21 @@ The latest version is:
 
 [![version](https://clojars.org/org.clojars.pmonks/spinner/latest-version.svg)](https://clojars.org/org.clojars.pmonks/spinner)
 
+### Trying it Out
+Alternatively, you may prefer to kick the library's tyres without creating a project.  This is a snap with the awesome [`lein try` plugin](https://github.com/rkneufeld/lein-try):
+
+```shell
+$ lein try org.clojars.pmonks/spinner
+```
+
+Or, if you have done a `brew install clojure`, you can simply
+
+```shell
+$ clj -Sdeps '{:deps {org.clojars.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number
+```
+
+Either way, you will be dropped in a REPL with the library downloaded and ready for use.
+
 ## Usage
 
 The spinner functionality is provided by the `spinner.core` namespace.
@@ -48,7 +63,7 @@ Require it in your application:
   (:require [spinner.core :as spin]))
 ```
 
-**Important Note:** your REPL must be run in a trampoline (`lein trampoline repl`) in order for ANSI escape sequences to be available.
+**Important Note:** if you're using leiningen, your REPL must be run in a trampoline (`lein trampoline repl`) in order for ANSI escape sequences to be available.
 
 [The API documentation](https://pmonks.github.io/spinner/) has full details on the functionality provided by the library, and [the unit tests](https://github.com/pmonks/spinner/blob/master/test/spinner/core_test.clj) have several examples of usage.
 
