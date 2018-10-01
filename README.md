@@ -19,26 +19,18 @@ Here it is in action (from the unit tests):
 
 ## Installation
 
-spinner is available as a Maven artifact from [Clojars](https://clojars.org/org.clojars.pmonks/spinner).
-Plonk the following in your project.clj :dependencies, substitute "#.#.#" for the latest version number,
-`lein deps` and you should be good to go:
-
-```clojure
-[org.clojars.pmonks/spinner "#.#.#"]
-```
-
-The latest version is:
+spinner is available as a Maven artifact from [Clojars](https://clojars.org/org.clojars.pmonks/spinner).  The latest version is:
 
 [![version](https://clojars.org/org.clojars.pmonks/spinner/latest-version.svg)](https://clojars.org/org.clojars.pmonks/spinner)
 
 ### Trying it Out
-Alternatively, you may prefer to kick the library's tyres without creating a project.  This is a snap with the awesome [`lein try` plugin](https://github.com/rkneufeld/lein-try):
+If you prefer to kick the library's tyres without creating a project, you can use the [`lein try` plugin](https://github.com/rkneufeld/lein-try):
 
 ```shell
-$ lein try org.clojars.pmonks/spinner
+$ lein trampoline try org.clojars.pmonks/spinner   # See note below regarding use of 'lein trampoline'
 ```
 
-Or (as of v0.5.0), if you have done a `brew install clojure` you can simply
+or (as of v0.5.0), if you have installed the [Clojure CLI tools](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools):
 
 ```shell
 $ clj -Sdeps '{:deps {org.clojars.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number >= 0.5.0
