@@ -38,10 +38,10 @@ Alternatively, you may prefer to kick the library's tyres without creating a pro
 $ lein try org.clojars.pmonks/spinner
 ```
 
-Or, if you have done a `brew install clojure`, you can simply
+Or (as of v0.5.0), if you have done a `brew install clojure` you can simply
 
 ```shell
-$ clj -Sdeps '{:deps {org.clojars.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number
+$ clj -Sdeps '{:deps {org.clojars.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number >= 0.5.0
 ```
 
 Either way, you will be dropped in a REPL with the library downloaded and ready for use.
