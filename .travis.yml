@@ -29,14 +29,14 @@ deploy:
     script: lein deploy
     on:
       branch: master
-      jdk: oraclejdk11
+      jdk: openjdk11
   # Generate documentation
   - provider: script
     skip_cleanup: true
     script: lein codox
     on:
       branch: master
-      jdk: oraclejdk11
+      jdk: openjdk11
   # Deploy documentation
   - provider: pages
     skip_cleanup: true
@@ -46,4 +46,4 @@ deploy:
     local_dir: target/doc
     on:
       branch: master
-      jdk: oraclejdk11
+      jdk: openjdk11
