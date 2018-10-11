@@ -14,7 +14,7 @@
             [clojure.test    :refer :all]
             [spinner.core    :refer :all]))
 
-(println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version"))
+(println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
 
 (deftest spinner-tests
   (testing "Creation"
