@@ -6,7 +6,7 @@ jdk:
   - oraclejdk8
   - oraclejdk9
   - oraclejdk10
-  - oraclejdk11
+  - openjdk11   # Don't fall for Oracle's trick: https://blog.joda.org/2018/09/do-not-fall-into-oracles-java-11-trap.html
 
 env:
   global:
