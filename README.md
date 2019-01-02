@@ -63,15 +63,15 @@ Require it in your application:
 
 spinner is [tested on](https://travis-ci.com/pmonks/spinner):
 
-|                           | JVM v1.6         | JVM v1.7       | JVM v1.8        | JVM v9         | JVM v10        | JVM v11         |
-|                      ---: |  :---:           |  :---:         |  :---:          |  :---:         |  :---:         |  :---:          |
-| Clojure 1.4.0             | ❌<sup>1,2</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> |
-| Clojure 1.5.1             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
-| Clojure 1.6.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
-| Clojure 1.7.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
-| Clojure 1.8.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
-| Clojure 1.9.0             | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
-| Clojure 1.10.0 (snapshot) | ❌<sup>2,3</sup> | ❌<sup>3</sup> | ✅             | ✅             | ✅             | ✅             |
+|                | JVM v1.6         | JVM v1.7       | JVM v1.8        | JVM v9         | JVM v10        | JVM v11         |
+|           ---: |  :---:           |  :---:         |  :---:          |  :---:         |  :---:         |  :---:          |
+| Clojure 1.4.0  | ❌<sup>1,2</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> |
+| Clojure 1.5.1  | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.6.0  | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.7.0  | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.8.0  | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.9.0  | ❌<sup>2</sup>   | ✅             | ✅             | ✅             | ✅             | ✅             |
+| Clojure 1.10.0 | ❌<sup>2,3</sup> | ❌<sup>3</sup> | ✅             | ✅             | ✅             | ✅             |
 
 <sup>1</sup> I chose to only go back as far as Clojure v1.5.1.  If anyone needs this on older versions, PRs are welcome!
 
