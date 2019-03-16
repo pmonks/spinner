@@ -9,9 +9,9 @@
 ; Contributors:
 ;    Peter Monks - initial implementation
 
-(defproject org.clojars.pmonks/spinner "0.6.0-SNAPSHOT"
+(defproject clj-commons/spinner "0.6.0-SNAPSHOT"
   :description         "Simple text spinner for command line Clojure apps."
-  :url                 "https://github.com/pmonks/spinner"
+  :url                 "https://github.com/clj-commons/spinner"
   :license             {:spdx-license-identifier "EPL-2.0"
                         :name                    "Eclipse Public License 2.0"
                         :url                     "http://www.eclipse.org/legal/epl-v20.html"}
@@ -34,4 +34,4 @@
                         ["releases"  {:url      "https://clojars.org/repo"
                                       :username :env/clojars_username
                                       :password :env/clojars_password}]]
-  :codox               {:source-uri "https://github.com/pmonks/spinner/blob/master/{filepath}#L{line}"})
+  :codox               {:source-uri "https://github.com/clj-commons/spinner/blob/master/{filepath}#L{line}"})

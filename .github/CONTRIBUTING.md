@@ -16,12 +16,12 @@ By submitting a contribution to the spinner project you agree to the above state
 
 ## Prerequisites
 
-* [ ] Have you [searched for duplicates](https://github.com/pmonks/spinner/issues?utf8=%E2%9C%93&q=)?  A simple search for exception error messages or a summary of the unexpected behaviour should suffice.
+* [ ] Have you [searched for duplicates](https://github.com/clj-commons/spinner/issues?utf8=%E2%9C%93&q=)?  A simple search for exception error messages or a summary of the unexpected behaviour should suffice.
 * [ ] Are you running the latest version?
 * [ ] Are you sure this is a bug or missing capability?
 
 ## Raising an Issue
-* Create your issue [here](https://github.com/pmonks/spinner/issues/new).
+* Create your issue [here](https://github.com/clj-commons/spinner/issues/new).
 * New issues contain two templates in the description: bug report and enhancement request. Please pick the most appropriate for your issue, **then delete the other**.
   * Please also tag the new issue with either "Bug" or "Enhancement".
 * Please use [Markdown formatting](https://help.github.com/categories/writing-on-github/)

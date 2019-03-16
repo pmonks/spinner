@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.com/pmonks/spinner.svg?branch=master)](https://travis-ci.com/pmonks/spinner)
-[![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues)
-[![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/master/LICENSE)
-[![Dependencies Status](https://versions.deps.co/pmonks/spinner/status.svg)](https://versions.deps.co/pmonks/spinner)
+[![Build Status](https://travis-ci.com/clj-commons/spinner.svg?branch=master)](https://travis-ci.com/clj-commons/spinner)
+[![Open Issues](https://img.shields.io/github/issues/clj-commons/spinner.svg)](https://github.com/clj-commons/spinner/issues)
+[![License](https://img.shields.io/github/license/clj-commons/spinner.svg)](https://github.com/clj-commons/spinner/blob/master/LICENSE)
+[![Dependencies Status](https://versions.deps.co/clj-commons/spinner/status.svg)](https://versions.deps.co/clj-commons/spinner)
 
 # spinner
 
@@ -14,26 +14,28 @@ Supports output of additional messages while a spinner is active.
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img alt="spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/master/spinner-demo.gif"/>
+  <img alt="spinner example screenshot" src="https://raw.githubusercontent.com/clj-commons/spinner/master/spinner-demo.gif"/>
 </p>
+
+As you can see, using Unicode characters in spinners may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
 
 ## Installation
 
-spinner is available as a Maven artifact from [Clojars](https://clojars.org/org.clojars.pmonks/spinner).  The latest version is:
+spinner is available as a Maven artifact from [Clojars](https://clojars.org/clj-commons/spinner).  The latest version is:
 
-[![version](https://clojars.org/org.clojars.pmonks/spinner/latest-version.svg)](https://clojars.org/org.clojars.pmonks/spinner)
+[![version](https://clojars.org/clj-commons/spinner/latest-version.svg)](https://clojars.org/clj-commons/spinner)
 
 ### Trying it Out
 If you prefer to kick the library's tyres without creating a project, you can use the [`lein try` plugin](https://github.com/rkneufeld/lein-try):
 
 ```shell
-$ lein trampoline try org.clojars.pmonks/spinner   # See note below regarding use of 'lein trampoline'
+$ lein trampoline try clj-commons/spinner   # See note below regarding use of 'lein trampoline'
 ```
 
 or (as of v0.5.0), if you have installed the [Clojure CLI tools](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools):
 
 ```shell
-$ clj -Sdeps '{:deps {org.clojars.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number >= 0.5.0
+$ clj -Sdeps '{:deps {clj-commons/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number >= 0.5.0
 ```
 
 Either way, you will be dropped in a REPL with the library downloaded and ready for use.
@@ -57,11 +59,11 @@ Require it in your application:
 
 **Important Note:** if you're using leiningen, your REPL must be run in a trampoline (`lein trampoline repl`) in order for ANSI escape sequences to be available.
 
-[The API documentation](https://pmonks.github.io/spinner/) has full details on the functionality provided by the library, and [the unit tests](https://github.com/pmonks/spinner/blob/master/test/spinner/core_test.clj) have several examples of usage.
+[The API documentation](https://clj-commons.github.io/spinner/) has full details on the functionality provided by the library, and [the unit tests](https://github.com/clj-commons/spinner/blob/master/test/spinner/core_test.clj) have several examples of usage.
 
 ## Tested Versions
 
-spinner is [tested on](https://travis-ci.com/pmonks/spinner):
+spinner is [tested on](https://travis-ci.com/clj-commons/spinner):
 
 |                | JVM v1.6         | JVM v1.7       | JVM v1.8        | JVM v9         | JVM v10        | JVM v11         |
 |           ---: |  :---:           |  :---:         |  :---:          |  :---:         |  :---:         |  :---:          |
@@ -81,9 +83,9 @@ spinner is [tested on](https://travis-ci.com/pmonks/spinner):
 
 ## Developer Information
 
-[GitHub project](https://github.com/pmonks/spinner)
+[GitHub project](https://github.com/clj-commons/spinner)
 
-[Bug Tracker](https://github.com/pmonks/spinner/issues)
+[Bug Tracker](https://github.com/clj-commons/spinner/issues)
 
 ## License
 
