@@ -9,7 +9,7 @@
 ; Contributors:
 ;    Peter Monks - initial implementation
 
-(defproject clj-commons/spinner "0.6.0"
+(defproject clj-commons/spinner "0.7.0-SNAPSHOT"
   :description         "Simple text spinner for command line Clojure apps."
   :url                 "https://github.com/clj-commons/spinner"
   :license             {:spdx-license-identifier "EPL-2.0"
