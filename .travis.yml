@@ -1,12 +1,13 @@
 sudo: false
 language: clojure
 lein: 2.8.1
+dist: trusty   # Because Travis CI's support for older versions of Java on newer distros is *garbage*
 jdk:
   - openjdk7
   - oraclejdk8
-  - oraclejdk9
-  - openjdk10
-  - openjdk11   # Don't fall for Oracle's trick: https://blog.joda.org/2018/09/do-not-fall-into-oracles-java-11-trap.html
+#  - oraclejdk9   # Removed as it slows down the build and is poorly supported by Travis CI
+#  - openjdk10    # Removed as it slows down the build and is poorly supported by Travis CI
+  - openjdk11     # Don't fall for Oracle's trick: https://blog.joda.org/2018/09/do-not-fall-into-oracles-java-11-trap.html
 
 env:
   global:
