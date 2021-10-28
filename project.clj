@@ -19,7 +19,7 @@
   :repositories        [["sonatype-snapshots" {:url "https://oss.sonatype.org/content/groups/public" :snapshots true}]
                         ["jitpack"            {:url "https://jitpack.io"}]]
   :dependencies        [[org.clojure/clojure "1.10.3"]
-                        [jansi-clj           "0.1.1"]]
+                        [jansi-clj           "1.0.0"]]
   :profiles            {:dev  {:plugins      [[lein-licenses "0.2.2"]
                                               [lein-codox    "0.10.7"]]}
                         :1.5  {:dependencies [[org.clojure/clojure "1.5.1"]]}
