@@ -1,13 +1,20 @@
 ;
-; Copyright © 2014 Peter Monks (pmonks@gmail.com)
+; Copyright © 2014 Peter Monks
 ;
-; All rights reserved. This program and the accompanying materials
-; are made available under the terms of the Eclipse Public License v2.0
-; which accompanies this distribution, and is available at
-; http://www.eclipse.org/legal/epl-v20.html
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
 ;
-; Contributors:
-;    Peter Monks - initial implementation
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
+; SPDX-License-Identifier: Apache-2.0
+;
 
 (ns spinner.core
   (:require [clojure.string :as s]
@@ -59,14 +66,14 @@
 
 (defn- select-values
   "Solution 3 from http://blog.jayfields.com/2011/01/clojure-select-keys-select-values-and.html"
-  [map ks]
-  (if (and map ks)
-    (remove nil? (reduce #(conj %1 (map %2)) [] ks))))
+  [m ks]
+  (when (and m ks)
+    (remove nil? (reduce #(conj %1 (m %2)) [] ks))))
 
 (defn- select-value-default
-  "Selects the first value of ks in map, with default-value if none of ks were found."
-  [map ks default-value]
-  (let [value (first (select-values map ks))]
+  "Selects the first value of ks in m, with default-value if none of ks were found."
+  [m ks default-value]
+  (let [value (first (select-values m ks))]
     (if (nil? value)
       default-value
       value)))
@@ -105,16 +112,16 @@
                                    " "))
           (flush)
           (Thread/sleep delay-in-ms)
-          (clojure.core/print (str (jansi/cursor-left 2)
+          (clojure.core/print (str (jansi/cursor-left (inc (count (str (nth frames (mod (dec i) (count frames)))))))
                                    (jansi/erase-line)))
           (print-pending-messages)
           (flush)
           (recur (int (mod (inc i) (count frames)))))
-        (catch InterruptedException ie
+        (catch InterruptedException _
           (comment "Swallow the exception silently and terminate."))
         (finally
           (comment "But remember to erase the last frame.")
-          (clojure.core/print (str (jansi/cursor-left 2)
+          (clojure.core/print (str (jansi/cursor-left (inc (count (str (first frames)))))   ; Note: assumes that all frames have the same length...
                                    (jansi/erase-line)))
           (print-pending-messages)
           (flush)))
@@ -147,7 +154,7 @@
 (defn start!
   "Starts the given spinner."
   [spinner]
-  (if (active? spinner)
+  (when (active? spinner)
     (throw (java.lang.IllegalStateException. "Spinner is already active.")))
   (.start ^Thread spinner)
   nil)
@@ -164,7 +171,7 @@
   "Stops the given spinner.
    Note: after being stopped, a spinner cannot be restarted."
   [spinner]
-  (if (not (active? spinner))
+  (when (not (active? spinner))
     (throw (java.lang.IllegalStateException. "Spinner is not active.")))
   (doto ^Thread spinner
     (.interrupt)

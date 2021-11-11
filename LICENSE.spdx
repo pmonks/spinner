@@ -1,0 +1,7 @@
+SPDXVersion: SPDX-2.1
+DataLicense: CC0-1.0
+Creator: Peter Monks
+PackageName: spinner
+PackageOriginator: Peter Monks
+PackageHomePage: https://github.com/pmonks/spinner
+PackageLicenseDeclared: Apache-2.0

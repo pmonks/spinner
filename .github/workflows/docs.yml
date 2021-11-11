@@ -1,0 +1,32 @@
+name: docs
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Java LTS
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Install Clojure CLI
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          tools-deps: latest
+
+      - name: Generate docs
+        run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build docs
+
+      - name: Deploy docs
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/doc
