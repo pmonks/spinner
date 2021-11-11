@@ -17,62 +17,62 @@
 ;
 
 (ns spinner.core-test
-  (:require [clojure.java.io :as    io]
-            [clojure.test    :refer :all]
-            [spinner.core    :refer :all]))
+  (:require [clojure.test :refer [deftest testing is]]
+            [spinner.core :as    spin]))
 
 (println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
 
 (deftest spinner-tests
-  (testing "Creation"
-    (is (create!)))
+;  (testing "Creation"
+;    (is (spin/create!)))
 
-  (testing "Start and stop"
-    (let [s (create!)]
-      (is (= (do (start! s) (stop! s)) nil))))
+;  (testing "Start and stop"
+;    (let [s (spin/create!)]
+;      (is (= (do (spin/start! s) (spin/stop! s)) nil))))
 
   (testing "Display - default spinner"
-    (let [s (create!)]
-      (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil))))
+    (let [s (spin/create!)]
+      (is (= (do (spin/start! s) (Thread/sleep 1000) (spin/stop! s)) nil))))
 
   (testing "Display - custom colours"
-    (let [s (create! { :fg-colour :white :bg-colour :blue })]
-      (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil))))
+    (let [s (spin/create! {:fg-colour :white :bg-colour :blue})]
+      (is (= (do (spin/start! s) (Thread/sleep 1000) (spin/stop! s)) nil))))
 
   (testing "Display - custom styles"
     (doall
-      (for [style (sort (keys styles))]
+      (for [style (sort (keys spin/styles))]
         (do
-          (clojure.core/print (str "\n" (name style) ": "))
+          (print (str "\n" (name style) ": "))
           (flush)
-          (let [s (create! { :frames (style styles) })]
-            (is (= (do (start! s) (Thread/sleep 2000) (stop! s)) nil)))))))
+          (let [s (spin/create! {:frames (style spin/styles)})]
+            (is (= (do (spin/start! s) (Thread/sleep 2000) (spin/stop! s)) nil)))))))
 
-  (testing "Display - leading message"
-    (clojure.core/print "\nSome kind of long running processing happens here... ")
-    (flush)
-    (doall
-      (for [style (sort (keys styles))]
-        (do
-          (let [s (create! { :frames (style styles) })]
-            (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil)))))))
+;  (testing "Display - leading message"
+;    (print "\nSome kind of long running processing happens here... ")
+;    (flush)
+;    (doall
+;      (for [style (sort (keys spin/styles))]
+;        (let [s (spin/create! {:frames (style spin/styles)})]
+;          (is (= (do (spin/start! s) (Thread/sleep 1000) (spin/stop! s)) nil))))))
+;
+;  (testing "Display - print messages while a spinner is active"
+;    (is (= (do
+;             (print "\nReticulating splines... ")
+;             (flush)
+;             (let [s (spin/create-and-start! { :fg-colour :white :bg-colour :blue })]
+;               (Thread/sleep 500)
+;               (spin/print "\nInserting sublimated messages... ")
+;               (Thread/sleep 500)
+;               (spin/print "\nAttempting to lock back buffer... ")
+;               (Thread/sleep 500)
+;               (spin/print "\nTime-compressing simulator clock... ")
+;               (Thread/sleep 500)
+;               (spin/print "\nLecturing errant subsystems... ")
+;               (Thread/sleep 500)
+;               (spin/print "\nRetracting Phong shader... ")
+;               (Thread/sleep 500)
+;               (spin/stop! s)
+;               (println)))
+;           nil))))
 
-  (testing "Display - print messages while a spinner is active"
-    (is (= (do
-             (print "\nReticulating splines... ")
-             (flush)
-             (let [s (create-and-start! { :fg-colour :white :bg-colour :blue })]
-               (Thread/sleep 500)
-               (print "\nInserting sublimated messages... ")
-               (Thread/sleep 500)
-               (print "\nAttempting to lock back buffer... ")
-               (Thread/sleep 500)
-               (print "\nTime-compressing simulator clock... ")
-               (Thread/sleep 500)
-               (print "\nLecturing errant subsystems... ")
-               (Thread/sleep 500)
-               (print "\nRetracting Phong shader... ")
-               (Thread/sleep 500)
-               (stop! s)
-               (println)))
-           nil))))
+)

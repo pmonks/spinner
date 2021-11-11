@@ -78,7 +78,7 @@
       default-value
       value)))
 
-(def ^:private pending-messages (atom ""))
+(def ^:private pending-messages (atom nil))
 
 (defn- swap*!
   "Like clojure.core/swap! but returns a vector of [old-value new-value].
@@ -93,38 +93,36 @@
 
 (defn- print-pending-messages
   []
-  (let [messages (first (swap*! pending-messages (constantly "")))]
-    (clojure.core/print messages)))
+  (when-let [messages (first (swap*! pending-messages (constantly nil)))]
+    (clojure.core/print messages)
+    (flush)))
 
 (defn- spinner
   ([] (spinner nil))
   ([options]
-    (let [delay-in-ms (:delay options default-delay-ms)
-          frames      (:frames options (default-style styles))
+    (let [delay-in-ms (get options :delay default-delay-ms)
+          frames      (get options :frames (default-style styles))
           fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
           bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
-          attribute   (:attribute options :default)]
+          attribute   (get options :attribute :default)]
       (try
         (loop [i (int 0)]
-          (clojure.core/print (str (jansi/a  attribute
-                                   (jansi/bg bg-colour
-                                   (jansi/fg fg-colour (nth frames i))))
-                                   " "))
-          (flush)
-          (Thread/sleep delay-in-ms)
-          (clojure.core/print (str (jansi/cursor-left (inc (count (str (nth frames (mod (dec i) (count frames)))))))
-                                   (jansi/erase-line)))
+          (try
+            (clojure.core/print (str (jansi/a  attribute
+                                     (jansi/bg bg-colour
+                                     (jansi/fg fg-colour (nth frames i))))
+                                     " "))
+            (flush)
+            (Thread/sleep delay-in-ms)
+          (finally  ; Always erase the spinner, even if we were interrupted
+            (let [frame-length (inc (count (str (nth frames i))))]
+              (clojure.core/print (str (jansi/cursor-left frame-length)
+                                       (jansi/erase-line)))
+              (flush))))
           (print-pending-messages)
-          (flush)
           (recur (int (mod (inc i) (count frames)))))
         (catch InterruptedException _
-          (comment "Swallow the exception silently and terminate."))
-        (finally
-          (comment "But remember to erase the last frame.")
-          (clojure.core/print (str (jansi/cursor-left (inc (count (str (first frames)))))   ; Note: assumes that all frames have the same length...
-                                   (jansi/erase-line)))
-          (print-pending-messages)
-          (flush)))
+          (comment "Swallow the exception silently and terminate.")))
       nil)))
 
 (defn active?
