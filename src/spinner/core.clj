@@ -84,15 +84,15 @@
 (defn- save-cursor!
   "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
   []
-  (jansi/save-cursor!)
-  (clojure.core/print "\u001B7")
+  (jansi/save-cursor!)             ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
+  (clojure.core/print "\u001B7")   ; So we manually send a DEC code too
   (flush))
 
 (defn- restore-cursor!
   "Issues both SCO and DEC restore-cursor ANSI codes, for maximum compatibility."
   []
-  (jansi/restore-cursor!)
-  (clojure.core/print "\u001B8")
+  (jansi/restore-cursor!)          ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
+  (clojure.core/print "\u001B8")   ; So we manually send a DEC code too
   (flush))
 
 (defn- print-pending-messages
