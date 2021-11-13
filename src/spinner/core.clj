@@ -1,22 +1,31 @@
 ;
-; Copyright © 2014 Peter Monks (pmonks@gmail.com)
+; Copyright © 2014 Peter Monks
 ;
-; All rights reserved. This program and the accompanying materials
-; are made available under the terms of the Eclipse Public License v2.0
-; which accompanies this distribution, and is available at
-; http://www.eclipse.org/legal/epl-v20.html
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
 ;
-; Contributors:
-;    Peter Monks - initial implementation
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
+; SPDX-License-Identifier: Apache-2.0
+;
 
 (ns spinner.core
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi])
   (:refer-clojure :exclude [print]))
 
+(jansi/enable!)
+
 (def is-windows?
   "Are we running on Windows?  If so, best to stick to the default spinner style. 😢"
-  (.startsWith ^String (s/lower-case (System/getProperty "os.name")) "windows"))
+  (s/starts-with? (s/lower-case (System/getProperty "os.name")) "windows"))
 
 (def default-style
   "The default spinner style used, if one isn't specified.  This is known to function on all platforms."
@@ -57,21 +66,9 @@
     :moon-phases         ["🌑" "🌒" "🌓" "🌔" "🌕" "🌖" "🌗" "🌘"]
   })
 
-(defn- select-values
-  "Solution 3 from http://blog.jayfields.com/2011/01/clojure-select-keys-select-values-and.html"
-  [map ks]
-  (if (and map ks)
-    (remove nil? (reduce #(conj %1 (map %2)) [] ks))))
-
-(defn- select-value-default
-  "Selects the first value of ks in map, with default-value if none of ks were found."
-  [map ks default-value]
-  (let [value (first (select-values map ks))]
-    (if (nil? value)
-      default-value
-      value)))
-
-(def ^:private pending-messages (atom ""))
+(def ^:private fut   (atom nil))
+(def ^:private state (atom :inactive))
+(def ^:private msgs  (atom nil))
 
 (defn- swap*!
   "Like clojure.core/swap! but returns a vector of [old-value new-value].
@@ -85,110 +82,125 @@
         (recur)))))
 
 (defn- print-pending-messages
+  "Prints all pending messages"
   []
-  (let [messages (first (swap*! pending-messages (constantly "")))]
-    (clojure.core/print messages)))
+  (when-let [messages (first (swap*! msgs (constantly nil)))]
+    (clojure.core/print messages)
+    (flush)
+    (jansi/save-cursor!)))
 
-(defn- spinner
-  ([] (spinner nil))
-  ([options]
-    (let [delay-in-ms (:delay options default-delay-ms)
-          frames      (:frames options (default-style styles))
-          fg-colour   (select-value-default options [:fg-colour :fg-color] :default)
-          bg-colour   (select-value-default options [:bg-colour :bg-color] :default)
-          attribute   (:attribute options :default)]
-      (try
-        (loop [i (int 0)]
-          (clojure.core/print (str (jansi/a  attribute
-                                   (jansi/bg bg-colour
-                                   (jansi/fg fg-colour (nth frames i))))
-                                   " "))
-          (flush)
-          (Thread/sleep delay-in-ms)
-          (clojure.core/print (str (jansi/cursor-left 2)
-                                   (jansi/erase-line)))
-          (print-pending-messages)
-          (flush)
-          (recur (int (mod (inc i) (count frames)))))
-        (catch InterruptedException ie
-          (comment "Swallow the exception silently and terminate."))
-        (finally
-          (comment "But remember to erase the last frame.")
-          (clojure.core/print (str (jansi/cursor-left 2)
-                                   (jansi/erase-line)))
-          (print-pending-messages)
-          (flush)))
-      nil)))
+#_{:clj-kondo/ignore [:unused-private-var]}
+(defn- debug-print
+  "Send debug output to the upper left corner of the screen, where (hopefully) it doesn't interfere with the spinner"
+  [& args]
+  (jansi/save-cursor!)
+  (jansi/cursor! 0 0)
+  (jansi/erase-line!)
+  (clojure.core/print (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args))))))
+  (jansi/restore-cursor!))
 
 (defn active?
-  "Is the given spinner active?"
-  [spinner]
-  (.isAlive ^Thread spinner))
+  "Is the spinner active?"
+  []
+  (= @state :active))
 
-(defn create!
-  "Creates a spinner and returns it, but does not start it.
+(defn- apply-colour
+  "Applies an 'enhanced' colour keyword (which may include the prefix 'bright-') to either the foreground or background of body."
+  [fg? key & body]
+  (let [name        (name key)
+        bright?     (s/starts-with? name "bright-")
+        colour-name (if bright? (keyword (subs name (count "bright-"))) key)]
+    (case [fg? bright?]
+      [true  true]  (apply jansi/fg-bright colour-name body)
+      [true  false] (apply jansi/fg        colour-name body)
+      [false true]  (apply jansi/bg-bright colour-name body)
+      [false false] (apply jansi/bg        colour-name body))))
 
-   Optionally accepts an options map - supported options are:
+(defn- apply-attributes
+  "Applies all of provided attributes to body."
+  [attributes & body]
+  (if (seq attributes)
+    (apply (apply comp (map #(partial jansi/a %) attributes)) body)
+    body))
+
+(defn- spinner
+  "Spinner logic, for use in a future or Thread or wotnot"
+  ([] (spinner nil))
+  ([options]
+    (let [delay-in-ms (get options :delay default-delay-ms)
+          frames      (get options :frames (default-style styles))
+          fg-colour   (get options :fg-colour :default)
+          bg-colour   (get options :bg-colour :default)
+          attributes  (distinct
+                        (concat [(get options :attribute :default)]
+                                (get options :attributes [])))]
+      (jansi/save-cursor!)
+      (loop [i 0]
+        (clojure.core/print (str (apply-attributes attributes
+                                   (apply-colour false bg-colour
+                                     (apply-colour true fg-colour
+                                       (nth frames (mod i (count frames))))))
+                                 " "))
+        (flush)
+        (Thread/sleep delay-in-ms)
+        (jansi/restore-cursor!)
+        (jansi/erase-line!)
+        (print-pending-messages)
+        (when (active?)
+          (recur (inc i))))
+      nil)))
+
+(defn start!
+  "Starts the spinner, optionally accepting these options:
    {
      :frames - the frames (array of strings) to use for the spinner (default is (:ascii-spinner styles))
      :delay - the delay (in ms) between frames (default is 100ms)
-     :fg-colour / :fg-color - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
-     :bg-colour / :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values
+     :fg-colour - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
+     :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
      :attribute - the attribute of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#attributes for allowed values
-   }
-
-   Note: this method has the side effect of enabling JANSI - see https://github.com/xsc/jansi-clj#globally-enabledisable-ansi-codes"
-  ([] (create! nil))
+     :attributes - the attributes (plural) of the spinner (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values
+   }"
+  ([] (start! nil))
   ([options]
-   (jansi/enable!)
-   (doto (Thread. ^Runnable #(spinner options))
-     (.setDaemon true))))
+    (when (not= @state :inactive)
+      (throw (java.lang.IllegalStateException. "Spinner is already active.")))
 
-(defn start!
-  "Starts the given spinner."
-  [spinner]
-  (if (active? spinner)
-    (throw (java.lang.IllegalStateException. "Spinner is already active.")))
-  (.start ^Thread spinner)
-  nil)
-
-(defn create-and-start!
-  "Creates and starts a spinner, returning it."
-  ([] (create-and-start! nil))
-  ([options]
-   (let [spinner (create! options)]
-     (start! spinner)
-     spinner)))
+    (reset! state :active)
+    (reset! fut  (future (spinner options)))
+    (reset! msgs nil)
+    nil))
 
 (defn stop!
-  "Stops the given spinner.
-   Note: after being stopped, a spinner cannot be restarted."
-  [spinner]
-  (if (not (active? spinner))
-    (throw (java.lang.IllegalStateException. "Spinner is not active.")))
-  (doto ^Thread spinner
-    (.interrupt)
-    (.join))
-  (reset! pending-messages "")
+  "Stops the spinner."
+  []
+  (when (active?)
+    (reset! state :shutting-down)
+    @@fut    ; Wait for the spinner future to stop (deref the atom AND the future)
+    (reset! state :inactive)
+    (reset! fut   nil)
+    (reset! msgs  nil))
   nil)
 
 (defn spin!
-  "Creates and starts a spinner, calls fn f, then stops the spinner. Returns the result of f."
+  "Starts the spinner, calls fn f, then stops the spinner. Returns the result of f."
   ([f] (spin! f nil))
   ([f options]
-   (let [spinner (create-and-start! options)]
-     (try
-       (f)
-       (finally
-         (stop! spinner))))))
+    (start! options)
+    (try
+     (f)
+     (finally
+       (stop!)))))
 
 (defn print
-  "Schedules the given values for printing (ala clojure.core/print), without interrupting the active spinner.
+  "Schedules the given values for printing (ala clojure.core/print).
    Notes:
-   * will only produce output if a spinner is active
+   * will only produce output if the spinner is active - throws if it is inactive
    * output is emitted in between 'frames' of the spinner, so may not appear immediately
    * values are space delimited (as in clojure.core/print) - use clojure.core/str for finer control
    * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \\newline in the value(s)"
   [& more]
-  (swap! pending-messages str (s/join \space more))
+  (when-not (active?)
+    (throw (java.lang.IllegalStateException. "Spinner is not active.")))
+
+  (swap! msgs str (s/join " " more))
   nil)

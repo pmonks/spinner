@@ -1,71 +1,109 @@
 ;
-; Copyright © 2014 Peter Monks (pmonks@gmail.com)
+; Copyright © 2014 Peter Monks
 ;
-; All rights reserved. This program and the accompanying materials
-; are made available under the terms of the Eclipse Public License v2.0
-; which accompanies this distribution, and is available at
-; http://www.eclipse.org/legal/epl-v20.html
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
 ;
-; Contributors:
-;    Peter Monks - initial implementation
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
+; SPDX-License-Identifier: Apache-2.0
+;
 
 (ns spinner.core-test
-  (:require [clojure.java.io :as    io]
-            [clojure.test    :refer :all]
-            [spinner.core    :refer :all]))
+  (:require [clojure.test :refer [deftest testing is]]
+            [spinner.core :as    spin]))
 
 (println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
 
-(deftest spinner-tests
-  (testing "Creation"
-    (is (create!)))
-
+(deftest states
   (testing "Start and stop"
-    (let [s (create!)]
-      (is (= (do (start! s) (stop! s)) nil))))
+    (is (= (do (spin/start!) (spin/stop!))
+           nil)))
 
-  (testing "Display - default spinner"
-    (let [s (create!)]
-      (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil))))
+  (testing "Start and stop repeatedly"
+    (is (= (dotimes [_ 10] (spin/start!) (spin/stop!))
+           nil)))
 
-  (testing "Display - custom colours"
-    (let [s (create! { :fg-colour :white :bg-colour :blue })]
-      (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil))))
+  (testing "Stop without start"
+    (is (= (spin/stop!)
+           nil)))
 
-  (testing "Display - custom styles"
+  (testing "Double start"
+    (is (thrown? java.lang.IllegalStateException
+                 (try (spin/start!) (spin/start!) (finally (spin/stop!))))))
+
+  (testing "Not active when not running"
+    (is (false? (spin/active?))))
+
+  (testing "Active when running"
+    (is (true? (try (spin/start!) (spin/active?) (finally (spin/stop!)))))))
+
+(deftest display
+  (testing "Default spinner for 5 seconds"
+    (is (= (do (spin/start!) (Thread/sleep 5000) (spin/stop!))
+           nil)))
+
+  (testing "Spin around a function"
+    (is (= (spin/spin! (fn [] (Thread/sleep 1000) :a-value))
+        :a-value)))
+
+  (testing "Custom colours"
+    (is (= (do (spin/start! {:fg-colour :black :bg-colour :white}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom bright colours"
+    (is (= (do (spin/start! {:fg-colour :bright-yellow :bg-colour :bright-red}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom attribute"
+    (is (= (do (spin/start! {:attribute :strikethrough}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom attributes"
+    (is (= (do (spin/start! {:attributes [:strikethrough :bold :underline]}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom everything"
+    (is (= (do (spin/start! {:frames     (:box-fade spin/styles)
+                             :fg-colour  :bright-yellow
+                             :bg-colour  :bright-red
+                             :attributes [:bold :fast-blink]})
+               (Thread/sleep 2000)
+               (spin/stop!))
+           nil)))
+
+  (testing "Custom styles with leading message"
     (doall
-      (for [style (sort (keys styles))]
+      (for [style (sort (keys spin/styles))]
         (do
-          (clojure.core/print (str "\n" (name style) ": "))
+          (print (str "\n" (name style) ": "))
           (flush)
-          (let [s (create! { :frames (style styles) })]
-            (is (= (do (start! s) (Thread/sleep 2000) (stop! s)) nil)))))))
+          (is (= (do (spin/start! {:frames (style spin/styles)}) (Thread/sleep 1000) (spin/stop!))
+                 nil))))))
 
-  (testing "Display - leading message"
-    (clojure.core/print "\nSome kind of long running processing happens here... ")
-    (flush)
-    (doall
-      (for [style (sort (keys styles))]
-        (do
-          (let [s (create! { :frames (style styles) })]
-            (is (= (do (start! s) (Thread/sleep 1000) (stop! s)) nil)))))))
-
-  (testing "Display - print messages while a spinner is active"
+  (testing "Printing messages while a spinner is active"
     (is (= (do
              (print "\nReticulating splines... ")
              (flush)
-             (let [s (create-and-start! { :fg-colour :white :bg-colour :blue })]
-               (Thread/sleep 500)
-               (print "\nInserting sublimated messages... ")
-               (Thread/sleep 500)
-               (print "\nAttempting to lock back buffer... ")
-               (Thread/sleep 500)
-               (print "\nTime-compressing simulator clock... ")
-               (Thread/sleep 500)
-               (print "\nLecturing errant subsystems... ")
-               (Thread/sleep 500)
-               (print "\nRetracting Phong shader... ")
-               (Thread/sleep 500)
-               (stop! s)
-               (println)))
+             (spin/start! {:fg-colour :bright-yellow :bg-colour :red :attribute :bold})
+             (Thread/sleep 500)
+             (spin/print "\nInserting sublimated messages... ")
+             (Thread/sleep 500)
+             (spin/print "\nAttempting to lock back buffer... ")
+             (Thread/sleep 500)
+             (spin/print "\nTime-compressing simulator clock... ")
+             (Thread/sleep 500)
+             (spin/print "\nLecturing errant subsystems... ")
+             (Thread/sleep 500)
+             (spin/print "\nRetracting Phong shader... ")
+             (Thread/sleep 500)
+             (spin/stop!)
+             (println))
            nil))))

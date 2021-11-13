@@ -1,0 +1,34 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  skip_check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+
+  CI:
+    needs: skip_check
+    if: ${{ needs.skip_check.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Java LTS
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Install Clojure CLI
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          tools-deps: latest
+
+      - name: Run CI checks
+        run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build ci

@@ -1,0 +1,32 @@
+name: deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: clojars
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0    # Make sure we get the full history, or else the version number gets screwed up
+
+      - name: Install Java LTS
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Install Clojure CLI
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          tools-deps: latest
+
+      - name: Build JAR and deploy to Clojars
+        env:
+          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
+        run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build deploy

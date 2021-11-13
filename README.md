@@ -1,7 +1,9 @@
-[![Build Status](https://travis-ci.com/clj-commons/spinner.svg?branch=master)](https://travis-ci.com/clj-commons/spinner)
-[![Open Issues](https://img.shields.io/github/issues/clj-commons/spinner.svg)](https://github.com/clj-commons/spinner/issues)
-[![License](https://img.shields.io/github/license/clj-commons/spinner.svg)](https://github.com/clj-commons/spinner/blob/master/LICENSE)
-[![Dependencies Status](https://versions.deps.co/clj-commons/spinner/status.svg)](https://versions.deps.co/clj-commons/spinner)
+| | | |
+|---:|:---:|:---:|
+| [**main**](https://github.com/pmonks/spinner/tree/main) | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies) |
+| [**dev**](https://github.com/pmonks/spinner/tree/dev)  | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies) |
+
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/spinner)](https://clojars.org/com.github.pmonks/spinner/) [![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues) [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/main/LICENSE)
 
 # spinner
 
@@ -10,35 +12,31 @@ A simple text spinner for command line Clojure apps.
 What is it useful for?
 
 To give the user of a command line app a simple indeterminate progress indicator for long running operations.
-Supports output of additional messages while a spinner is active.
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img alt="spinner example screenshot" src="https://raw.githubusercontent.com/clj-commons/spinner/master/spinner-demo.gif"/>
+  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/master/spinner-demo.gif"/>
 </p>
 
-As you can see, using Unicode characters in spinners may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
+Note that using Unicode characters in spinners may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
 
 ## Installation
 
-spinner is available as a Maven artifact from [Clojars](https://clojars.org/clj-commons/spinner).  The latest version is:
-
-[![version](https://clojars.org/clj-commons/spinner/latest-version.svg)](https://clojars.org/clj-commons/spinner)
+spinner is available as a Maven artifact from [Clojars](https://clojars.org/com.github.pmonks/spinner).
 
 ### Trying it Out
-If you prefer to kick the library's tyres without creating a project, you can use the [`lein try` plugin](https://github.com/rkneufeld/lein-try):
+
+#### Clojure CLI
 
 ```shell
-$ lein trampoline try clj-commons/spinner   # See note below regarding use of 'lein trampoline'
+$ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number (see badge above)
 ```
 
-or (as of v0.5.0), if you have installed the [Clojure CLI tools](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools):
+#### Leiningen
 
 ```shell
-$ clj -Sdeps '{:deps {clj-commons/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number >= 0.5.0
+$ lein try com.github.pmonks/spinner
 ```
-
-Either way, you will be dropped in a REPL with the library downloaded and ready for use.
 
 ## Usage
 
@@ -57,40 +55,38 @@ Require it in your application:
   (:require [spinner.core :as spin]))
 ```
 
-**Important Note:** if you're using leiningen, your REPL must be run in a trampoline (`lein trampoline repl`) in order for ANSI escape sequences to be available.
+**Important Notes:**
 
-[The API documentation](https://clj-commons.github.io/spinner/) has full details on the functionality provided by the library, and [the unit tests](https://github.com/clj-commons/spinner/blob/master/test/spinner/core_test.clj) have several examples of usage.
+1. If you're using leiningen, your REPL **must** be run in a trampoline (`lein trampoline repl`) in order for the ANSI escape sequences emitted by `spinner` to function.
 
-## Tested Versions
+2. If you're using the Clojure CLI tools, you **cannot** use the `clj` binary, as it wraps the JVM in `rlwrap` which incorrectly interprets some of the ANSI escape sequences emitted by `spinner`. Some other readline alternatives (notably [Rebel Readline](https://github.com/bhauman/rebel-readline)) have been reported to work correctly, however.
 
-spinner is [tested on](https://travis-ci.com/clj-commons/spinner):
+### API Documentation
 
-|                | JVM v1.6         | JVM v1.7       | JVM v1.8        | JVM v9           | JVM v10          | JVM v11         |
-|           ---: |  :---:           |  :---:         |  :---:          |  :---:           |  :---:           |  :---:          |
-| Clojure 1.4.0  | ❌<sup>1,2</sup> | ❌<sup>1</sup> | ❌<sup>1</sup> | ❌<sup>1,3</sup> | ❌<sup>1,3</sup> | ❌<sup>1</sup> |
-| Clojure 1.5.1  | ❌<sup>2</sup>   | ✅             | ✅             | ❌<sup>3</sup>   | ❌<sup>3</sup>   | ✅             |
-| Clojure 1.6.0  | ❌<sup>2</sup>   | ✅             | ✅             | ❌<sup>3</sup>   | ❌<sup>3</sup>   | ✅             |
-| Clojure 1.7.0  | ❌<sup>2</sup>   | ✅             | ✅             | ❌<sup>3</sup>   | ❌<sup>3</sup>   | ✅             |
-| Clojure 1.8.0  | ❌<sup>2</sup>   | ✅             | ✅             | ❌<sup>3</sup>   | ❌<sup>3</sup>   | ✅             |
-| Clojure 1.9.0  | ❌<sup>2</sup>   | ✅             | ✅             | ❌<sup>3</sup>   | ❌<sup>3</sup>   | ✅             |
-| Clojure 1.10.1 | ❌<sup>2,4</sup> | ❌<sup>4</sup> | ✅             | ❌<sup>3</sup>   | ❌<sup>3</sup>   | ✅             |
+[API documentation is available here](https://pmonks.github.io/spinner/).  [The unit tests](https://github.com/pmonks/spinner/blob/main/test/spinner/core_test.clj) provide comprehensive usage examples.
 
-<sup>1</sup> I chose to only go back as far as Clojure v1.5.1.  If anyone needs this on older versions, PRs are welcome!
+## Contributor Information
 
-<sup>2</sup> Leiningen v2.8 only supports JVM v1.7 and up
+[Contributing Guidelines](https://github.com/pmonks/spinner/blob/main/.github/CONTRIBUTING.md)
 
-<sup>3</sup> Superceded, non-LTS version of the JVM
+[Bug Tracker](https://github.com/pmonks/spinner/issues)
 
-<sup>4</sup> Clojure v1.10+ only supports JVM v1.8 and up
+[Code of Conduct](https://github.com/pmonks/spinner/blob/main/.github/CODE_OF_CONDUCT.md)
 
-## Developer Information
+### Developer Workflow
 
-[GitHub project](https://github.com/clj-commons/spinner)
+The repository has two permanent branches: `main` and `dev`.  **All development must occur either in branch `dev`, or (preferably) in feature branches off of `dev`.**  All PRs must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
 
-[Bug Tracker](https://github.com/clj-commons/spinner/issues)
+This model allows otherwise unrelated changes to be batched up in the `dev` branch, integration tested there, and then released en masse to the `main` branch, which will trigger automated generation and deployment of the release (Codox docs to GitHub Pages, JARs to Clojars, etc.).
+
+### Why are there so many different groupIds on Clojars for this project?
+
+The project was originally developed under my personal GitHub account.  In early 2018 it was transferred to the `clj-commons` GitHub organisation, but then, as that group refined their scope and mission, it was determined that it no longer belonged there, and the project were transferred back in late 2021.  During this time the build tooling for the project also changed from Leiningen to tools.build, which created further groupId churn (tools.build introduced special, useful semantics for `com.github.username` groupIds that don't exist with Leiningen or Clojars).
 
 ## License
 
-Copyright © 2014 Peter Monks (pmonks@gmail.com)
+Copyright © 2014 Peter Monks
 
-Distributed under the [Eclipse Public License](http://www.eclipse.org/legal/epl-v20.html) either version 2.0 or (at your option) any later version.
+Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)

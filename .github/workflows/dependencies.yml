@@ -1,0 +1,23 @@
+name: dependencies
+on:
+  push:
+  schedule:
+    - cron: '0 21 * * *'
+jobs:
+  skip_check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+
+  antq:
+    needs: skip_check
+    if: ${{ needs.skip_check.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+    container:
+      image: uochan/antq
+    steps:
+      - uses: actions/checkout@v2
+      - run: java -jar /tmp/antq/antq.jar --skip=pom --error-format="::error file={{file}}::{{message}}"

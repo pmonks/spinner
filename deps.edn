@@ -1,3 +1,66 @@
-{:deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        jansi-clj/jansi-clj {:mvn/version "0.1.1"}}
- :aliases {:test {:extra-paths ["test"]}}}
+;
+; Copyright © 2021 Peter Monks
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
+; SPDX-License-Identifier: Apache-2.0
+;
+
+{:deps
+   {org.clojure/clojure {:mvn/version "1.10.3"}
+    jansi-clj/jansi-clj {:mvn/version "1.0.0"}}
+ :aliases
+   {; ---- TOOL ALIASES ----
+
+    ; clj -T:build <taskname>
+    :build
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.5.3" :git/sha "dbf7321"}
+                    com.github.pmonks/pbr            {:mvn/version "2.0.109"}}
+       :ns-default build}
+
+
+    ; ---- OTHER ALIASES ----
+    ; clj -M:check
+    :check
+      {:extra-deps {com.github.athos/clj-check {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
+       :main-opts  ["-m" "clj-check.check"]}
+
+    ; clj -X:test
+    :test
+      {:extra-paths ["test"]
+       :extra-deps  {org.clojure/test.check               {:mvn/version "1.1.0"}
+                     io.github.cognitect-labs/test-runner {:git/tag "v0.5.0" :git/sha "48c3c67"}}
+       :exec-fn     cognitect.test-runner.api/test}
+
+    ; clj -M:kondo
+    :kondo
+      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.10.19"}}
+       :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
+
+    ; clj -M:eastwood
+    :eastwood
+      {:extra-deps {jonase/eastwood {:mvn/version "0.9.9"}}
+       :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\"]}"]}
+
+    ; clj -M:outdated
+    :outdated
+      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.2.0"}}
+       :main-opts  ["-m" "antq.core" "--skip=pom"]}
+
+    ; clj -X:codox
+    :codox
+      {:extra-deps {codox/codox {:mvn/version "0.10.8"}}
+       :exec-fn    codox.main/generate-docs
+       :exec-args  {:source-paths ["src"]
+                    :source-uri   "https://github.com/pmonks/spinner/blob/main/{filepath}#L{line}"}}
+   }}
