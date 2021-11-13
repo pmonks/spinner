@@ -22,7 +22,7 @@ Note that using Unicode characters in spinners may be unreliable, depending on y
 
 ## Installation
 
-spinner is available as a Maven artifact from [Clojars](https://clojars.org/com.github.pmonks/spinner).
+`spinner` is available as a Maven artifact from [Clojars](https://clojars.org/com.github.pmonks/spinner).
 
 ### Trying it Out
 
@@ -40,7 +40,7 @@ $ lein try com.github.pmonks/spinner
 
 ## Usage
 
-The spinner functionality is provided by the `spinner.core` namespace.
+The functionality is provided by the `spinner.core` namespace.
 
 Require it in the REPL:
 
