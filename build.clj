@@ -29,8 +29,8 @@ clojure -A:deps -T:build help/doc"
             [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
 
-(def lib       'com.github.pmonks/spinner)
-(def version   (format "1.0.%s" (b/git-count-revs nil)))
+(def lib     'com.github.pmonks/spinner)
+(def version (format "2.0.%s" (b/git-count-revs nil)))
 
 ; Utility fns
 (defn- set-opts

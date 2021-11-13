@@ -29,7 +29,7 @@ spinner is available as a Maven artifact from [Clojars](https://clojars.org/com.
 #### Clojure CLI
 
 ```shell
-$ clj -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number (see badge above)
+$ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number (see badge above)
 ```
 
 #### Leiningen
@@ -55,7 +55,11 @@ Require it in your application:
   (:require [spinner.core :as spin]))
 ```
 
-**Important Note:** if you're using leiningen, your REPL **must** be run in a trampoline (`lein trampoline repl`) in order for ANSI escape sequences to be available.
+**Important Notes:**
+
+1. If you're using leiningen, your REPL **must** be run in a trampoline (`lein trampoline repl`) in order for the ANSI escape sequences emitted by `spinner` to function.
+
+2. If you're using the Clojure CLI tools, you **cannot** use the `clj` binary, as it wraps the JVM in `rlwrap` which incorrectly interprets some of the ANSI escape sequences emitted by `spinner`. Some other readline alternatives (notably [Rebel Readline](https://github.com/bhauman/rebel-readline)) have been reported to work correctly, however.
 
 ### API Documentation
 

@@ -22,57 +22,88 @@
 
 (println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
 
-(deftest spinner-tests
-;  (testing "Creation"
-;    (is (spin/create!)))
+(deftest states
+  (testing "Start and stop"
+    (is (= (do (spin/start!) (spin/stop!))
+           nil)))
 
-;  (testing "Start and stop"
-;    (let [s (spin/create!)]
-;      (is (= (do (spin/start! s) (spin/stop! s)) nil))))
+  (testing "Start and stop repeatedly"
+    (is (= (dotimes [_ 10] (spin/start!) (spin/stop!))
+           nil)))
 
-  (testing "Display - default spinner"
-    (let [s (spin/create!)]
-      (is (= (do (spin/start! s) (Thread/sleep 1000) (spin/stop! s)) nil))))
+  (testing "Stop without start"
+    (is (= (spin/stop!)
+           nil)))
 
-  (testing "Display - custom colours"
-    (let [s (spin/create! {:fg-colour :white :bg-colour :blue})]
-      (is (= (do (spin/start! s) (Thread/sleep 1000) (spin/stop! s)) nil))))
+  (testing "Double start"
+    (is (thrown? java.lang.IllegalStateException
+                 (try (spin/start!) (spin/start!) (finally (spin/stop!))))))
 
-  (testing "Display - custom styles"
+  (testing "Not active when not running"
+    (is (false? (spin/active?))))
+
+  (testing "Active when running"
+    (is (true? (try (spin/start!) (spin/active?) (finally (spin/stop!)))))))
+
+(deftest display
+  (testing "Default spinner for 5 seconds"
+    (is (= (do (spin/start!) (Thread/sleep 5000) (spin/stop!))
+           nil)))
+
+  (testing "Spin around a function"
+    (is (= (spin/spin! (fn [] (Thread/sleep 1000) :a-value))
+        :a-value)))
+
+  (testing "Custom colours"
+    (is (= (do (spin/start! {:fg-colour :black :bg-colour :white}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom bright colours"
+    (is (= (do (spin/start! {:fg-colour :bright-yellow :bg-colour :bright-red}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom attribute"
+    (is (= (do (spin/start! {:attribute :strikethrough}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom attributes"
+    (is (= (do (spin/start! {:attributes [:strikethrough :bold :underline]}) (Thread/sleep 1000) (spin/stop!))
+           nil)))
+
+  (testing "Custom everything"
+    (is (= (do (spin/start! {:frames     (:box-fade spin/styles)
+                             :fg-colour  :bright-yellow
+                             :bg-colour  :bright-red
+                             :attributes [:bold :fast-blink]})
+               (Thread/sleep 2000)
+               (spin/stop!))
+           nil)))
+
+  (testing "Custom styles with leading message"
     (doall
       (for [style (sort (keys spin/styles))]
         (do
           (print (str "\n" (name style) ": "))
           (flush)
-          (let [s (spin/create! {:frames (style spin/styles)})]
-            (is (= (do (spin/start! s) (Thread/sleep 2000) (spin/stop! s)) nil)))))))
+          (is (= (do (spin/start! {:frames (style spin/styles)}) (Thread/sleep 1000) (spin/stop!))
+                 nil))))))
 
-;  (testing "Display - leading message"
-;    (print "\nSome kind of long running processing happens here... ")
-;    (flush)
-;    (doall
-;      (for [style (sort (keys spin/styles))]
-;        (let [s (spin/create! {:frames (style spin/styles)})]
-;          (is (= (do (spin/start! s) (Thread/sleep 1000) (spin/stop! s)) nil))))))
-;
-;  (testing "Display - print messages while a spinner is active"
-;    (is (= (do
-;             (print "\nReticulating splines... ")
-;             (flush)
-;             (let [s (spin/create-and-start! { :fg-colour :white :bg-colour :blue })]
-;               (Thread/sleep 500)
-;               (spin/print "\nInserting sublimated messages... ")
-;               (Thread/sleep 500)
-;               (spin/print "\nAttempting to lock back buffer... ")
-;               (Thread/sleep 500)
-;               (spin/print "\nTime-compressing simulator clock... ")
-;               (Thread/sleep 500)
-;               (spin/print "\nLecturing errant subsystems... ")
-;               (Thread/sleep 500)
-;               (spin/print "\nRetracting Phong shader... ")
-;               (Thread/sleep 500)
-;               (spin/stop! s)
-;               (println)))
-;           nil))))
-
-)
+  (testing "Printing messages while a spinner is active"
+    (is (= (do
+             (print "\nReticulating splines... ")
+             (flush)
+             (spin/start! {:fg-colour :bright-yellow :bg-colour :red :attribute :bold})
+             (Thread/sleep 500)
+             (spin/print "\nInserting sublimated messages... ")
+             (Thread/sleep 500)
+             (spin/print "\nAttempting to lock back buffer... ")
+             (Thread/sleep 500)
+             (spin/print "\nTime-compressing simulator clock... ")
+             (Thread/sleep 500)
+             (spin/print "\nLecturing errant subsystems... ")
+             (Thread/sleep 500)
+             (spin/print "\nRetracting Phong shader... ")
+             (Thread/sleep 500)
+             (spin/stop!)
+             (println))
+           nil))))
