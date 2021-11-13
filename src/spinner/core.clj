@@ -81,23 +81,37 @@
         [ov nv]
         (recur)))))
 
+(defn- save-cursor!
+  "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
+  []
+  (jansi/save-cursor!)             ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
+  (clojure.core/print "\u001B7")   ; So we manually send a DEC code too
+  (flush))
+
+(defn- restore-cursor!
+  "Issues both SCO and DEC restore-cursor ANSI codes, for maximum compatibility."
+  []
+  (jansi/restore-cursor!)          ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
+  (clojure.core/print "\u001B8")   ; So we manually send a DEC code too
+  (flush))
+
 (defn- print-pending-messages
   "Prints all pending messages"
   []
   (when-let [messages (first (swap*! msgs (constantly nil)))]
     (clojure.core/print messages)
     (flush)
-    (jansi/save-cursor!)))
+    (save-cursor!)))
 
 #_{:clj-kondo/ignore [:unused-private-var]}
 (defn- debug-print
   "Send debug output to the upper left corner of the screen, where (hopefully) it doesn't interfere with the spinner"
   [& args]
-  (jansi/save-cursor!)
+  (save-cursor!)
   (jansi/cursor! 0 0)
   (jansi/erase-line!)
   (clojure.core/print (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args))))))
-  (jansi/restore-cursor!))
+  (restore-cursor!))
 
 (defn active?
   "Is the spinner active?"
@@ -134,7 +148,7 @@
           attributes  (distinct
                         (concat [(get options :attribute :default)]
                                 (get options :attributes [])))]
-      (jansi/save-cursor!)
+      (save-cursor!)
       (loop [i 0]
         (clojure.core/print (str (apply-attributes attributes
                                    (apply-colour false bg-colour
@@ -143,7 +157,7 @@
                                  " "))
         (flush)
         (Thread/sleep delay-in-ms)
-        (jansi/restore-cursor!)
+        (restore-cursor!)
         (jansi/erase-line!)
         (print-pending-messages)
         (when (active?)
