@@ -10,17 +10,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install Java LTS
-        uses: actions/setup-java@v2
+      - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
           java-version: 11
-
-      - name: Install Clojure CLI
-        uses: DeLaGuardo/setup-clojure@3.5
+      - uses: DeLaGuardo/setup-clojure@3.6
         with:
           tools-deps: latest
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.clojure
+            ~/.cpcache
+          key: ${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
 
       - name: Generate docs
         run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build docs
