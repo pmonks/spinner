@@ -15,7 +15,7 @@ To give the user of a command line app a simple indeterminate progress indicator
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/master/spinner-demo.gif"/>
+  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/main/spinner-demo.gif"/>
 </p>
 
 Note that using Unicode characters in spinners may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
