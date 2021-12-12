@@ -24,7 +24,7 @@
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.0" :git/sha "2451bea"}
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.1" :git/sha "6e962ef"}
                     com.github.pmonks/pbr            {:mvn/version "2.0.115"}}
        :ns-default build}
 
@@ -49,7 +49,7 @@
 
     ; clj -M:eastwood
     :eastwood
-      {:extra-deps {jonase/eastwood {:mvn/version "0.9.9"}}
+      {:extra-deps {jonase/eastwood {:mvn/version "1.0.0"}}
        :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\"]}"]}
 
     ; clj -M:outdated
