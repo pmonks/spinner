@@ -22,6 +22,7 @@
 For more information, run:
 
 clojure -A:deps -T:build help/doc"
+  (:refer-clojure :exclude [test])
   (:require [clojure.tools.build.api :as b]
             [org.corfield.build      :as bb]
             [tools-convenience.api   :as tc]
@@ -58,7 +59,7 @@ clojure -A:deps -T:build help/doc"
   [opts]
   (bb/run-task (set-opts opts) [:check]))
 
-(defn run-tests
+(defn test
   "Run the tests."
   [opts]
   (bb/run-tests opts))
@@ -92,7 +93,7 @@ clojure -A:deps -T:build help/doc"
       (outdated)
       (check)
       (lint)
-      (run-tests)))
+      (test)))
 
 (defn licenses
   "Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions."
