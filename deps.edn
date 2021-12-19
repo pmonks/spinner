@@ -24,8 +24,8 @@
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.1" :git/sha "6e962ef"}
-                    com.github.pmonks/pbr            {:mvn/version "2.0.115"}}
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.3" :git/sha "9b8e09b"}
+                    com.github.pmonks/pbr            {:mvn/version "2.0.129"}}
        :ns-default build}
 
 
@@ -44,7 +44,7 @@
 
     ; clj -M:kondo
     :kondo
-      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.12.01"}}
+      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.12.19"}}
        :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
 
     ; clj -M:eastwood
@@ -54,7 +54,7 @@
 
     ; clj -M:outdated
     :outdated
-      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.3.0"}}
+      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.3.1"}}
        :main-opts  ["-m" "antq.core" "--skip=pom"]}
 
     ; clj -X:codox
