@@ -17,10 +17,17 @@
 ;
 
 (ns spinner.core-test
-  (:require [clojure.test :refer [deftest testing is]]
-            [spinner.core :as    spin]))
+  (:require [clojure.test   :refer [deftest testing is]]
+            [jansi-clj.core :as jansi]
+            [spinner.core   :as spin]))
 
 (println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
+
+(println
+  (jansi/yellow-bg-bright
+    (jansi/red
+      (jansi/bold
+        "\nDO NOT RUN THESE TESTS WITH THE `clj` COMMAND!  It uses rlwrap, which misinterprets the ANSI escape codes emitted by this library."))))
 
 (deftest states
   (testing "Start and stop"
@@ -48,6 +55,10 @@
 (deftest display
   (testing "Default spinner for 5 seconds"
     (is (= (do (spin/start!) (Thread/sleep 5000) (spin/stop!))
+           nil)))
+
+  (testing "Multi-character spinner for 5 seconds"
+    (is (= (do (spin/start! {:frames (:box-wave spin/styles)}) (Thread/sleep 5000) (spin/stop!))
            nil)))
 
   (testing "Spin around a function"
