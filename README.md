@@ -26,6 +26,12 @@ Note that using Unicode characters in spinners may be unreliable, depending on y
 
 ### Trying it Out
 
+**Important Notes:**
+
+1. If you're using leiningen, your REPL **must** be run in a trampoline (`lein trampoline repl`) in order for the ANSI escape sequences emitted by `spinner` to function.
+
+2. If you're using the Clojure CLI tools, you **must** use the `clojure` binary, as the `clj` binary wraps the JVM in `rlwrap` which then incorrectly interprets some of the ANSI escape sequences emitted by `spinner`. Some other readline alternatives (notably [Rebel Readline](https://github.com/bhauman/rebel-readline)) have been reported to work correctly.
+
 #### Clojure CLI
 
 ```shell
@@ -36,6 +42,13 @@ $ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  #
 
 ```shell
 $ lein try com.github.pmonks/spinner
+```
+
+#### Simple REPL Session
+
+```clojure
+(require '[spinner.core :as spin] :reload-all)
+(spin/spin! #(Thread/sleep 5000))
 ```
 
 ## Usage
@@ -54,12 +67,6 @@ Require it in your application:
 (ns my-app.core
   (:require [spinner.core :as spin]))
 ```
-
-**Important Notes:**
-
-1. If you're using leiningen, your REPL **must** be run in a trampoline (`lein trampoline repl`) in order for the ANSI escape sequences emitted by `spinner` to function.
-
-2. If you're using the Clojure CLI tools, you **cannot** use the `clj` binary, as it wraps the JVM in `rlwrap` which incorrectly interprets some of the ANSI escape sequences emitted by `spinner`. Some other readline alternatives (notably [Rebel Readline](https://github.com/bhauman/rebel-readline)) have been reported to work correctly, however.
 
 ### API Documentation
 
