@@ -2,7 +2,7 @@ name: dependencies
 on:
   push:
   schedule:
-    - cron: '0 21 * * *'
+    - cron: '0 21 * * 0'
 
 jobs:
   antq:
@@ -11,4 +11,4 @@ jobs:
       image: uochan/antq
     steps:
       - uses: actions/checkout@v2
-      - run: java -jar /tmp/antq/antq.jar --skip=pom --error-format="::error file={{file}}::{{message}}"
+      - run: java -jar /tmp/antq/antq.jar --skip=pom --exclude=com.github.pmonks/pbr --error-format="::error file={{file}}::{{message}}"
