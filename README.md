@@ -1,7 +1,7 @@
 | | | |
 |---:|:---:|:---:|
-| [**main**](https://github.com/pmonks/spinner/tree/main) | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies) |
-| [**dev**](https://github.com/pmonks/spinner/tree/dev)  | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies) |
+| [**main**](https://github.com/pmonks/spinner/tree/main) | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Amain) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Amain) |
+| [**dev**](https://github.com/pmonks/spinner/tree/dev) | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Adev) |
 
 [![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/spinner)](https://clojars.org/com.github.pmonks/spinner/) [![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues) [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/main/LICENSE)
 
