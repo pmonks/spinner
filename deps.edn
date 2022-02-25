@@ -20,6 +20,6 @@
    {jansi-clj/jansi-clj {:mvn/version "1.0.0"}}
  :aliases
    {:build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.7.0" :git/sha "5d2cb60"}
                     com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
        :ns-default pbr.build}}}
