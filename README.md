@@ -86,6 +86,23 @@ This project uses the [git-flow branching strategy](https://nvie.com/posts/a-suc
 
 For this reason, **all development must occur either in branch `dev`, or (preferably) in temporary branches off of `dev`.**  All PRs from forked repos must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
 
+### Build Tasks
+
+`spinner` uses [`tools.build`](https://clojure.org/guides/tools_build). You can get a list of available tasks by running:
+
+```
+clojure -A:deps -T:build help/doc
+```
+
+Of particular interest are:
+
+* `clojure -T:build test` - run the unit tests
+* `clojure -T:build lint` - run the linters (clj-kondo and eastwood)
+* `clojure -T:build ci` - run the full CI suite (check for outdated dependencies, run the unit tests, run the linters)
+* `clojure -T:build install` - build the JAR and install it locally (e.g. so you can test it with downstream code)
+
+Please note that the `deploy` task is restricted to the core development team (and will not function if you run it yourself).
+
 ### Why are there so many different groupIds on Clojars for this project?
 
 The project was originally developed under my personal GitHub account.  In early 2018 it was transferred to the `clj-commons` GitHub organisation, but then, as that group refined their scope and mission, it was determined that it no longer belonged there, and the project were transferred back in late 2021.  During this time the build tooling for the project also changed from Leiningen to tools.build, which created further groupId churn (tools.build introduced special, useful semantics for `com.github.username` groupIds that don't exist with Leiningen or Clojars).
