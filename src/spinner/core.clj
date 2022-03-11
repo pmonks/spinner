@@ -73,7 +73,6 @@
 (def ^:private fut   (atom nil))
 (def ^:private state (atom :inactive))
 (def ^:private msgs  (atom nil))
-(def ^:private progress (atom nil))
 
 (defn- swap*!
   "Like clojure.core/swap! but returns a vector of [old-value new-value].
@@ -145,10 +144,10 @@
 (defn- display-progress-bar
   "Returns a string containing the containing the current progress bar status if progress is turned on,
   \"\" otherwise."
-  []
-  (if (nil? @progress)
+  [progress-bar]
+  (if (nil? progress-bar)
     ""
-    (let [percentage (Math/floor (/ @progress 10))]
+    (let [percentage (Math/floor (/ @progress-bar 10))]
       (str "["
            (apply str (concat
                        (take percentage (repeat "#"))
@@ -159,19 +158,17 @@
   "Spinner logic, for use in a future or Thread or wotnot"
   ([] (spinner nil))
   ([options]
-    (let [delay-in-ms (get options :delay default-delay-ms)
-          frames      (get options :frames (default-style styles))
-          fg-colour   (get options :fg-colour :default)
-          bg-colour   (get options :bg-colour :default)
+    (let [delay-in-ms  (get options :delay default-delay-ms)
+          frames       (get options :frames (default-style styles))
+          fg-colour    (get options :fg-colour :default)
+          bg-colour    (get options :bg-colour :default)
+          progress-bar (get options :progress-bar)
           attributes  (distinct
                         (concat [(get options :attribute :default)]
                                 (get options :attributes [])))]
-      (if (get options :progress-bar)
-        (reset! progress 0)
-        (reset! progress nil))
       (save-cursor!)
       (loop [i 0]
-        (clojure.core/print (str (display-progress-bar)
+        (clojure.core/print (str (display-progress-bar progress-bar)
                                  (apply-attributes attributes
                                    (apply-colour false bg-colour
                                      (apply-colour true fg-colour
@@ -195,7 +192,7 @@
      :bg-colour - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
      :attribute - the attribute of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#attributes for allowed values
      :attributes - the attributes (plural) of the spinner (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values
-     :progress-bar - Whether a progress bar is included. (default is false set to true otherwise.)
+     :progress-bar - set up a progress bar left of the spinner. This expects an atom containing a value between 0 and 100.
    }"
   ([] (start! nil))
   ([options]
@@ -227,14 +224,6 @@
      (f)
      (finally
        (stop!)))))
-
-(defn inc!
-  "Adds an amount to the progress bar. Bar starts at 0, provides a new mark every 10,
-  goes to a max of 100."
-  [value]
-  (swap! progress #(if (> (+ value %) 100)
-                     100
-                     (+ value %))))
 
 (defn print
   "Schedules the given values for printing (ala clojure.core/print).

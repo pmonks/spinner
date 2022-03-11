@@ -65,13 +65,14 @@
     (is (= (spin/spin! (fn [] (Thread/sleep 1000) :a-value))
         :a-value)))
 
-  (testing "Spin with progress bar"
-    (is (= (do (spin/start! {:progress-bar true})
-               (Thread/sleep 500)
-               (dotimes [x 10]
-                 (spin/inc! 10)
-                 (Thread/sleep 500))
-               (spin/stop!))
+  (testing "Spin with a progress bar"
+    (is (= (let [progress (atom 0)]
+             (spin/start! {:progress-bar progress})
+             (Thread/sleep 500)
+             (dotimes [x 10]
+               (swap! progress #(+ 10 %))
+               (Thread/sleep 500))
+             (spin/stop!))
            nil)))
 
   (testing "Custom colours"
