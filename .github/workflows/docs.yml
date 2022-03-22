@@ -17,7 +17,7 @@ jobs:
       - uses: DeLaGuardo/setup-clojure@4.0
         with:
           cli: latest
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository
