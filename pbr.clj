@@ -28,7 +28,7 @@
          :version      version
          :write-pom    true
          :validate-pom true
-         :pom          {:description      "Simple ANSI text spinner for command line Clojure apps."
+         :pom          {:description      "Simple ANSI text progress indicators for command line Clojure apps."
                         :url              "https://github.com/pmonks/spinner"
                         :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
                         :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+spinner@gmail.com"}]
