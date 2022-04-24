@@ -57,7 +57,7 @@
   "See progress.indeterminate/spinf!"
   ([f] (spin! f nil))
   ([f options]
-    (spin/spinf! f options)))
+    (spin/spinf! options f)))
 
 (defn ^:deprecated print
   "See progress.indeterminate/print"
