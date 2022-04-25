@@ -58,20 +58,20 @@
 
   (testing "Printing messages while a spinner is active"
     (is (= (do
-             (print "\nReticulating splines... ")
+             (print "\nSomebody set up us the bomb.... ")
              (flush)
              (spin/start! {:fg-colour :bright-yellow :bg-colour :red :attribute :bold})
              (Thread/sleep 500)
-             (spin/print "\nInserting sublimated messages... ")
-             (Thread/sleep 500)
-             (spin/print "\nAttempting to lock back buffer... ")
-             (Thread/sleep 500)
-             (spin/print "\nTime-compressing simulator clock... ")
-             (Thread/sleep 500)
-             (spin/print "\nLecturing errant subsystems... ")
-             (Thread/sleep 500)
-             (spin/print "\nRetracting Phong shader... ")
+             (spin/print "\nAll your base are belong to us... ")
              (Thread/sleep 500)
              (spin/stop!)
              (println))
+           nil)))
+
+  (testing "Function"
+    (is (= (spin/spin! (fn [] (Thread/sleep 2000))
+                       {:frames     (:ascii-bouncing-ball spin/styles)
+                        :delay      (* spin/default-delay-ms 2)
+                        :fg-colour  :red
+                        :bg-colour  :bright-white})
            nil))))
