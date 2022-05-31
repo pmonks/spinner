@@ -47,30 +47,36 @@ $ lein try com.github.pmonks/spinner
 #### Simple REPL Session
 
 ```clojure
-(require '[spinner.core :as spin] :reload-all)
-(spin/spin! #(Thread/sleep 5000))
+(require '[progress.indeterminate :as spin] :reload-all)
+
+(spin/spin!
+  (spin/print "A long running process...")
+  (Thread/sleep 2500)   ; Long running process would go here
+  (spin/print "\nAnother long running process...")
+  (Thread/sleep 2500)   ; Second long running processs would go here
+  (spin/print "\nAll done!\n"))  
 ```
 
 ## Usage
 
-The functionality is provided by the `spinner.core` namespace.
+The functionality is provided by the `progress.indeterminate` namespace.
 
 Require it in the REPL:
 
 ```clojure
-(require '[spinner.core :as spin] :reload-all)
+(require '[progress.indeterminate :as spin] :reload-all)
 ```
 
 Require it in your application:
 
 ```clojure
 (ns my-app.core
-  (:require [spinner.core :as spin]))
+  (:require [progress.indeterminate :as spin]))
 ```
 
 ### API Documentation
 
-[API documentation is available here](https://pmonks.github.io/spinner/).  [The unit tests](https://github.com/pmonks/spinner/blob/main/test/spinner/core_test.clj) provide comprehensive usage examples.
+[API documentation is available here](https://pmonks.github.io/spinner/).  [The unit tests](https://github.com/pmonks/spinner/blob/main/test/progress/indeterminate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
 
 ## Contributor Information
 
