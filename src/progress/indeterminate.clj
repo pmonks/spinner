@@ -17,7 +17,7 @@
 ;
 
 (ns progress.indeterminate
-  "Indetermine progress indicator (i.e. a \"spinner\"), for the case where the progress of a long-running task cannot be determined."
+  "Indetermine progress indicator (aka a \"spinner\"), for the case where the progress of a long-running task cannot be determined."
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]
             [progress.ansi  :as ansi]
@@ -68,7 +68,7 @@
 
 
 (def default-style
-  "The default spinner style used, if one isn't specified.  This is known to function on all platforms."
+  "The default indeterminate progress indicator style used, if one isn't specified.  This is known to function on all platforms."
   :ascii-spinner)
 
 (def default-delay-ms
@@ -76,16 +76,16 @@
   100)
 
 (def styles
-  "A selection of predefined styles of spinner. Only ASCII spinners are known to work reliably -
-   other styles depend on the operating system, terminal font & encoding, phase of the moon, and
-   how long since your dog last pooped."
+  "A selection of predefined styles of indeterminate progress indicators. Only ASCII progress indicators are known to
+   work reliably - other styles depend on the operating system, terminal font & encoding, phase of the moon, and how
+   long since your dog last pooped."
   {
-    ; ASCII spinners are reliable across platforms
+    ; ASCII indeterminate progress indicators are reliable across platforms
     :ascii-spinner        [\| \/ \- \\]
     :ascii-bouncing-ball  [\. \o \O \° \O \o]
     :ascii-back-and-forth ["[=----]" "[-=---]" "[--=--]" "[---=-]" "[----=]" "[---=-]" "[--=--]" "[-=---]"]
 
-    ; Unicode spinners are unreliable across platforms (especially Windows)
+    ; Unicode indeterminate progress indicators are unreliable across platforms (especially Windows)
     :box-up-down          [\▁ \▃ \▄ \▅ \▆ \▇ \█ \▇ \▆ \▅ \▄ \▃]
     :box-around           [\▖ \▘ \▝ \▗]
     :box-fade             [\space \░ \▒ \▓ \█ \▓ \▒ \░]
@@ -110,9 +110,9 @@
     :moon-phases          ["🌑" "🌒" "🌓" "🌔" "🌕" "🌖" "🌗" "🌘"]
   })
 
-(defn- spinner
-  "Spinner logic, for use in a future or Thread or wotnot"
-  ([] (spinner nil))
+(defn- indeterminate-progress-indicator
+  "Indeterminate progress indicator logic, for use in a future or Thread or wotnot"
+  ([] (indeterminate-progress-indicator nil))
   ([{:keys [delay-in-ms frames fg-colour bg-colour attributes]
      :or   {delay-in-ms default-delay-ms
             frames      (default-style styles)
@@ -136,19 +136,19 @@
     nil))
 
 (defn start!
-  "Not intended for public use. Use spin! or spinf! instead."
+  "Not intended for public use. Use animate! or animatef! instead."
   ([] (start! nil))
   ([opts]
    (when-not (compare-and-set! s :inactive :active)
      (throw (java.lang.IllegalStateException. "Progress indicator is already active.")))
 
    (flush)   ; Flush any residual I/O to stdout before we start animating
-   (reset! fut  (future (spinner opts)))
+   (reset! fut  (future (indeterminate-progress-indicator opts)))
    (reset! msgs nil)
    nil))
 
 (defn stop!
-  "Not intended for public use. Use spin! or spinf! instead."
+  "Not intended for public use. Use animate! or animatef! instead."
   []
   (when (compare-and-set! s :active :shutting-down)
     @@fut                     ; Wait for the future to stop (deref the atom AND the future)
@@ -157,18 +157,18 @@
     (reset! s   :inactive))
   nil)
 
-(defn spinf!
-  "Starts the spinner, calls fn f (a function of zero parameters), then stops the spinner. Returns the result of f.
+(defn animatef!
+  "Starts the indeterminate progress indicator, calls fn f (a function of zero parameters), then stops it. Returns the result of f.
 
-  Note that the `spin!` macro is preferred over this function.
+  Note that the `animate!` macro is preferred over this function.
 
   opts is a map, optionally containing these keys:
-    :frames     - the frames (a sequence of strings) to use for the spinner (default is (:ascii-spinner styles))
+    :frames     - the frames (a sequence of strings) to use for the indeterminate progress indicator (default is (:ascii-spinner styles))
     :delay      - the delay (in ms) between frames (default is 100ms)
-    :fg-colour  - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :bg-colour  - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :attributes - the attributes of the spinner (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
-  ([f] (spinf! nil f))
+    :fg-colour  - the foregound colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
+    :bg-colour  - the background colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
+    :attributes - the attributes of the indeterminate progress indicator (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
+  ([f] (animatef! nil f))
   ([opts f]
     (when f
       (start! opts)
@@ -177,14 +177,14 @@
        (finally
          (stop!))))))
 
-(defmacro spin!
-  "Wraps the given forms in the spinner. If the first form is the keyword `:opts`, the second form must be a map, optionally containing these keys:
-    :frames     - the frames (a sequence of strings) to use for the spinner (default is (:ascii-spinner styles))
+(defmacro animate!
+  "Wraps the given forms in the indeterminate progress indicator. If the first form is the keyword `:opts`, the second form must be a map, optionally containing these keys:
+    :frames     - the frames (a sequence of strings) to use for the indeterminate progress indicator (default is (:ascii-spinner styles))
     :delay      - the delay (in ms) between frames (default is 100ms)
-    :fg-colour  - the foregound colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :bg-colour  - the background colour of the spinner (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :attributes - the attributes of the spinner (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
+    :fg-colour  - the foregound colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
+    :bg-colour  - the background colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
+    :attributes - the attributes of the indeterminate progress indicator (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
   [& body]
   (if (= :opts (first body))
-    `(spinf! ~(second body) (fn [] ~@(rest (rest body))))
-    `(spinf! (fn [] ~@body))))
+    `(animatef! ~(second body) (fn [] ~@(rest (rest body))))
+    `(animatef! (fn [] ~@body))))

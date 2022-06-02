@@ -17,7 +17,7 @@
 ;
 
 (ns ^:deprecated spinner.core
-  (:require [progress.indeterminate :as spin]
+  (:require [progress.indeterminate :as pi]
             [progress.util          :as u])
   (:refer-clojure :exclude [print]))
 
@@ -27,39 +27,39 @@
 
 (def ^:deprecated default-style
   "See progress.indeterminate/default-style"
-  spin/default-style)
+  pi/default-style)
 
 (def ^:deprecated default-delay-ms
   "See progress.indeterminate/default-delay-ms"
-  spin/default-delay-ms)
+  pi/default-delay-ms)
 
 (def ^:deprecated styles
   "See progress.indeterminate/styles"
-  spin/styles)
+  pi/styles)
 
 (defn ^:deprecated active?
   "See progress.indeterminate/active?"
   []
-  (spin/active?))
+  (pi/active?))
 
 (defn ^:deprecated start!
   "See progress.indeterminate/start!"
   ([] (start! nil))
   ([options]
-    (spin/start! options)))
+    (pi/start! options)))
 
 (defn ^:deprecated stop!
   "See progress.indeterminate/stop!"
   []
-  (spin/stop!))
+  (pi/stop!))
 
 (defn ^:deprecated spin!
-  "See progress.indeterminate/spinf!"
+  "See progress.indeterminate/animatef!"
   ([f] (spin! f nil))
   ([f options]
-    (spin/spinf! options f)))
+    (pi/animatef! options f)))
 
 (defn ^:deprecated print
   "See progress.indeterminate/print"
   [& more]
-  (apply spin/print more))
+  (apply pi/print more))

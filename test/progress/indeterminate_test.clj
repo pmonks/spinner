@@ -1,5 +1,5 @@
 ;
-; Copyright © 2014 Peter Monks
+; Copyright © 2022 Peter Monks
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 (ns progress.indeterminate-test
   (:require [clojure.test           :refer [deftest testing is]]
             [jansi-clj.core         :as jansi]
-            [progress.indeterminate :as spin]))
+            [progress.indeterminate :as pi]))
 
 (println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
 
@@ -31,53 +31,53 @@
 
 (deftest test-states
   (testing "Not active when not running"
-    (is (false? (spin/active?))))
+    (is (false? (pi/active?))))
 
   (testing "Active when running"
-    (is (true? (spin/spinf! (fn [] (spin/active?)))))))
+    (is (true? (pi/animatef! (fn [] (pi/active?)))))))
 
 (deftest test-function-vs-macro
-  (testing "No code provided - spinf! fn"
-    (is (= nil (spin/spinf! nil))))
+  (testing "No code provided - animatef! fn"
+    (is (= nil (pi/animatef! nil))))
 
-  (testing "No code provided - spin! macro"
-    (is (= nil (spin/spin!))))
+  (testing "No code provided - animate! macro"
+    (is (= nil (pi/animate!))))
 
-  (testing "Default for 1 second - spinf! fn"
-    (is (= nil (spin/spinf! (fn [] (Thread/sleep 1000))))))
+  (testing "Default for 1 second - animatef! fn"
+    (is (= nil (pi/animatef! (fn [] (Thread/sleep 1000))))))
 
-  (testing "Default for 1 second - spin! macro"
-    (is (= nil (spin/spin! (Thread/sleep 1000))))))
+  (testing "Default for 1 second - animate! macro"
+    (is (= nil (pi/animate! (Thread/sleep 1000))))))
 
 (deftest test-results
-  (testing "Spin around a value"
-    (is (= :a-value (spin/spin! (Thread/sleep 500) :a-value))))
+  (testing "Animate around a value"
+    (is (= :a-value (pi/animate! (Thread/sleep 500) :a-value))))
 
-  (testing "Spin around a function"
-    (is (= 4 (spin/spin! (Thread/sleep 500) (* 2 2))))))
+  (testing "Animate around a function"
+    (is (= 4 (pi/animate! (Thread/sleep 500) (* 2 2))))))
 
 (deftest test-options
-  (testing "Non-default spinner for 1 second - spinf! fn"
-    (is (= nil (spin/spinf! {:frames (:ascii-bouncing-ball spin/styles)} (fn [] (Thread/sleep 1000))))))
+  (testing "Non-default animation for 1 second - animatef! fn"
+    (is (= nil (pi/animatef! {:frames (:ascii-bouncing-ball pi/styles)} (fn [] (Thread/sleep 1000))))))
 
-  (testing "Non-default spinner for 1 second - spin! macro"
-    (is (= nil (spin/spin! :opts {:frames (:ascii-bouncing-ball spin/styles)} (Thread/sleep 1000)))))
+  (testing "Non-default animation for 1 second - animate! macro"
+    (is (= nil (pi/animate! :opts {:frames (:ascii-bouncing-ball pi/styles)} (Thread/sleep 1000)))))
 
   (testing "Custom colours"
-    (is (= nil (spin/spin! :opts {:fg-colour :black :bg-colour :white} (Thread/sleep 1000)))))
+    (is (= nil (pi/animate! :opts {:fg-colour :black :bg-colour :white} (Thread/sleep 1000)))))
 
   (testing "Custom bright colours"
-    (is (= nil (spin/spin! :opts {:fg-colour :bright-yellow :bg-colour :bright-red}))))
+    (is (= nil (pi/animate! :opts {:fg-colour :bright-yellow :bg-colour :bright-red}))))
 
   (testing "Custom attribute"
-    (is (= nil (spin/spin! :opts {:attributes [:strikethrough]} (Thread/sleep 1000)))))
+    (is (= nil (pi/animate! :opts {:attributes [:strikethrough]} (Thread/sleep 1000)))))
 
   (testing "Custom attributes"
-    (is (= nil (spin/spin! :opts {:attributes [:strikethrough :bold :underline]} (Thread/sleep 1000)))))
+    (is (= nil (pi/animate! :opts {:attributes [:strikethrough :bold :underline]} (Thread/sleep 1000)))))
 
   (testing "Custom everything"
-    (is (= nil (spin/spin! :opts {:frames     (:box-fade spin/styles)
-                                  :delay      (/ spin/default-delay-ms 2)
+    (is (= nil (pi/animate! :opts {:frames     (:box-fade pi/styles)
+                                  :delay      (/ pi/default-delay-ms 2)
                                   :fg-colour  :bright-yellow
                                   :bg-colour  :bright-red
                                   :attributes [:bold :fast-blink]}
@@ -85,25 +85,25 @@
 
   (testing "All styles with leading message"
     (doall
-      (for [style (sort (keys spin/styles))]
+      (for [style (sort (keys pi/styles))]
         (do
           (print (str "\n" (name style) ": "))
           (flush)
-          (is (= nil (spin/spin! :opts {:frames (style spin/styles)} (Thread/sleep 1000))))))))
+          (is (= nil (pi/animate! :opts {:frames (style pi/styles)} (Thread/sleep 1000))))))))
 
-  (testing "Printing messages while a spinner is active"
+  (testing "Printing messages while an animation is active"
     (is (= nil (do
                  (print "\nReticulating splines... ")
-                 (spin/spin! :opts {:fg-colour :bright-yellow :bg-colour :red :attribute :bold}
+                 (pi/animate! :opts {:fg-colour :bright-yellow :bg-colour :red :attribute :bold}
                    (Thread/sleep 500)
-                   (spin/print "\nInserting sublimated messages... ")
+                   (pi/print "\nInserting sublimated messages... ")
                    (Thread/sleep 500)
-                   (spin/print "\nAttempting to lock back buffer... ")
+                   (pi/print "\nAttempting to lock back buffer... ")
                    (Thread/sleep 500)
-                   (spin/print "\nTime-compressing simulator clock... ")
+                   (pi/print "\nTime-compressing simulator clock... ")
                    (Thread/sleep 500)
-                   (spin/print "\nLecturing errant subsystems... ")
+                   (pi/print "\nLecturing errant subsystems... ")
                    (Thread/sleep 500)
-                   (spin/print "\nRetracting Phong shader... ")
+                   (pi/print "\nRetracting Phong shader... ")
                    (Thread/sleep 500))
                  (println))))))
