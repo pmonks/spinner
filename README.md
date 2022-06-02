@@ -7,18 +7,18 @@
 
 # spinner
 
-A simple text spinner for command line Clojure apps.
+A simple indeterminate progress indicator (aka "spinner") for command line Clojure apps.
 
 What is it useful for?
 
-To give the user of a command line app a simple indeterminate progress indicator for long running operations.
+To give the user of a command line app a simple indeterminate progress indicator during long running processes.
 
 Here it is in action (from the unit tests):
 <p align="center">
   <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/main/spinner-demo.gif"/>
 </p>
 
-Note that using Unicode characters in spinners may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
+Note that using Unicode characters in progress indicators may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
 
 ## Installation
 
@@ -47,14 +47,14 @@ $ lein try com.github.pmonks/spinner
 #### Simple REPL Session
 
 ```clojure
-(require '[progress.indeterminate :as spin] :reload-all)
+(require '[progress.indeterminate :as pi] :reload-all)
 
-(spin/spin!
-  (spin/print "A long running process...")
-  (Thread/sleep 2500)   ; Long running process would go here
-  (spin/print "\nAnother long running process...")
-  (Thread/sleep 2500)   ; Second long running processs would go here
-  (spin/print "\nAll done!\n"))  
+(pi/animate!
+  (pi/print "A long running process...")
+  (Thread/sleep 2500)   ; Simulate a long running process
+  (pi/print "\nAnother long running process...")
+  (Thread/sleep 2500)   ; Simulate another long running process
+  (pi/print "\nAll done!\n"))  
 ```
 
 ## Usage
@@ -64,14 +64,14 @@ The functionality is provided by the `progress.indeterminate` namespace.
 Require it in the REPL:
 
 ```clojure
-(require '[progress.indeterminate :as spin] :reload-all)
+(require '[progress.indeterminate :as pi] :reload-all)
 ```
 
 Require it in your application:
 
 ```clojure
 (ns my-app.core
-  (:require [progress.indeterminate :as spin]))
+  (:require [progress.indeterminate :as pi]))
 ```
 
 ### API Documentation
@@ -112,6 +112,12 @@ Please note that the `deploy` task is restricted to the core development team (a
 ### Why are there so many different groupIds on Clojars for this project?
 
 The project was originally developed under my personal GitHub account.  In early 2018 it was transferred to the `clj-commons` GitHub organisation, but then, as that group refined their scope and mission, it was determined that it no longer belonged there, and the project were transferred back in late 2021.  During this time the build tooling for the project also changed from Leiningen to tools.build, which created further groupId churn (tools.build introduced special, useful semantics for `com.github.username` groupIds that don't exist with Leiningen or Clojars).
+
+### Why is it called "spinner", when it offers more than just spinners?
+
+tl;dr - historical reasons and naming is hard.
+
+The library started life providing a single hardcoded animation sequence (the classic "/-\\|" sequence), and then organically grew from there.  Because the name "spinner" appears in various places where changing it would break things (the GitHub repo, Maven artifact ids, etc.), I decided to stick with the name even though it's no longer very accurate.
 
 ## License
 
