@@ -92,13 +92,13 @@
   [^Long code-point]
   (when code-point
     (cond
-      (= 0x0 code-point)              0
-      (or (< code-point 0x20)
-          (and (>= code-point 0x7F)
-               (< code-point  0xA0))) -1
-      (combining-char? code-point)    0
-      (wide-char? code-point)         2
-      :else                           1)))
+      (= 0x0000 code-point)              0
+      (or (< code-point 0x0020)
+          (and (>= code-point 0x007F)
+               (<  code-point 0x00A0))) -1
+      (combining-char? code-point)       0
+      (wide-char? code-point)            2
+      :else                              1)))
 
 (defn wcswidth
   "A Clojure implementation of wcswidth."

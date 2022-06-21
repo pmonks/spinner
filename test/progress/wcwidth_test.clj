@@ -28,18 +28,21 @@
     (is (=  1   (wcw/wcwidth 0x0023)))    ; #
     (is (=  1   (wcw/wcwidth 0x0036)))    ; 6
     (is (=  1   (wcw/wcwidth 0x0041)))    ; A
-    (is (=  1   (wcw/wcwidth 0x2588)))    ; █
     (is (= '(1) (distinct (map wcw/wcwidth (range 0x21 0x7E))))))   ; All of the printable ASCII characters
 
   (testing "ASCII from Clojure character literals"
-    (is (=  1 (wcw/wcwidth (int \space))))
-    (is (=  1 (wcw/wcwidth (int \#))))
-    (is (=  1 (wcw/wcwidth (int \6))))
-    (is (=  1 (wcw/wcwidth (int \A)))))
+    (is (= 1 (wcw/wcwidth (int \space))))
+    (is (= 1 (wcw/wcwidth (int \#))))
+    (is (= 1 (wcw/wcwidth (int \6))))
+    (is (= 1 (wcw/wcwidth (int \A)))))
 
-  (testing "Unicode (single width")
+  (testing "Unicode - negative width"
+    (is (= -1 (wcw/wcwidth 0x0008)))    ; BS
+    (is (= -1 (wcw/wcwidth 0x001B)))    ; ESC
+    (is (= -1 (wcw/wcwidth 0x008A)))
+    (is (= -1 (wcw/wcwidth 0x0099))))
 
-  (testing "Unicode (zero width)"
+  (testing "Unicode - zero width"
     (is (zero? (wcw/wcwidth 0x0F35)))   ; Very close to middle of combinging characters
     (is (zero? (wcw/wcwidth 0x0F37)))   ; Very close to middle of combinging characters
     (is (zero? (wcw/wcwidth 0x0311)))   ; Lowest block of combining characters
@@ -51,8 +54,15 @@
     (is (zero? (wcw/wcwidth 0xA825)))
     (is (zero? (wcw/wcwidth 0xA826))))
 
+  (testing "Unicode - single width"
+    (is (= 1 (wcw/wcwidth (int \©))))
+    (is (= 1 (wcw/wcwidth (int \█))))
+    )
 
+  (testing "Unicode - double width")
+    (is (= 2 (wcw/wcwidth 0x1F921)))   ; 🤡
+    )
 
-  (testing "Unicode (negative width)")
-
-  (testing "Unicode (double width)"))
+(deftest test-wcswidth
+  (testing "ASCII-only strings"
+    (is (= 3 (wcw/wcswidth "foo")))))
