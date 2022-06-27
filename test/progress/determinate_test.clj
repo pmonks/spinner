@@ -28,20 +28,24 @@
   (testing "No atom code provided - animate! macro"
     (is (= nil (pd/animate! nil))))
 
-  (testing "Default for 1 second - animatef! fn"
-    (is (= nil (pd/animatef! (atom 0) (fn [] (Thread/sleep 1000))))))
+  (testing "Default for 0.5 second - animatef! fn"
+    (is (= nil (pd/animatef! (atom 0) (fn [] (Thread/sleep 500))))))
 
   (testing "Default for 1 second - animate! macro"
-    (is (= nil (pd/animate! (atom 0) (Thread/sleep 1000))))))
+    (is (= nil (pd/animate! (atom 0) (Thread/sleep 500))))))
 
 (deftest test-results
   (testing "Animate around a value"
-    (is (= :a-value (pd/animate! (atom 0) (Thread/sleep 500) :a-value))))
+    (is (= :a-value (pd/animate! (atom 0) :a-value))))
 
   (testing "Animate around a function"
-    (is (= 4 (pd/animate! (atom 0) (Thread/sleep 500) (* 2 2))))))
+    (is (= 4 (pd/animate! (atom 0) (* 2 2))))))
 
 (deftest test-updates
   (testing "Animate around some steps"
     (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a (apply + (map #(do (Thread/sleep 50) (swap! a inc) %) (range 100)))))))))
+                  (pd/animate! a (apply + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  (testing "Basic options"
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (apply + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  )

@@ -20,6 +20,7 @@
   "Determine progress indicator (aka a \"progress bar\"), for the case where the progress of a long-running task can be determined."
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]
+            [wcwidth.api    :as w]
             [progress.ansi  :as ansi]
             [progress.util  :as u]))
 
@@ -27,7 +28,7 @@
 
 (def default-style
   "The default determinate progress indicator style used, if one isn't specified.  This is known to function on all platforms."
-  :ascii-boxes)
+  :ascii-basic)
 
 (def styles
   "A selection of predefined styles of determinate progress indicators. Only ASCII progress indicators are known to
@@ -59,20 +60,27 @@
   [mn mx x]
   (max mn (min mx x)))
 
-(defn- redraw-indicator!
-  [style line width total _ _ _ new-value]
+(defn- redraw-progress-indicator!
+  [style style-widths line width counter? total _ _ _ new-value]
   ; Make sure this code is non re-entrant
   (locking lock
-    (let [percent-complete (/ new-value total)
-          body-width       (- width 2)                                                                         ; -2 for the end caps
-          num-fill-chars   (clamp 0 body-width (dec (Math/round (double (* percent-complete body-width)))))]   ; -1 for the tip
+    (let [percent-complete (/ (double new-value) total)
+          body-width       (- width
+                              (if (:left  style-widths) (:left style-widths)  0)
+                              (if (:right style-widths) (:right style-widths) 0))
+          num-fill-columns (clamp 0 body-width (- (Math/ceil (* percent-complete body-width)) (if (:tip style-widths) (:tip style-widths) 0)))]
+      (when line
+        (ansi/save-cursor!)
+        (jansi/cursor 1 line))
       (col1-and-erase-to-eol!)
-      (print (str (:left style)
-                  (s/join (repeat num-fill-chars (:full style)))
-                  (:tip style)
-                  (s/join (repeat (- body-width num-fill-chars) (:empty style)))
-                  (:right style)
-                  " " (int new-value) "/" (int total)))
+      (print (str (when (:left style) (:left style))
+                  (s/join (repeat (/ num-fill-columns (:full style-widths)) (:full style)))
+                  (when (:tip style) (:tip style))
+                  (s/join (repeat (/ (- body-width num-fill-columns) (:empty style-widths)) (:empty style)))
+                  (when (:right style) (:right style))
+                  (when counter? (str " " (int new-value) "/" (int total)))))  ; Counter at the end
+      (flush)
+      (when line (ansi/restore-cursor!))
       (flush))))
 
 
@@ -82,7 +90,12 @@
   Note that the `animate!` macro is preferred over this function.
 
   opts is a map, optionally containing these keys:
-    :total     - ####TODO!!!!"
+    :style     - ####TODO!!!!
+    :line      -
+    :width     -
+    :total     -
+    :preserve  -
+    :counter?  -"
   ([a f] (animatef! a nil f))
   ([a opts f]
     (when (and a f)
@@ -90,11 +103,21 @@
       (let [style      (get opts :style (get styles default-style))
             line       (get opts :line)
             width      (get opts :width 70)
+            counter?   (get opts :counter? true)
             total      (get opts :total 100)
-            render-fn! (partial redraw-indicator! style line width total)]
+            render-fn! (partial redraw-progress-indicator! style
+                                                           (merge {:empty (w/display-width (:empty style))
+                                                                   :full  (w/display-width (:full  style))}
+                                                                  (when (:left  style) {:left  (w/display-width (:left  style))})   ; Precompute style element widths, so that we don't have to do it in the tight loop
+                                                                  (when (:right style) {:right (w/display-width (:right style))})
+                                                                  (when (:tip   style) {:tip   (w/display-width (:tip   style))}))
+                                                           line
+                                                           width
+                                                           counter?
+                                                           total)]
+        (render-fn! nil nil nil @a)  ; Make sure we draw the indicator at least once up front
         (add-watch a ::pd render-fn!)
         (try
-          (render-fn! nil nil nil @a)  ; Make sure we draw the indicator at least once before calling the user's function
           (f)
           (finally
             ; Teardown logic
