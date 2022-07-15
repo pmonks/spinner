@@ -51,7 +51,7 @@
                              :delay      (/ spin/default-delay-ms 2)
                              :fg-colour  :bright-yellow
                              :bg-colour  :bright-red
-                             :attributes [:bold :fast-blink]})
+                             :attributes [:bold :blink-fast]})
                (Thread/sleep 2000)
                (spin/stop!))
            nil)))
