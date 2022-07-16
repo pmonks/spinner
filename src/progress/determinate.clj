@@ -168,7 +168,9 @@
             ; Teardown logic
             (remove-watch a ::pd)
             (if (:preserve? opts)
-              (println)
+              (do
+                (render-fn! nil nil nil @a)  ; Make sure we draw the indicator with the final value of the atom
+                (when-not (:line opts) (println)))
               (col1-and-erase-to-eol!))))))))
 
 (defmacro animate!

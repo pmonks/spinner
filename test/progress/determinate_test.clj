@@ -65,7 +65,7 @@
                   (pd/animate! a :opts {:counter? false} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
   (testing "Preserve progress bar"
     (is (= 45   (let [a (atom 0)]
-                  (pd/animate! a :opts {:preserve? true} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) %) (range 10))))))))
+                  (pd/animate! a :opts {:total 10 :preserve? true} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) %) (range 10))))))))
   (testing "Custom styles"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
