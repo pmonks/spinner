@@ -18,7 +18,7 @@
 
 {:deps
    {jansi-clj/jansi-clj           {:mvn/version "1.0.0"}
-    com.github.pmonks/clj-wcwidth {:mvn/version "1.0.51"}}
+    com.github.pmonks/clj-wcwidth {:mvn/version "1.0.58"}}
  :aliases
    {:build
       {:deps        {io.github.seancorfield/build-clj {:git/tag "v0.8.3" :git/sha "7ac1f8d"}

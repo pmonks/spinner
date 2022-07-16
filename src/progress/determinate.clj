@@ -21,8 +21,7 @@
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]
             [wcwidth.api    :as w]
-            [progress.ansi  :as ansi]
-            [progress.util  :as u]))
+            [progress.ansi  :as ansi]))
 
 (def ^:private lock (Object.))
 
@@ -36,17 +35,22 @@
    long since your dog last pooped."
   {
     ; ASCII determinate progress indicators are reliable across platforms
-    :ascii-basic {:left  "[" :left-attrs  []
-                  :right "]" :right-attrs []
-                  :empty " " :empty-attrs []
-                  :full  "#" :full-attrs  []}   ; Note: does not have a :tip
-    :ascii-boxes {:left  "▉" :left-attrs  []
-                  :right "▉" :right-attrs []
-                  :empty " " :empty-attrs []
-                  :full  "░" :full-attrs  []
-                  :tip   "▓" :tip-attrs   []}
+    :ascii-basic {:left  "["
+                  :right "]"
+                  :empty " "
+                  :full  "#"}   ; Note: does not have a :tip
+    :ascii-boxes {:left  "▉"
+                  :right "▉"
+                  :empty " "
+                  :full  "░"
+                  :tip   "▓"}
 
     ; Unicode determinate progress indicators are unreliable across platforms (especially Windows)
+    :emoji-circles {:left  "【" ; Note: double width without whitespace, despite appearances
+                    :right "】" ; Note: double width without whitespace, despite appearances
+                    :empty "⚫"
+                    :full  "⚪️"
+                    :tip   "🟡"}
   })
 
 (defn- col1-and-erase-to-eol!
@@ -65,37 +69,77 @@
   ; Make sure this code is non re-entrant
   (locking lock
     (let [percent-complete (/ (double new-value) total)
-          body-width       (- width
-                              (if (:left  style-widths) (:left style-widths)  0)
-                              (if (:right style-widths) (:right style-widths) 0))
-          num-fill-columns (clamp 0 body-width (- (Math/ceil (* percent-complete body-width)) (if (:tip style-widths) (:tip style-widths) 0)))]
+          body-cols        (- width
+                              (if (:left  style) (:left style-widths)  0)
+                              (if (:right style) (:right style-widths) 0))
+          fill-cols        (clamp 0 body-cols (Math/ceil (* percent-complete body-cols)))
+          fill-chars       (Math/ceil (/ fill-cols (:full style-widths)))
+          empty-cols       (- body-cols (* fill-chars (:full style-widths)))  ; We do it this way due to rounding
+          empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))]
       (when line
         (ansi/save-cursor!)
         (jansi/cursor 1 line))
       (col1-and-erase-to-eol!)
-      (print (str (when (:left style) (:left style))
-                  (s/join (repeat (/ num-fill-columns (:full style-widths)) (:full style)))
-                  (when (:tip style) (:tip style))
-                  (s/join (repeat (/ (- body-width num-fill-columns) (:empty style-widths)) (:empty style)))
-                  (when (:right style) (:right style))
-                  (when counter? (str " " (int new-value) "/" (int total)))))  ; Counter at the end
+      (print (str ; Left (optional)
+                  (when (:left style)
+                    (ansi/apply-colours-and-attrs (:left-fg-colour style)
+                                                  (:left-bg-colour style)
+                                                  (:left-attrs     style)
+                                                  (:left           style)))
+                  ; Full
+                  (ansi/apply-colours-and-attrs (:full-fg-colour style)
+                                                (:full-bg-colour style)
+                                                (:full-attrs     style)
+                                                (s/join (repeat fill-chars (:full style))))
+                  ; Tip (optional)
+                  (when (:tip style)
+                    (ansi/apply-colours-and-attrs (:tip-fg-colour style)
+                                                  (:tip-bg-colour style)
+                                                  (:tip-attrs     style)
+                                                  (:tip           style)))
+                  ; Empty
+                  (ansi/apply-colours-and-attrs (:empty-fg-colour style)
+                                                (:empty-bg-colour style)
+                                                (:empty-attrs     style)
+                                                (s/join (repeat empty-chars (:empty style))))
+                  ; Right (optional)
+                  (when (:right style)
+                    (ansi/apply-colours-and-attrs (:right-fg-colour style)
+                                                  (:right-bg-colour style)
+                                                  (:right-attrs     style)
+                                                  (:right           style)))
+                  ; Counter (optional)
+                  (when counter?
+                    (ansi/apply-colours-and-attrs (:counter-fg-colour style)
+                                                  (:counter-bg-colour style)
+                                                  (:counter-attrs     style)
+                                                  (str " " (int new-value) "/" (int total))))))
       (flush)
       (when line (ansi/restore-cursor!))
       (flush))))
 
+(defn- valid-width
+  "Returns a valid width for s (throws on zero or non-printing)."
+  [s]
+  (when s
+    (let [width (w/display-width s)]
+      (if (pos? width)
+        width
+        (throw (ex-info (str "Invalid width (" width ") for style string " s) {:string s :width width}))))))
+
 
 (defn animatef!
-  "Starts the determinate progress indicator, monitoring atom a (a number between 0 and (:total opts) representing completeness), calls fn f (a function of zero parameters), then stops it. Returns the result of f.
+  "Starts the determinate progress indicator, monitoring atom `a` (a number between 0 and (:total opts), representing completeness), while fn f (a function of zero parameters) is invoked. Returns the result of f.
 
   Note that the `animate!` macro is preferred over this function.
 
-  opts is a map, optionally containing these keys:
-    :style     - ####TODO!!!!
-    :line      -
-    :width     -
-    :total     -
-    :preserve  -
-    :counter?  -"
+  opts is a map, optionally containing these keys (all of which have sensible defaults):
+    :style     - a map defining the style (characters, colours, and attributes) to use when printing the progress indicator
+    :line      - the line number at which to print the progress indicator
+    :width     - the width of the progress indicator (default 70, excluding the counter)
+    :total     - the final number that the atom will reach (default: 100)
+    :preserve? - preserve the progress indicator after it finishes (default: false)
+    :counter?  - whether to display a counter to the right of the progress indicator"
   ([a f] (animatef! a nil f))
   ([a opts f]
     (when (and a f)
@@ -106,11 +150,12 @@
             counter?   (get opts :counter? true)
             total      (get opts :total 100)
             render-fn! (partial redraw-progress-indicator! style
-                                                           (merge {:empty (w/display-width (:empty style))
-                                                                   :full  (w/display-width (:full  style))}
-                                                                  (when (:left  style) {:left  (w/display-width (:left  style))})   ; Precompute style element widths, so that we don't have to do it in the tight loop
-                                                                  (when (:right style) {:right (w/display-width (:right style))})
-                                                                  (when (:tip   style) {:tip   (w/display-width (:tip   style))}))
+                                                           ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
+                                                           (merge {:empty (valid-width (:empty style))
+                                                                   :full  (valid-width (:full  style))}
+                                                                  (when (:left  style) {:left  (valid-width (:left  style))})
+                                                                  (when (:right style) {:right (valid-width (:right style))})
+                                                                  (when (:tip   style) {:tip   (valid-width (:tip   style))}))
                                                            line
                                                            width
                                                            counter?
@@ -122,17 +167,20 @@
           (finally
             ; Teardown logic
             (remove-watch a ::pd)
-            (if (:preserve opts)
+            (if (:preserve? opts)
               (println)
               (col1-and-erase-to-eol!))))))))
 
 (defmacro animate!
-  "Wraps the given forms in the determinate progress indicator. If the first form is the keyword `:opts`, the second form must be a map, optionally containing these keys:
-    :frames     - the frames (a sequence of strings) to use for the determinate progress indicator (default is (:ascii-spinner styles))
-    :delay      - the delay (in ms) between frames (default is 100ms)
-    :fg-colour  - the foregound colour of the determinate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :bg-colour  - the background colour of the determinate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :attributes - the attributes of the determinate progress indicator (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
+  "Wraps the given forms in the determinate progress indicator. If the first form is the keyword `:opts`, the second form must be an opts map.
+
+The opts map (if present) may optionally containing these keys (all of which have sensible defaults):
+    :style     - a map defining the style (characters, colours, and attributes) to use when printing the progress indicator
+    :line      - the line number at which to print the progress indicator
+    :width     - the width of the progress indicator (default 70, excluding the counter)
+    :total     - the final number that the atom will reach (default: 100)
+    :preserve? - preserve the progress indicator after it finishes (default: false)
+    :counter?  - whether to display a counter to the right of the progress indicator"
   [a & body]
   (if (= :opts (first body))
     `(animatef! ~a ~(second body) (fn [] ~@(rest (rest body))))

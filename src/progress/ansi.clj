@@ -53,16 +53,23 @@
 
 (defn apply-colour
   "Applies an 'enhanced' colour keyword (which may include the prefix 'bright-') to either the foreground or background of body."
-  [fg? colour-key & body]
+  [fg? colour-key s]
   (let [bright?     (s/starts-with? (name colour-key) "bright-")
         colour-name (if bright? (keyword (subs (name colour-key) (count "bright-"))) colour-key)]
     (case [fg? bright?]
-      [true  true]  (apply jansi/fg-bright colour-name body)
-      [true  false] (apply jansi/fg        colour-name body)
-      [false true]  (apply jansi/bg-bright colour-name body)
-      [false false] (apply jansi/bg        colour-name body))))
+      [true  true]  (jansi/fg-bright colour-name s)
+      [true  false] (jansi/fg        colour-name s)
+      [false true]  (jansi/bg-bright colour-name s)
+      [false false] (jansi/bg        colour-name s))))
 
 (defn apply-attributes
-  "Applies all of provided attributes (a seq) to body."
-  [attributes & body]
-  (apply (apply comp (map #(partial jansi/a %) attributes)) body))
+  "Applies all of provided attributes (a seq) to s (a string)."
+  [attributes s]
+  ((apply comp (map #(partial jansi/a %) attributes)) s))
+
+(defn apply-colours-and-attrs
+  "Applies the foreground colour, background colour, and attributes (a seq) to s (a string)."
+  [fg-colour bg-colour attrs s]
+  (apply-attributes (if (seq attrs) attrs [:default])
+    (apply-colour false (if bg-colour bg-colour :default)
+      ((partial apply-colour true (if fg-colour fg-colour :default)) s))))

@@ -121,10 +121,7 @@
             attributes  [:default]}}]
     (ansi/save-cursor!)
     (loop [i 0]
-      (clojure.core/print (str (ansi/apply-attributes attributes
-                                 (ansi/apply-colour false bg-colour
-                                   (ansi/apply-colour true fg-colour
-                                     (nth frames (mod i (count frames))))))
+      (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames (mod i (count frames))))
                                " "))
       (flush)
       (Thread/sleep delay-in-ms)

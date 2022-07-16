@@ -46,6 +46,8 @@ $ lein try com.github.pmonks/spinner
 
 #### Simple REPL Session
 
+##### Indeterminate Task (aka "spinner")
+
 ```clojure
 (require '[progress.indeterminate :as pi] :reload-all)
 
@@ -57,21 +59,33 @@ $ lein try com.github.pmonks/spinner
   (pi/print "\nAll done!\n"))  
 ```
 
+##### Determinate Task (aka "progress bar")
+
+```clojure
+(require '[progress.determinate :as pd] :reload-all)
+
+(let [a (atom 0)]
+  ; Add up all the numbers from 1 to 100... ...slowly
+  (pd/animate! a (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))
+```
+
 ## Usage
 
-The functionality is provided by the `progress.indeterminate` namespace.
+The functionality is provided by the `progress.indeterminate` and `progress.determinate` namespaces.
 
-Require it in the REPL:
+Require them in the REPL:
 
 ```clojure
 (require '[progress.indeterminate :as pi] :reload-all)
+(require '[progress.determinate   :as pd] :reload-all)
 ```
 
-Require it in your application:
+Require them in your application:
 
 ```clojure
 (ns my-app.core
-  (:require [progress.indeterminate :as pi]))
+  (:require [progress.indeterminate :as pi]
+            [progress.determinate   :as pd]))
 ```
 
 ### API Documentation
