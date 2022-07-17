@@ -91,7 +91,7 @@
                                               :tip-attrs       [:italic]}}
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
 
-(deftest test-custom-widths
+(deftest test-multi-width-chars
   (testing "Zero width character"
     (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
                           (let [a (atom 0)]
@@ -111,4 +111,15 @@
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style (:emoji-boxes pd/styles)}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+
+(deftest test-indicator-width
+  (testing "Custom determinate progress indiciator width"
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:width 40}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:width 10}
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
