@@ -30,9 +30,9 @@
 
 (defn state
   "What state is the indeterminate progress indicator currently in?  One of:
-  * :inactive
-  * :active
-  * :shutting-down"
+   * :inactive
+   * :active
+   * :shutting-down"
   []
   @s)
 
@@ -44,7 +44,7 @@
 (defn print
   "Schedules the given values for printing (ala clojure.core/print), since clojure.core/print (and similar output fns) interfere with an active indeterminate progress indicator.
 
-   Notes:
+Notes:
    * output is emitted in between 'frames' of the progress indicator, so may not appear immediately
    * values are space delimited (as in clojure.core/print) - use clojure.core/str for finer control
    * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \\newline in the value(s)"
@@ -77,8 +77,8 @@
 
 (def styles
   "A selection of predefined styles of indeterminate progress indicators. Only ASCII progress indicators are known to
-   work reliably - other styles depend on the operating system, terminal font & encoding, phase of the moon, and how
-   long since your dog last pooped."
+work reliably - other styles depend on the operating system, terminal font & encoding, phase of the moon, and how
+long since your dog last pooped."
   {
     ; ASCII indeterminate progress indicators are reliable across platforms
     :ascii-spinner        [\| \/ \- \\]

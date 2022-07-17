@@ -107,4 +107,8 @@
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style (:emoji-circles pd/styles)}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:style (:emoji-boxes pd/styles)}
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))

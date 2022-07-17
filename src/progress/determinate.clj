@@ -17,7 +17,8 @@
 ;
 
 (ns progress.determinate
-  "Determine progress indicator (aka a \"progress bar\"), for the case where the progress of a long-running task can be determined."
+  "Determine progress indicator (aka a \"progress bar\"), for the case where the
+progress of a long-running task can be determined."
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]
             [wcwidth.api    :as w]
@@ -26,13 +27,15 @@
 (def ^:private lock (Object.))
 
 (def default-style
-  "The default determinate progress indicator style used, if one isn't specified.  This is known to function on all platforms."
+  "The default determinate progress indicator style used, if one isn't
+specified.  This is known to function on all platforms."
   :ascii-basic)
 
 (def styles
-  "A selection of predefined styles of determinate progress indicators. Only ASCII progress indicators are known to
-   work reliably - other styles depend on the operating system, terminal font & encoding, phase of the moon, and how
-   long since your dog last pooped."
+  "A selection of predefined styles of determinate progress indicators. Only
+ASCII progress indicators are known to work reliably - other styles depend on
+the operating system, terminal font & encoding, phase of the moon, and how long
+since your dog last pooped."
   {
     ; ASCII determinate progress indicators are reliable across platforms
     :ascii-basic {:left  "["
@@ -45,12 +48,15 @@
                   :full  "░"
                   :tip   "▓"}
 
-    ; Unicode determinate progress indicators are unreliable across platforms (especially Windows)
+    ; Emoji determinate progress indicators are unreliable across platforms (especially Windows)
     :emoji-circles {:left  "【" ; Note: double width without whitespace, despite appearances
                     :right "】" ; Note: double width without whitespace, despite appearances
                     :empty "⚫"
                     :full  "⚪️"
                     :tip   "🟡"}
+    :emoji-boxes   {:empty "⬛️"
+                    :full  "⬜️"
+                    :tip   "🟨"}
   })
 
 (defn- col1-and-erase-to-eol!
@@ -114,7 +120,6 @@
                                                   (:counter-bg-colour style)
                                                   (:counter-attrs     style)
                                                   (str " " (int new-value) "/" (int total))))))
-      (flush)
       (when line (ansi/restore-cursor!))
       (flush))))
 
@@ -129,17 +134,24 @@
 
 
 (defn animatef!
-  "Starts the determinate progress indicator, monitoring atom `a` (a number between 0 and (:total opts), representing completeness), while fn f (a function of zero parameters) is invoked. Returns the result of f.
+  "Starts the determinate progress indicator, monitoring atom `a` (a number
+between 0 and (:total opts), representing completeness), while fn f (a function
+of zero parameters) is invoked. Returns the result of f.
 
-  Note that the `animate!` macro is preferred over this function.
+Note that the `animate!` macro is preferred over this function.
 
-  opts is a map, optionally containing these keys (all of which have sensible defaults):
-    :style     - a map defining the style (characters, colours, and attributes) to use when printing the progress indicator
-    :line      - the line number at which to print the progress indicator
-    :width     - the width of the progress indicator (default 70, excluding the counter)
-    :total     - the final number that the atom will reach (default: 100)
-    :preserve? - preserve the progress indicator after it finishes (default: false)
-    :counter?  - whether to display a counter to the right of the progress indicator"
+opts is a map, optionally containing these keys (all of which have sensible
+defaults):
+   :style     - a map defining the style (characters, colours, and attributes)
+                to use when printing the progress indicator
+   :line      - the line number at which to print the progress indicator
+   :width     - the width of the progress indicator (default 70, excluding the
+                counter)
+   :total     - the final number that the atom will reach (default: 100)
+   :preserve? - preserve the progress indicator after it finishes
+                (default: false)
+   :counter?  - whether to display a counter to the right of the progress
+                indicator"
   ([a f] (animatef! a nil f))
   ([a opts f]
     (when (and a f)
@@ -171,18 +183,26 @@
               (do
                 (render-fn! nil nil nil @a)  ; Make sure we draw the indicator with the final value of the atom
                 (when-not (:line opts) (println)))
-              (col1-and-erase-to-eol!))))))))
+              (col1-and-erase-to-eol!))
+            (flush)))))))
 
 (defmacro animate!
-  "Wraps the given forms in the determinate progress indicator. If the first form is the keyword `:opts`, the second form must be an opts map.
+  "Wraps the given forms in the determinate progress indicator, monitoring atom
+`a` (a number between 0 and (:total opts), representing completeness). If the
+first form is the keyword `:opts`, the second form must be an opts map.
 
-The opts map (if present) may optionally containing these keys (all of which have sensible defaults):
-    :style     - a map defining the style (characters, colours, and attributes) to use when printing the progress indicator
-    :line      - the line number at which to print the progress indicator
-    :width     - the width of the progress indicator (default 70, excluding the counter)
-    :total     - the final number that the atom will reach (default: 100)
-    :preserve? - preserve the progress indicator after it finishes (default: false)
-    :counter?  - whether to display a counter to the right of the progress indicator"
+The opts map (if present) may optionally containing these keys (all of which
+have sensible defaults):
+   :style     - a map defining the style (characters, colours, and attributes)
+                to use when printing the progress indicator
+   :line      - the line number at which to print the progress indicator
+   :width     - the width of the progress indicator (default 70, excluding the
+                counter)
+   :total     - the final number that the atom will reach (default: 100)
+   :preserve? - preserve the progress indicator after it finishes
+                (default: false)
+   :counter?  - whether to display a counter to the right of the progress
+                indicator"
   [a & body]
   (if (= :opts (first body))
     `(animatef! ~a ~(second body) (fn [] ~@(rest (rest body))))
