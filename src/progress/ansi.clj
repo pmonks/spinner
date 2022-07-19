@@ -41,7 +41,7 @@
   "Send debug output to the specified screen location (note: ANSI screen location are 1-based)."
   [x y & args]
   (save-cursor!)
-  (jansi/cursor! x y)
+  (jansi/cursor! y x)   ; Note these are reversed compared to the jansi-clj docs due to https://github.com/xsc/jansi-clj/issues/4
   (jansi/erase-line!)
   (print (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args))))))
   (restore-cursor!))
