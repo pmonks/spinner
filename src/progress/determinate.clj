@@ -78,13 +78,15 @@ since your dog last pooped."
           body-cols        (- width
                               (if (:left  style) (:left style-widths)  0)
                               (if (:right style) (:right style-widths) 0))
+          tip-cols         (if (:tip style) 1 0)
+          tip-chars        (* tip-cols (get style-widths :tip 0))
           fill-cols        (clamp 0 body-cols (Math/ceil (* percent-complete body-cols)))
-          fill-chars       (Math/ceil (/ fill-cols (:full style-widths)))
+          fill-chars       (- (Math/ceil (/ fill-cols (:full style-widths))) tip-chars)
           empty-cols       (- body-cols (* fill-chars (:full style-widths)))  ; We do it this way due to rounding
           empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))]
       (when line
-        (ansi/save-cursor!)
-        (jansi/cursor 1 line))
+          (ansi/save-cursor!)
+          (jansi/cursor! line 1))   ; Note: https://github.com/xsc/jansi-clj/issues/4
       (col1-and-erase-to-eol!)
       (print (str ; Left (optional)
                   (when (:left style)
@@ -158,9 +160,9 @@ defaults):
       ; Setup logic
       (let [style      (get opts :style (get styles default-style))
             line       (get opts :line)
-            width      (get opts :width 70)
             counter?   (get opts :counter? true)
             total      (get opts :total 100)
+            width      (- (get opts :width 70) (if counter? (inc (* 2 (count (str total)))) 0))
             render-fn! (partial redraw-progress-indicator! style
                                                            ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
                                                            (merge {:empty (valid-width (:empty style))

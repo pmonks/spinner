@@ -58,17 +58,32 @@
     (is (= 499500 (let [a (atom 0)]
                     (pd/animate! a :opts {:total 1000} (reduce + (map #(do (Thread/sleep 1) (swap! a inc) %) (range 1000)))))))))
 
-; These ones run for longer (1 second each) so that they can be visually verified
-(deftest test-styling
-  (testing "No counter"
+(deftest test-option-style
+  (testing "Style with zero width characters"
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
+                          (let [a (atom 0)]
+                                     (pd/animate! a
+                                                  :opts {:style {:empty (w/code-point-to-string 0x20DD)}}  ; Combining enclosing circle (zero width)
+                                                  :foo))))
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
+                          (let [a (atom 0)]
+                                     (pd/animate! a
+                                                  :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
+                                                  :foo)))))
+  ; These ones run for longer (1 second each) so that they can be visually verified
+  (testing "Built-in style - ASCII"
     (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a :opts {:counter? false} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
-  (testing "Preserve progress bar"
-    (is (= 45   (let [a (atom 0)]
-                  (pd/animate! a :opts {:total 10 :preserve? true} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) %) (range 10))))))))
-  (testing "Custom styles"
+                  (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  (testing "Built-in style - double width characters"
     (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+                  (pd/animate! a
+                               :opts {:style (:emoji-circles pd/styles)}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:style (:emoji-boxes pd/styles)}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  (testing "Caller-defined style - ASCII with colours and attributes"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style {:left            ">"
@@ -89,32 +104,38 @@
                                               :tip-bg-colour   :black
                                               :tip-fg-colour   :bright-yellow
                                               :tip-attrs       [:italic]}}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
-
-(deftest test-multi-width-chars
-  (testing "Zero width character"
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
-                          (let [a (atom 0)]
-                                     (pd/animate! a
-                                                  :opts {:style {:empty (w/code-point-to-string 0x20DD)}}  ; Combining enclosing circle (zero width)
-                                                  :foo))))
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
-                          (let [a (atom 0)]
-                                     (pd/animate! a
-                                                  :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
-                                                  :foo)))))
-  (testing "Double width characters"
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  (testing "Caller-defined style - double width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
-                               :opts {:style (:emoji-circles pd/styles)}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+                               :opts {:style {:left            "🌜"
+                                              :right           "🌛"
+                                              :empty           "🫥"  ; Note - doesn't work properly on ITerm2 due to https://gitlab.com/gnachman/iterm2/-/issues/10509
+                                              :full            "😐"
+                                              :tip             "🤔"}}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  (testing "Caller-defined style - mixed width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
-                               :opts {:style (:emoji-boxes pd/styles)}
+                               :opts {:style {:left            "["
+                                              :right           "]"
+                                              :empty           " "
+                                              :full            "🔀"
+                                              :tip             ">"}}
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
 
-(deftest test-indicator-width
-  (testing "Custom determinate progress indiciator width"
+(deftest test-option-counter
+  (testing "No counter"
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a :opts {:counter? false} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+
+(deftest test-option-preserve
+  (testing "Preserve the progress indicator after the task completes"
+    (is (= 45   (let [a (atom 0)]
+                  (pd/animate! a :opts {:total 10 :preserve? true} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) %) (range 10)))))))))
+
+(deftest test-option-width
+  (testing "Custom progress indicator width"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:width 40}
@@ -122,4 +143,15 @@
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:width 10}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+
+(deftest test-option-line
+  (testing "Custom progress indicator location on-screen"
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:line 10}
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:line 1}
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
