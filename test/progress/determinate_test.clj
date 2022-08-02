@@ -19,6 +19,7 @@
 (ns progress.determinate-test
   (:require [clojure.test         :refer [deftest testing is]]
             [wcwidth.api          :as w]
+            [progress.ansi        :as ansi]
             [progress.determinate :as pd]))
 
 (deftest test-function-vs-macro
@@ -142,7 +143,7 @@
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
-                               :opts {:width 10}
+                               :opts {:width 20}
                                (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
 
 (deftest test-option-line
@@ -154,4 +155,14 @@
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 1}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+  (testing "Custom progress indicator location on-screen, with text output"
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:line 2}
+                               (reduce + (map #(do
+                                                 (Thread/sleep 10)
+                                                 (swap! a inc)
+                                                 (ansi/print-at 1 1 "Now up to" %)
+                                                 %)
+                                              (range 100)))))))))
