@@ -66,7 +66,9 @@ $ lein try com.github.pmonks/spinner
 
 (let [a (atom 0)]
   ; Add up all the numbers from 1 to 100... ...slowly
-  (pd/animate! a (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))
+  (pd/animate!
+    a
+    (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))
 ```
 
 ## Usage
