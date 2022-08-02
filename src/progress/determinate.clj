@@ -86,7 +86,7 @@ since your dog last pooped."
           empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))]
       (when line
           (ansi/save-cursor!)
-          (jansi/cursor! line 1))   ; Note: https://github.com/xsc/jansi-clj/issues/4
+          (jansi/cursor! 1 line))
       (col1-and-erase-to-eol!)
       (print (str ; Left (optional)
                   (when (:left style)
