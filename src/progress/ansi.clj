@@ -37,14 +37,19 @@
   (print "\u001B8")          ; So we manually send a DEC code too
   (flush))
 
-(defn debug-print-at
-  "Send debug output to the specified screen location (note: ANSI screen location are 1-based)."
-  [x y & args]
+(defn print-at
+  "Send text output to the specified screen locations (note: ANSI screen coordinates are 1-based). msgs may include jansi formatting."
+  [x y & msgs]
   (save-cursor!)
   (jansi/cursor! x y)
   (jansi/erase-line!)
-  (print (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args))))))
+  (apply print msgs)
   (restore-cursor!))
+
+(defn debug-print-at
+  "Send debug output to the specified screen location (note: ANSI screen coordinates are 1-based)."
+  [x y & args]
+  (print-at x y (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args)))))))
 
 (defn debug-print
   "Send debug output to the upper left corner of the screen, where (hopefully) it minimises interference with everything else."
