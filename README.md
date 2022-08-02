@@ -7,11 +7,11 @@
 
 # spinner
 
-A simple indeterminate progress indicator (aka "spinner") for command line Clojure apps.
+Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress cannot be measured) and determinate tasks (those where progress can be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
 
-What is it useful for?
+## What is it useful for?
 
-To give the user of a command line app a simple indeterminate progress indicator during long running processes.
+To give the user of a command line app a visual progress indicator during long running processes.
 
 Here it is in action (from the unit tests):
 <p align="center">
@@ -90,7 +90,7 @@ Require them in your application:
 
 ### API Documentation
 
-[API documentation is available here](https://pmonks.github.io/spinner/).  [The unit tests](https://github.com/pmonks/spinner/blob/main/test/progress/indeterminate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
+[API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/main/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/main/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
 
 ## Contributor Information
 
