@@ -76,7 +76,8 @@ since your dog last pooped."
   (locking lock
     (let [percent-complete (/ (double new-value) total)
           body-cols        (- width
-                              (if (:left  style) (:left style-widths)  0)
+                              (if (:label style) (:label style-widths) 0)
+                              (if (:left  style) (:left  style-widths) 0)
                               (if (:right style) (:right style-widths) 0))
           tip-cols         (if (:tip style) 1 0)
           tip-chars        (* tip-cols (get style-widths :tip 0))
@@ -88,7 +89,14 @@ since your dog last pooped."
           (ansi/save-cursor!)
           (jansi/cursor! 1 line))
       (col1-and-erase-to-eol!)
-      (print (str ; Left (optional)
+      (print (str ; Label (optional)
+                  (when (:label style)
+                    (ansi/apply-colours-and-attrs (:label-fg-colour style)
+                                                  (:label-bg-colour style)
+                                                  (:label-attrs     style)
+                                                  (str (:label      style) " ")))
+
+                  ; Left (optional)
                   (when (:left style)
                     (ansi/apply-colours-and-attrs (:left-fg-colour style)
                                                   (:left-bg-colour style)
@@ -167,6 +175,7 @@ defaults):
                                                            ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
                                                            (merge {:empty (valid-width (:empty style))
                                                                    :full  (valid-width (:full  style))}
+                                                                  (when (:label style) {:label (inc (valid-width (:label style)))})  ; Include space delimiter
                                                                   (when (:left  style) {:left  (valid-width (:left  style))})
                                                                   (when (:right style) {:right (valid-width (:right style))})
                                                                   (when (:tip   style) {:tip   (valid-width (:tip   style))}))
