@@ -71,14 +71,14 @@ since your dog last pooped."
   (max mn (min mx x)))
 
 (defn- redraw-progress-indicator!
-  [style style-widths line width counter? total _ _ _ new-value]
+  [style style-widths label line width counter? total _ _ _ new-value]
   ; Make sure this code is non re-entrant
   (locking lock
     (let [percent-complete (/ (double new-value) total)
           body-cols        (- width
-                              (if (:label style) (:label style-widths) 0)
-                              (if (:left  style) (:left  style-widths) 0)
-                              (if (:right style) (:right style-widths) 0))
+                              (if-not (s/blank? label) (:label style-widths) 0)
+                              (if (:left  style)       (:left  style-widths) 0)
+                              (if (:right style)       (:right style-widths) 0))
           tip-cols         (if (:tip style) 1 0)
           tip-chars        (* tip-cols (get style-widths :tip 0))
           fill-cols        (clamp 0 body-cols (Math/ceil (* percent-complete body-cols)))
@@ -90,11 +90,11 @@ since your dog last pooped."
           (jansi/cursor! 1 line))
       (col1-and-erase-to-eol!)
       (print (str ; Label (optional)
-                  (when (:label style)
+                  (when-not (s/blank? label)
                     (ansi/apply-colours-and-attrs (:label-fg-colour style)
                                                   (:label-bg-colour style)
                                                   (:label-attrs     style)
-                                                  (str (:label      style) " ")))
+                                                  (str label " ")))
 
                   ; Left (optional)
                   (when (:left style)
@@ -154,6 +154,7 @@ opts is a map, optionally containing these keys (all of which have sensible
 defaults):
    :style     - a map defining the style (characters, colours, and attributes)
                 to use when printing the progress indicator
+   :label     - a label to display before the progress indicator
    :line      - the line number at which to print the progress indicator
    :width     - the width of the progress indicator (default 70, excluding the
                 counter)
@@ -167,6 +168,7 @@ defaults):
     (when (and a f)
       ; Setup logic
       (let [style      (get opts :style (get styles default-style))
+            label      (:label opts)
             line       (get opts :line)
             counter?   (get opts :counter? true)
             total      (get opts :total 100)
@@ -175,10 +177,11 @@ defaults):
                                                            ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
                                                            (merge {:empty (valid-width (:empty style))
                                                                    :full  (valid-width (:full  style))}
-                                                                  (when (:label style) {:label (inc (valid-width (:label style)))})  ; Include space delimiter
-                                                                  (when (:left  style) {:left  (valid-width (:left  style))})
-                                                                  (when (:right style) {:right (valid-width (:right style))})
-                                                                  (when (:tip   style) {:tip   (valid-width (:tip   style))}))
+                                                                  (when-not (s/blank? label) {:label (inc (valid-width label))})  ; Include space delimiter
+                                                                  (when (:left  style)       {:left  (valid-width (:left  style))})
+                                                                  (when (:right style)       {:right (valid-width (:right style))})
+                                                                  (when (:tip   style)       {:tip   (valid-width (:tip   style))}))
+                                                           label
                                                            line
                                                            width
                                                            counter?

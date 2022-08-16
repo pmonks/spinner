@@ -148,8 +148,7 @@
   (testing "Caller-defined style - label"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
-                               :opts {:style (merge (:ascii-basic pd/styles)   ; Don't forget to pick an actual style along with the label!
-                                                    {:label "download.zip"})}
+                               :opts {:label "download.zip"}
                                (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-counter
