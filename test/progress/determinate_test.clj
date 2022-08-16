@@ -22,6 +22,27 @@
             [progress.ansi        :as ansi]
             [progress.determinate :as pd]))
 
+(defn slow-counter
+  "Counts from 0 to steps-1 in approximately time-to-take milliseconds, updating atom a with the current count as it goes. Returns the sum of the series."
+  [a time-to-take steps]
+  (let [sleep-time (/ time-to-take steps)]
+    (reduce + (map #(do (Thread/sleep sleep-time) (swap! a inc) %) (range steps)))))
+
+(defn slow-counter-to-100
+  "Counts from 0 to 99 in aooroximately time-to-take milliseconds, updating atom a as it goes. Returns the sum of the series (4950)."
+  [a time-to-take]
+  (slow-counter a time-to-take 100))
+
+(defn slow-counter-to-10-in-250
+  "Counts from 0 to 9 in 250ms, updating atom a as it goes. Returns the sum of the series (49)."
+  [a]
+  (slow-counter a 250 10))
+
+(defn slow-counter-to-100-in-1000
+  "Counts from 0 to 99 in 1000ms, updating atom a as it goes. Returns the sum of the series (4950)."
+  [a]
+  (slow-counter-to-100 a 1000))
+
 (deftest test-function-vs-macro
   (testing "No atom or code provided - animatef! fn"
     (is (= nil (pd/animatef! nil nil))))
@@ -45,7 +66,7 @@
 (deftest test-updates
   (testing "Animate around some steps"
     (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+                  (pd/animate! a (slow-counter-to-100-in-1000 a))))))
   (testing "Jump steps"
     (is (= :foo (let [a (atom 0)]
                   (pd/animate! a (doall (for [x [25 50 75 100]] (do (Thread/sleep 250) (swap! a (constantly x))))) :foo))))))
@@ -53,11 +74,11 @@
 (deftest test-computation-results
   (testing "Computation results"
     (is (= 45     (let [a (atom 0)]
-                    (pd/animate! a :opts {:total 10} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) %) (range 10)))))))
+                    (pd/animate! a :opts {:total 10} (slow-counter-to-10-in-250 a)))))
     (is (= 9/2    (let [a (atom 0)]
                     (pd/animate! a :opts {:total 1.0} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) (/ % 10)) (range 10)))))))
     (is (= 499500 (let [a (atom 0)]
-                    (pd/animate! a :opts {:total 1000} (reduce + (map #(do (Thread/sleep 1) (swap! a inc) %) (range 1000)))))))))
+                    (pd/animate! a :opts {:total 1000} (slow-counter a 250 1000)))))))
 
 (deftest test-option-style
   (testing "Style with zero width characters"
@@ -74,16 +95,16 @@
   ; These ones run for longer (1 second each) so that they can be visually verified
   (testing "Built-in style - ASCII"
     (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+                  (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (slow-counter-to-100-in-1000 a))))))
   (testing "Built-in style - double width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style (:emoji-circles pd/styles)}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+                               (slow-counter-to-100-in-1000 a)))))
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style (:emoji-boxes pd/styles)}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+                               (slow-counter-to-100-in-1000 a))))))
   (testing "Caller-defined style - ASCII with colours and attributes"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
@@ -105,7 +126,7 @@
                                               :tip-bg-colour   :black
                                               :tip-fg-colour   :bright-yellow
                                               :tip-attrs       [:italic]}}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+                               (slow-counter-to-100-in-1000 a))))))
   (testing "Caller-defined style - double width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
@@ -114,7 +135,7 @@
                                               :empty           "🫥"  ; Note - doesn't work properly on ITerm2 due to https://gitlab.com/gnachman/iterm2/-/issues/10509
                                               :full            "😐"
                                               :tip             "🤔"}}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+                               (slow-counter-to-100-in-1000 a))))))
   (testing "Caller-defined style - mixed width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
@@ -123,39 +144,39 @@
                                               :empty           " "
                                               :full            "🔀"
                                               :tip             ">"}}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+                               (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-counter
   (testing "No counter"
     (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a :opts {:counter? false} (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+                  (pd/animate! a :opts {:counter? false} (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-preserve
   (testing "Preserve the progress indicator after the task completes"
     (is (= 45   (let [a (atom 0)]
-                  (pd/animate! a :opts {:total 10 :preserve? true} (reduce + (map #(do (Thread/sleep 25) (swap! a inc) %) (range 10)))))))))
+                  (pd/animate! a :opts {:total 10 :preserve? true} (slow-counter-to-10-in-250 a)))))))
 
 (deftest test-option-width
   (testing "Custom progress indicator width"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:width 40}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+                               (slow-counter-to-100-in-1000 a)))))
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:width 20}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))))
+                               (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-line
   (testing "Custom progress indicator location on-screen"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 10}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))))
+                               (slow-counter-to-100-in-1000 a)))))
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 1}
-                               (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100))))))))
+                               (slow-counter-to-100-in-1000 a))))))
   (testing "Custom progress indicator location on-screen, with text output"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
@@ -166,3 +187,16 @@
                                                  (ansi/print-at 1 1 "Now up to" %)
                                                  %)
                                               (range 100)))))))))
+
+(defn async-indicator-at-line
+  "Asynchronously starts an indicator at line line, running the logic in fn f, a function of one argument (the atom to update)."
+  [line f]
+  (let [a (atom 0)]
+    (future (pd/animate! a :opts {:line line} (f a)))))
+
+(deftest test-multiple-indicators
+  (testing "Multiple progress indicators"
+    (is (= [4950 4950 4950 4950]
+           (map deref
+                (doall (map #(async-indicator-at-line (inc %) (fn [a] (slow-counter-to-100 a (+ 500 (* 100 (rand-int 6))))))
+                            (range 4))))))))
