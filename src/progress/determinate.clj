@@ -86,8 +86,8 @@ since your dog last pooped."
           empty-cols       (- body-cols (* fill-chars (:full style-widths)))  ; We do it this way due to rounding
           empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))]
       (when line
-          (ansi/save-cursor!)
-          (jansi/cursor! 1 line))
+        (ansi/save-cursor!)
+        (jansi/cursor! 1 line))
       (col1-and-erase-to-eol!)
       (print (str ; Label (optional)
                   (when-not (s/blank? label)
@@ -193,12 +193,18 @@ defaults):
           (finally
             ; Teardown logic
             (remove-watch a ::pd)
-            (if (:preserve? opts)
-              (do
-                (render-fn! nil nil nil @a)  ; Make sure we draw the indicator with the final value of the atom
-                (when-not (:line opts) (println)))
-              (col1-and-erase-to-eol!))
-            (flush)))))))
+            (locking lock  ; Make sure this isn't re-entrant with the main loop, since the TTY can only save a single cursor position at a time
+              (if (:preserve? opts)
+                (do
+                  (render-fn! nil nil nil @a)  ; Make sure we draw the indicator with the final value of the atom
+                  (when-not line (println)))
+                (do
+                  (when line
+                    (ansi/save-cursor!)
+                    (jansi/cursor! 1 line))
+                  (col1-and-erase-to-eol!)
+                  (when line (ansi/restore-cursor!))))
+              (flush))))))))
 
 (defmacro animate!
   "Wraps the given forms in the determinate progress indicator, monitoring atom
