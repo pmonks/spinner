@@ -105,7 +105,7 @@
                   (pd/animate! a
                                :opts {:style (:emoji-boxes pd/styles)}
                                (slow-counter-to-100-in-1000 a))))))
-  (testing "Caller-defined style - ASCII with colours and attributes"
+  (testing "Custom style - ASCII with colours and attributes"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style {:left            ">"
@@ -127,7 +127,7 @@
                                               :tip-fg-colour   :bright-yellow
                                               :tip-attrs       [:italic]}}
                                (slow-counter-to-100-in-1000 a))))))
-  (testing "Caller-defined style - double width characters"
+  (testing "Custom style - double width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style {:left            "🌜"
@@ -136,7 +136,7 @@
                                               :full            "😐"
                                               :tip             "🤔"}}
                                (slow-counter-to-100-in-1000 a))))))
-  (testing "Caller-defined style - mixed width characters"
+  (testing "Custom style - mixed width characters"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:style {:left            "["
@@ -145,24 +145,24 @@
                                               :full            "🔀"
                                               :tip             ">"}}
                                (slow-counter-to-100-in-1000 a))))))
-  (testing "Caller-defined style - label"
+  (testing "Custom style - label"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:label "download.zip"}
                                (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-counter
-  (testing "No counter"
+  (testing "Options - no counter"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a :opts {:counter? false} (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-preserve
-  (testing "Preserve the progress indicator after the task completes"
+  (testing "Options - preserve"
     (is (= 45   (let [a (atom 0)]
                   (pd/animate! a :opts {:total 10 :preserve? true} (slow-counter-to-10-in-250 a)))))))
 
 (deftest test-option-width
-  (testing "Custom progress indicator width"
+  (testing "Options - custom width"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:width 40}
@@ -173,7 +173,7 @@
                                (slow-counter-to-100-in-1000 a)))))))
 
 (deftest test-option-line
-  (testing "Custom progress indicator location on-screen"
+  (testing "Options - custom line location"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 10}
@@ -181,8 +181,10 @@
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 1}
-                               (slow-counter-to-100-in-1000 a))))))
-  (testing "Custom progress indicator location on-screen, with text output"
+                               (slow-counter-to-100-in-1000 a)))))))
+
+(deftest test-option-combos
+  (testing "Option combos - line with concurrent text output"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 2}
@@ -191,7 +193,12 @@
                                                  (swap! a inc)
                                                  (ansi/print-at 1 1 "Now up to" %)
                                                  %)
-                                              (range 100)))))))))
+                                              (range 100))))))))
+  (testing "Option combos - line and preserve"
+    (is (= 4950 (let [a (atom 0)]
+                  (pd/animate! a
+                               :opts {:line 1 :preserve? true}
+                               (slow-counter-to-100-in-1000 a)))))))
 
 (defn async-indicator-at-line
   "Asynchronously starts an indicator at line line, running the logic in fn f, a function of one argument (the atom to update)."
