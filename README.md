@@ -41,7 +41,7 @@ $ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  #
 #### Leiningen
 
 ```shell
-$ lein try com.github.pmonks/spinner
+$ lein trampoline try com.github.pmonks/spinner
 ```
 
 #### Simple REPL Session
