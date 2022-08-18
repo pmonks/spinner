@@ -171,7 +171,7 @@ opts is a map, optionally containing these keys:
                 including any labels and counters.  This is approximate because
                 emoji-based styles may not take up an even fraction of the
                 desired width
-                Optional, default: 70
+                Optional, default: 72
    :total     - the final number that the atom will reach
                 Optional, default: 100 (i.e. the atom represents a %age)
    :units     - a unit label (String) to display after the counter
@@ -192,7 +192,7 @@ opts is a map, optionally containing these keys:
             counter?   (get opts :counter? true)
             total      (get opts :total 100)
             units      (:units opts)
-            width      (- (get opts :width 70) (if counter? (inc (* 2 (count (str total)))) 0))
+            width      (get opts :width 72)
             render-fn! (partial redraw-progress-indicator! style
                                                            ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
                                                            (merge {:empty (valid-width (:empty style))
@@ -248,7 +248,7 @@ The opts map (if present) may optionally contain these keys:
                 including any labels and counters.  This is approximate because
                 emoji-based styles may not take up an even fraction of the
                 desired width
-                Optional, default: 70
+                Optional, default: 72
    :total     - the final number that the atom will reach
                 Optional, default: 100 (i.e. the atom represents a %age)
    :units     - a unit label (String) to display after the counter
