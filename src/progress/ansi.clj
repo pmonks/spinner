@@ -37,14 +37,19 @@
   (print "\u001B8")          ; So we manually send a DEC code too
   (flush))
 
-(defn debug-print-at
-  "Send debug output to the specified screen location (note: ANSI screen location are 1-based)."
-  [x y & args]
+(defn print-at
+  "Send text output to the specified screen locations (note: ANSI screen coordinates are 1-based). msgs may include jansi formatting."
+  [x y & msgs]
   (save-cursor!)
   (jansi/cursor! x y)
   (jansi/erase-line!)
-  (print (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args))))))
+  (apply print msgs)
   (restore-cursor!))
+
+(defn debug-print-at
+  "Send debug output to the specified screen location (note: ANSI screen coordinates are 1-based)."
+  [x y & args]
+  (print-at x y (jansi/a :bold (jansi/fg-bright :yellow (jansi/bg :red (str "DEBUG: " (s/join " " args)))))))
 
 (defn debug-print
   "Send debug output to the upper left corner of the screen, where (hopefully) it minimises interference with everything else."
@@ -53,16 +58,23 @@
 
 (defn apply-colour
   "Applies an 'enhanced' colour keyword (which may include the prefix 'bright-') to either the foreground or background of body."
-  [fg? colour-key & body]
+  [fg? colour-key s]
   (let [bright?     (s/starts-with? (name colour-key) "bright-")
         colour-name (if bright? (keyword (subs (name colour-key) (count "bright-"))) colour-key)]
     (case [fg? bright?]
-      [true  true]  (apply jansi/fg-bright colour-name body)
-      [true  false] (apply jansi/fg        colour-name body)
-      [false true]  (apply jansi/bg-bright colour-name body)
-      [false false] (apply jansi/bg        colour-name body))))
+      [true  true]  (jansi/fg-bright colour-name s)
+      [true  false] (jansi/fg        colour-name s)
+      [false true]  (jansi/bg-bright colour-name s)
+      [false false] (jansi/bg        colour-name s))))
 
 (defn apply-attributes
-  "Applies all of provided attributes (a seq) to body."
-  [attributes & body]
-  (apply (apply comp (map #(partial jansi/a %) attributes)) body))
+  "Applies all of provided attributes (a seq) to s (a string)."
+  [attributes s]
+  ((apply comp (map #(partial jansi/a %) attributes)) s))
+
+(defn apply-colours-and-attrs
+  "Applies the foreground colour, background colour, and attributes (a seq) to s (a string)."
+  [fg-colour bg-colour attrs s]
+  (apply-attributes (if (seq attrs) attrs [:default])
+    (apply-colour false (if bg-colour bg-colour :default)
+      ((partial apply-colour true (if fg-colour fg-colour :default)) s))))

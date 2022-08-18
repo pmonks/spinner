@@ -7,11 +7,11 @@
 
 # spinner
 
-A simple indeterminate progress indicator (aka "spinner") for command line Clojure apps.
+Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress cannot be measured) and determinate tasks (those where progress can be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
 
-What is it useful for?
+## What is it useful for?
 
-To give the user of a command line app a simple indeterminate progress indicator during long running processes.
+To give the user of a command line app a visual progress indicator during long running processes.
 
 Here it is in action (from the unit tests):
 <p align="center">
@@ -41,10 +41,12 @@ $ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  #
 #### Leiningen
 
 ```shell
-$ lein try com.github.pmonks/spinner
+$ lein trampoline try com.github.pmonks/spinner
 ```
 
 #### Simple REPL Session
+
+##### Indeterminate Task (aka "spinner")
 
 ```clojure
 (require '[progress.indeterminate :as pi] :reload-all)
@@ -57,26 +59,40 @@ $ lein try com.github.pmonks/spinner
   (pi/print "\nAll done!\n"))  
 ```
 
+##### Determinate Task (aka "progress bar")
+
+```clojure
+(require '[progress.determinate :as pd] :reload-all)
+
+(let [a (atom 0)]
+  ; Add up all the numbers from 1 to 100... ...slowly
+  (pd/animate!
+    a
+    (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))
+```
+
 ## Usage
 
-The functionality is provided by the `progress.indeterminate` namespace.
+The functionality is provided by the `progress.indeterminate` and `progress.determinate` namespaces.
 
-Require it in the REPL:
+Require them in the REPL:
 
 ```clojure
 (require '[progress.indeterminate :as pi] :reload-all)
+(require '[progress.determinate   :as pd] :reload-all)
 ```
 
-Require it in your application:
+Require them in your application:
 
 ```clojure
 (ns my-app.core
-  (:require [progress.indeterminate :as pi]))
+  (:require [progress.indeterminate :as pi]
+            [progress.determinate   :as pd]))
 ```
 
 ### API Documentation
 
-[API documentation is available here](https://pmonks.github.io/spinner/).  [The unit tests](https://github.com/pmonks/spinner/blob/main/test/progress/indeterminate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
+[API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/main/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/main/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
 
 ## Contributor Information
 

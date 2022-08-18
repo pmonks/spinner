@@ -17,9 +17,11 @@
 ;
 
 {:deps
-   {jansi-clj/jansi-clj {:mvn/version "1.0.0"}}
+   {jansi-clj/jansi-clj           {:mvn/version "1.0.1"}
+    com.github.pmonks/clj-wcwidth {:mvn/version "1.0.64"}}
  :aliases
    {:build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.8.0" :git/sha "9bd8b8a"}
-                    com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
-       :ns-default pbr.build}}}
+      {:deps        {io.github.seancorfield/build-clj {:git/tag "v0.8.3" :git/sha "7ac1f8d"}
+                     com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
+       :ns-default  pbr.build}
+       :extra-paths ["src"]}}
