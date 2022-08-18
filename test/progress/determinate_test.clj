@@ -25,7 +25,7 @@
 (defn slow-counter
   "Counts from 0 to steps-1 in approximately time-to-take milliseconds, updating atom a with the current count as it goes. Returns the sum of the series."
   [a time-to-take steps]
-  (let [sleep-time (/ time-to-take steps)]
+  (let [sleep-time (Math/round (double (/ time-to-take steps)))]
     (reduce + (map #(do (Thread/sleep sleep-time) (swap! a inc) %) (range steps)))))
 
 (defn slow-counter-to-100
@@ -155,6 +155,11 @@
   (testing "Options - no counter"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a :opts {:counter? false} (slow-counter-to-100-in-1000 a)))))))
+
+(deftest test-option-units
+  (testing "Options - units"
+    (is (= 74305 (let [a (atom 0)]
+                   (pd/animate! a :opts {:units "MB" :total 386} (slow-counter a 750 386)))))))
 
 (deftest test-option-preserve
   (testing "Options - preserve"

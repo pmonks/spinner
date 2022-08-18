@@ -71,14 +71,16 @@ since your dog last pooped."
   (max mn (min mx x)))
 
 (defn- redraw-progress-indicator!
-  [style style-widths label line width counter? total _ _ _ new-value]
+  [style style-widths label line width counter? total units _ _ _ new-value]   ; Ignored args are required as this fn is also a watch
   ; Make sure this code is non re-entrant
   (locking lock
     (let [percent-complete (/ (double new-value) total)
           body-cols        (- width
                               (if-not (s/blank? label) (:label style-widths) 0)
                               (if (:left  style)       (:left  style-widths) 0)
-                              (if (:right style)       (:right style-widths) 0))
+                              (if (:right style)       (:right style-widths) 0)
+                              (if counter?             (inc (* 2 (count (str total)))) 0)
+                              (if (and counter? (not (s/blank? units))) (:units style-widths) 0))
           tip-cols         (if (:tip style) 1 0)
           tip-chars        (* tip-cols (get style-widths :tip 0))
           fill-cols        (clamp 0 body-cols (Math/ceil (* percent-complete body-cols)))
@@ -129,7 +131,12 @@ since your dog last pooped."
                     (ansi/apply-colours-and-attrs (:counter-fg-colour style)
                                                   (:counter-bg-colour style)
                                                   (:counter-attrs     style)
-                                                  (str " " (int new-value) "/" (int total))))))
+                                                  (str " " (int new-value) "/" (int total)
+                                                       (when-not (s/blank? units)
+                                                         (ansi/apply-colours-and-attrs (:units-fg-colour style)
+                                                                                       (:units-bg-colour style)
+                                                                                       (:units-attrs     style)
+                                                                                       (str " " units))))))))
       (when line (ansi/restore-cursor!))
       (flush))))
 
@@ -144,25 +151,37 @@ since your dog last pooped."
 
 
 (defn animatef!
-  "Starts the determinate progress indicator, monitoring atom `a` (a number
-between 0 and (:total opts), representing completeness), while fn f (a function
-of zero parameters) is invoked. Returns the result of f.
+  "Wraps execution of the given function in a determinate progress indicator,
+monitoring atom `a` (a number between 0 and (:total opts), representing
+progress). An optional options map (`opts`) may also be provided.
 
 Note that the `animate!` macro is preferred over this function.
 
-opts is a map, optionally containing these keys (all of which have sensible
-defaults):
+opts is a map, optionally containing these keys:
    :style     - a map defining the style (characters, colours, and attributes)
                 to use when printing the progress indicator
-   :label     - a label to display before the progress indicator
-   :line      - the line number at which to print the progress indicator
-   :width     - the width of the progress indicator (default 70, excluding the
-                counter)
-   :total     - the final number that the atom will reach (default: 100)
-   :preserve? - preserve the progress indicator after it finishes
-                (default: false)
+                Optional, default: (:ascii-basic styles)
+   :label     - a String to display before the progress indicator - this could
+                be the filename for a lengthy file download, for example
+                Optional, default: nil
+   :line      - the line number on the screen at which to display the progress
+                indicator (note: 1-based)
+                Optional, default: nil (display at current location)
+   :width     - the (approximate) desired width of the progress indicator,
+                including any labels and counters.  This is approximate because
+                emoji-based styles may not take up an even fraction of the
+                desired width
+                Optional, default: 70
+   :total     - the final number that the atom will reach
+                Optional, default: 100 (i.e. the atom represents a %age)
+   :units     - a unit label (String) to display after the counter
+                Optional, default: nil
+   :preserve? - flag indicating whether to preserve the progress indicator on
+                screen after it finishes (vs erasing it)
+                Optional, default: false (erase it)
    :counter?  - whether to display a counter to the right of the progress
-                indicator"
+                indicator
+                Optional, default: true (display a counter)"
   ([a f] (animatef! a nil f))
   ([a opts f]
     (when (and a f)
@@ -172,27 +191,30 @@ defaults):
             line       (get opts :line)
             counter?   (get opts :counter? true)
             total      (get opts :total 100)
+            units      (:units opts)
             width      (- (get opts :width 70) (if counter? (inc (* 2 (count (str total)))) 0))
             render-fn! (partial redraw-progress-indicator! style
                                                            ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
                                                            (merge {:empty (valid-width (:empty style))
                                                                    :full  (valid-width (:full  style))}
-                                                                  (when-not (s/blank? label) {:label (inc (valid-width label))})  ; Include space delimiter
+                                                                  (when-not (s/blank? label) {:label (inc (valid-width label))})   ; Include space delimiter
                                                                   (when (:left  style)       {:left  (valid-width (:left  style))})
                                                                   (when (:right style)       {:right (valid-width (:right style))})
-                                                                  (when (:tip   style)       {:tip   (valid-width (:tip   style))}))
+                                                                  (when (:tip   style)       {:tip   (valid-width (:tip   style))})
+                                                                  (when-not (s/blank? units) {:units (inc (valid-width units))}))  ; Include space delimiter
                                                            label
                                                            line
                                                            width
                                                            counter?
-                                                           total)]
+                                                           total
+                                                           units)]
         (render-fn! nil nil nil @a)  ; Make sure we draw the indicator at least once up front
-        (add-watch a ::pd render-fn!)
+        (add-watch a ::determinate-progress-indicator render-fn!)
         (try
           (f)
           (finally
             ; Teardown logic
-            (remove-watch a ::pd)
+            (remove-watch a ::determinate-progress-indicator)
             (locking lock  ; Make sure this isn't re-entrant with the main loop, since the TTY can only save a single cursor position at a time
               (if (:preserve? opts)
                 (do
@@ -207,22 +229,36 @@ defaults):
               (flush))))))))
 
 (defmacro animate!
-  "Wraps the given forms in the determinate progress indicator, monitoring atom
-`a` (a number between 0 and (:total opts), representing completeness). If the
-first form is the keyword `:opts`, the second form must be an opts map.
+  "Wraps execution of the given forms in a determinate progress indicator,
+monitoring atom `a` (a number between 0 and (:total opts), representing
+progress). If the first form is the keyword `:opts`, the second form must be an
+opts map.
 
-The opts map (if present) may optionally containing these keys (all of which
-have sensible defaults):
+The opts map (if present) may optionally contain these keys:
    :style     - a map defining the style (characters, colours, and attributes)
                 to use when printing the progress indicator
-   :line      - the line number at which to print the progress indicator
-   :width     - the width of the progress indicator (default 70, excluding the
-                counter)
-   :total     - the final number that the atom will reach (default: 100)
-   :preserve? - preserve the progress indicator after it finishes
-                (default: false)
+                Optional, default: (:ascii-basic styles)
+   :label     - a String to display before the progress indicator - this could
+                be the filename for a lengthy file download, for example
+                Optional, default: nil
+   :line      - the line number on the screen at which to display the progress
+                indicator (note: 1-based)
+                Optional, default: nil (display at current location)
+   :width     - the (approximate) desired width of the progress indicator,
+                including any labels and counters.  This is approximate because
+                emoji-based styles may not take up an even fraction of the
+                desired width
+                Optional, default: 70
+   :total     - the final number that the atom will reach
+                Optional, default: 100 (i.e. the atom represents a %age)
+   :units     - a unit label (String) to display after the counter
+                Optional, default: nil
+   :preserve? - flag indicating whether to preserve the progress indicator on
+                screen after it finishes (vs erasing it)
+                Optional, default: false (erase it)
    :counter?  - whether to display a counter to the right of the progress
-                indicator"
+                indicator
+                Optional, default: true (display a counter)"
   [a & body]
   (if (= :opts (first body))
     `(animatef! ~a ~(second body) (fn [] ~@(rest (rest body))))
