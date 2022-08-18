@@ -203,7 +203,10 @@
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a
                                :opts {:line 1 :preserve? true}
-                               (slow-counter-to-100-in-1000 a)))))))
+                               (slow-counter-to-100-in-1000 a))))))
+  (testing "Option combos - label, counter and units"
+    (is (= 1087075 (let [a (atom 0)]
+                     (pd/animate! a :opts {:label "download.zip" :units "MB" :total 1475} (slow-counter a 750 1475)))))))
 
 (defn async-indicator-at-line
   "Asynchronously starts an indicator at line line, running the logic in fn f, a function of one argument (the atom to update)."
