@@ -17,50 +17,11 @@
 ;
 
 {:deps
-   {org.clojure/clojure {:mvn/version "1.10.3"}
-    jansi-clj/jansi-clj {:mvn/version "1.0.0"}}
+   {jansi-clj/jansi-clj           {:mvn/version "1.0.1"}
+    com.github.pmonks/clj-wcwidth {:mvn/version "1.0.64"}}
  :aliases
-   {; ---- TOOL ALIASES ----
-
-    ; clj -T:build <taskname>
-    :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.5" :git/sha "972031a"}
-                    com.github.pmonks/pbr            {:mvn/version "2.0.133"}}
-       :ns-default build}
-
-
-    ; ---- OTHER ALIASES ----
-    ; clj -M:check
-    :check
-      {:extra-deps {com.github.athos/clj-check {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
-       :main-opts  ["-m" "clj-check.check"]}
-
-    ; clj -X:test
-    :test
-      {:extra-paths ["test"]
-       :extra-deps  {org.clojure/test.check               {:mvn/version "1.1.1"}
-                     io.github.cognitect-labs/test-runner {:git/tag "v0.5.0" :git/sha "48c3c67"}}
-       :exec-fn     cognitect.test-runner.api/test}
-
-    ; clj -M:kondo
-    :kondo
-      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.12.19"}}
-       :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
-
-    ; clj -M:eastwood
-    :eastwood
-      {:extra-deps {jonase/eastwood {:mvn/version "1.0.0"}}
-       :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\"]}"]}
-
-    ; clj -M:outdated
-    :outdated
-      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.3.1"}}
-       :main-opts  ["-m" "antq.core" "--skip=pom"]}
-
-    ; clj -X:codox
-    :codox
-      {:extra-deps {codox/codox {:mvn/version "0.10.8"}}
-       :exec-fn    codox.main/generate-docs
-       :exec-args  {:source-paths ["src"]
-                    :source-uri   "https://github.com/pmonks/spinner/blob/main/{filepath}#L{line}"}}
-   }}
+   {:build
+      {:deps        {io.github.seancorfield/build-clj {:git/tag "v0.8.3" :git/sha "7ac1f8d"}
+                     com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
+       :ns-default  pbr.build}
+       :extra-paths ["src"]}}

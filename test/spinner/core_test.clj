@@ -16,18 +16,11 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns spinner.core-test
-  (:require [clojure.test   :refer [deftest testing is]]
-            [jansi-clj.core :as jansi]
-            [spinner.core   :as spin]))
+(ns ^:deprecated spinner.core-test
+  (:require [clojure.test :refer [deftest testing is]]
+            [spinner.core :as spin]))
 
-(println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
-
-(println
-  (jansi/yellow-bg-bright
-    (jansi/red
-      (jansi/bold
-        "\nDO NOT RUN THESE TESTS WITH THE `clj` COMMAND!  It uses rlwrap, which misinterprets the ANSI escape codes emitted by this library."))))
+; These tests only exists to check backwards compatibility of the (deprecated) spinner.core namespace
 
 (deftest states
   (testing "Start and stop"
@@ -53,68 +46,32 @@
     (is (true? (try (spin/start!) (spin/active?) (finally (spin/stop!)))))))
 
 (deftest display
-  (testing "Default spinner for 5 seconds"
-    (is (= (do (spin/start!) (Thread/sleep 5000) (spin/stop!))
-           nil)))
-
-  (testing "Multi-character spinner for 5 seconds"
-    (is (= (do (spin/start! {:frames (:box-wave spin/styles)}) (Thread/sleep 5000) (spin/stop!))
-           nil)))
-
-  (testing "Spin around a function"
-    (is (= (spin/spin! (fn [] (Thread/sleep 1000) :a-value))
-        :a-value)))
-
-  (testing "Custom colours"
-    (is (= (do (spin/start! {:fg-colour :black :bg-colour :white}) (Thread/sleep 1000) (spin/stop!))
-           nil)))
-
-  (testing "Custom bright colours"
-    (is (= (do (spin/start! {:fg-colour :bright-yellow :bg-colour :bright-red}) (Thread/sleep 1000) (spin/stop!))
-           nil)))
-
-  (testing "Custom attribute"
-    (is (= (do (spin/start! {:attribute :strikethrough}) (Thread/sleep 1000) (spin/stop!))
-           nil)))
-
-  (testing "Custom attributes"
-    (is (= (do (spin/start! {:attributes [:strikethrough :bold :underline]}) (Thread/sleep 1000) (spin/stop!))
-           nil)))
-
   (testing "Custom everything"
     (is (= (do (spin/start! {:frames     (:box-fade spin/styles)
+                             :delay      (/ spin/default-delay-ms 2)
                              :fg-colour  :bright-yellow
                              :bg-colour  :bright-red
-                             :attributes [:bold :fast-blink]})
-               (Thread/sleep 2000)
+                             :attributes [:bold :blink-fast]})
+               (Thread/sleep 250)
                (spin/stop!))
            nil)))
 
-  (testing "Custom styles with leading message"
-    (doall
-      (for [style (sort (keys spin/styles))]
-        (do
-          (print (str "\n" (name style) ": "))
-          (flush)
-          (is (= (do (spin/start! {:frames (style spin/styles)}) (Thread/sleep 1000) (spin/stop!))
-                 nil))))))
-
   (testing "Printing messages while a spinner is active"
     (is (= (do
-             (print "\nReticulating splines... ")
+             (print "\nSomebody set up us the bomb.... ")
              (flush)
              (spin/start! {:fg-colour :bright-yellow :bg-colour :red :attribute :bold})
-             (Thread/sleep 500)
-             (spin/print "\nInserting sublimated messages... ")
-             (Thread/sleep 500)
-             (spin/print "\nAttempting to lock back buffer... ")
-             (Thread/sleep 500)
-             (spin/print "\nTime-compressing simulator clock... ")
-             (Thread/sleep 500)
-             (spin/print "\nLecturing errant subsystems... ")
-             (Thread/sleep 500)
-             (spin/print "\nRetracting Phong shader... ")
-             (Thread/sleep 500)
+             (Thread/sleep 250)
+             (spin/print "\nAll your base are belong to us... ")
+             (Thread/sleep 250)
              (spin/stop!)
              (println))
+           nil)))
+
+  (testing "Function"
+    (is (= (spin/spin! (fn [] (Thread/sleep 250))
+                       {:frames     (:ascii-bouncing-ball spin/styles)
+                        :delay      (* spin/default-delay-ms 2)
+                        :fg-colour  :red
+                        :bg-colour  :bright-white})
            nil))))
