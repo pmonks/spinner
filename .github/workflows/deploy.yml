@@ -10,14 +10,14 @@ jobs:
     environment: clojars
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0    # Make sure we get the full history, or else the version number gets screwed up
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
-      - uses: DeLaGuardo/setup-clojure@9.5
+      - uses: DeLaGuardo/setup-clojure@12.1
         with:
           cli: latest
       - uses: actions/cache@v3

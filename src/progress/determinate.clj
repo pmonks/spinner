@@ -59,12 +59,6 @@ since your dog last pooped."
                     :tip   "🟨"}
   })
 
-(defn- col1-and-erase-to-eol!
-  []
-  (print "\r")
-  (jansi/erase-line!)
-  (flush))
-
 (defn- clamp
   "Clamps a value within a range."
   [mn mx x]
@@ -90,8 +84,10 @@ since your dog last pooped."
       (when line
         (ansi/save-cursor!)
         (jansi/cursor! 1 line))
-      (col1-and-erase-to-eol!)
-      (print (str ; Label (optional)
+      (print (str ; Go to the start of the line
+                  "\r"
+
+                  ; Label (optional)
                   (when-not (s/blank? label)
                     (ansi/apply-colours-and-attrs (:label-fg-colour style)
                                                   (:label-bg-colour style)
@@ -137,6 +133,7 @@ since your dog last pooped."
                                                                                        (:units-bg-colour style)
                                                                                        (:units-attrs     style)
                                                                                        (str " " units))))))))
+      (jansi/erase-line!)
       (when line (ansi/restore-cursor!))
       (flush))))
 
@@ -224,7 +221,7 @@ opts is a map, optionally containing these keys:
                   (when line
                     (ansi/save-cursor!)
                     (jansi/cursor! 1 line))
-                  (col1-and-erase-to-eol!)
+                  (print "\r")
                   (when line (ansi/restore-cursor!))))
               (flush))))))))
 

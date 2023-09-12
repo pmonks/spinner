@@ -20,6 +20,6 @@
    {jansi-clj/jansi-clj           {:mvn/version "1.0.1"}
     com.github.pmonks/clj-wcwidth {:mvn/version "1.0.64"}}
  :aliases
-   {:build {:deps       {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}
+   {:build {:deps       {io.github.clojure/tools.build {:git/tag "v0.9.5" :git/sha "24f2894"}
                          com.github.pmonks/pbr         {:mvn/version "RELEASE"}}
             :ns-default pbr.build}}}
