@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [ 11, 17 ]  # Note: logback no longer supports Java 8, so we've dropped that from the matrix
+        java-version: [ 11, 17, 21 ]  # Note: pbr (via lice-comb) no longer supports JDK 8
 
     steps:
       - uses: actions/checkout@v4
