@@ -11,18 +11,16 @@ jobs:
       - id: skip_check
         uses: fkirc/skip-duplicate-actions@master
 
-  CI:
+  run_ci_matrix:
     needs: skip_check
     if: ${{ needs.skip_check.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         java-version: [ 8, 11, 17, 21 ]
-
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
@@ -40,3 +38,33 @@ jobs:
 
       - name: Run CI checks
         run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build ci
+
+  # Adapted from https://brunoscheufler.com/blog/2022-04-09-the-required-github-status-check-that-wasnt
+  after_ci_matrix:
+    needs: run_ci_matrix
+    runs-on: ubuntu-latest
+    if: success()
+    outputs:
+      success: ${{ steps.setoutput.outputs.success }}
+    steps:
+      - id: setoutput
+        run: echo "::set-output name=success::true"
+
+  CI:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [skip_check, run_ci_matrix, after_ci_matrix]
+    steps:
+      - run: |
+          skipped="${{ needs.skip_check.outputs.should_skip }}"
+          passed="${{ needs.after_ci_matrix.outputs.success }}"
+          if [[ $skipped == "true" ]]; then
+            echo "CI matrix skipped"
+            exit 0
+          elif [[ $passed == "true" ]]; then
+            echo "CI matrix passed"
+            exit 0
+          else
+            echo "CI matrix failed"
+            exit 1
+          fi
