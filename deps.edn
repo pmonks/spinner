@@ -17,7 +17,7 @@
 ;
 
 {:deps
-   {jansi-clj/jansi-clj           {:mvn/version "1.0.1"}   ; Do not upgrade to 1.0.2 - it's broken!
+   {jansi-clj/jansi-clj           {:mvn/version "1.0.3"}
     com.github.pmonks/clj-wcwidth {:mvn/version "1.0.85"}}
  :aliases
    {:build {:deps       {com.github.pmonks/pbr {:mvn/version "RELEASE"}}
