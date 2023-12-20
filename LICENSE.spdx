@@ -1,4 +1,4 @@
-SPDXVersion: SPDX-2.1
+SPDXVersion: SPDX-2.3
 DataLicense: CC0-1.0
 Creator: Peter Monks
 PackageName: com.github.pmonks/spinner

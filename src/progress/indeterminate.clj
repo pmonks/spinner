@@ -124,7 +124,7 @@ long since your dog last pooped."
       (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames (mod i (count frames))))
                                " "))
       (flush)
-      (Thread/sleep delay-in-ms)
+      (Thread/sleep ^Long delay-in-ms)
       (ansi/restore-cursor!)
       (jansi/erase-line!)
       (print-pending-messages)
