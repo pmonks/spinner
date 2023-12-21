@@ -32,14 +32,10 @@ Note that using Unicode characters in progress indicators may be unreliable, dep
 
 2. If you're using the Clojure CLI tools, you **must** use the `clojure` binary, as the `clj` binary wraps the JVM in `rlwrap` which then incorrectly interprets some of the ANSI escape sequences emitted by `spinner`. Some other readline alternatives (notably [Rebel Readline](https://github.com/bhauman/rebel-readline)) have been reported to work correctly.
 
-#### deps-try
-
-Doesn't work properly, for the same reason the `clj` command line doesn't work properly (`rlwrap` intercepts the ANSI escape sequences emitted by this library and misinterprets them).
-
 #### Clojure CLI
 
 ```shell
-$ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  # Where #.#.# is replaced with an actual version number (see badge above)
+$ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "RELEASE"}}}'
 ```
 
 #### Leiningen
@@ -47,6 +43,10 @@ $ clojure -Sdeps '{:deps {com.github.pmonks/spinner {:mvn/version "#.#.#"}}}'  #
 ```shell
 $ lein trampoline try com.github.pmonks/spinner
 ```
+
+#### deps-try
+
+Doesn't work properly, for the same reason the `clj` command line doesn't work properly (`rlwrap` intercepts the ANSI escape sequences emitted by this library and misinterprets them).
 
 #### Simple REPL Session
 
