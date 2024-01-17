@@ -17,10 +17,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: DeLaGuardo/setup-clojure@12.1
+      - uses: DeLaGuardo/setup-clojure@12.3
         with:
           cli: latest
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
