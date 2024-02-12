@@ -24,7 +24,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
-      - uses: DeLaGuardo/setup-clojure@12.4
+      - uses: DeLaGuardo/setup-clojure@12.5
         with:
           cli: latest
       - uses: actions/cache@v4
