@@ -30,7 +30,7 @@ The opts map (if present) may optionally contain these keys:
                 Optional, default: false (erase it)
    :counter?  - whether to display a counter to the right of the progress
                 indicator
-                Optional, default: true (display a counter)</pre></div><div class="src-link"><a href="https://github.com/pmonks/spinner/blob/main/src/progress/determinate.clj#L228">view source</a></div></div><div class="public anchor" id="var-animatef.21"><h3>animatef!</h3><div class="usage"><code>(animatef! a f)</code><code>(animatef! a opts f)</code></div><div class="doc"><pre class="plaintext">Wraps execution of the given function in a determinate progress indicator,
+                Optional, default: true (display a counter)</pre></div><div class="src-link"><a href="https://github.com/pmonks/spinner/blob/main/src/progress/determinate.clj#L229">view source</a></div></div><div class="public anchor" id="var-animatef.21"><h3>animatef!</h3><div class="usage"><code>(animatef! a f)</code><code>(animatef! a opts f)</code></div><div class="doc"><pre class="plaintext">Wraps execution of the given function in a determinate progress indicator,
 monitoring atom `a` (a number between 0 and (:total opts), representing
 progress). An optional options map (`opts`) may also be provided.
 
