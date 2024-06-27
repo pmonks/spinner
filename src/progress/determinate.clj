@@ -222,6 +222,7 @@ opts is a map, optionally containing these keys:
                     (ansi/save-cursor!)
                     (jansi/cursor! 1 line))
                   (print "\r")
+                  (jansi/erase-line!)
                   (when line (ansi/restore-cursor!))))
               (flush))))))))
 
