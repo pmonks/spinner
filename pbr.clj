@@ -16,16 +16,13 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(def lib 'com.github.pmonks/spinner)
-
 #_{:clj-kondo/ignore [:unresolved-namespace]}
-(def version (format "2.0.%s" (b/git-count-revs nil)))
-
 (defn set-opts
   [opts]
   (assoc opts
-         :lib          lib
-         :version      version
+         :lib          'com.github.pmonks/spinner
+         :version      (pbr/calculate-version 2 0)
+         :prod-branch  "release"
          :write-pom    true
          :validate-pom true
          :pom          {:description      "Simple ANSI text progress indicators for command line Clojure apps."
