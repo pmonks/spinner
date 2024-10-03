@@ -15,7 +15,7 @@ To give the user of a command line app a visual progress indicator during long r
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/release/spinner-demo.gif"/>
+  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/dev/spinner-demo.gif"/>
 </p>
 
 Note that using Unicode characters in progress indicators may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
