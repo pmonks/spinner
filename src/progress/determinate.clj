@@ -17,8 +17,8 @@
 ;
 
 (ns progress.determinate
-  "Determine progress indicator (aka a \"progress bar\"), for the case where the
-progress of a long-running task can be determined."
+  "Determinate progress indicator (aka a \"progress bar\"), for the case where
+  the progress of a long-running task can be determined."
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]
             [wcwidth.api    :as w]
@@ -28,14 +28,15 @@ progress of a long-running task can be determined."
 
 (def default-style
   "The default determinate progress indicator style used, if one isn't
-specified.  This is known to function on all platforms."
+  specified, as a `keyword` that has an associated entry in [styles]. This style
+  is known to function on all platforms."
   :ascii-basic)
 
 (def styles
-  "A selection of predefined styles of determinate progress indicators. Only
-ASCII progress indicators are known to work reliably - other styles depend on
-the operating system, terminal font & encoding, phase of the moon, and how long
-since your dog last pooped."
+  "A selection of predefined styles of determinate progress indicators,
+  represented as a `map`. Only ASCII progress indicators are known to work
+  reliably - other styles depend on the operating system, terminal font &
+  encoding, phase of the moon, and how long since your dog last pooped."
   {
     ; ASCII determinate progress indicators are reliable across platforms
     :ascii-basic {:left  "["
@@ -65,6 +66,7 @@ since your dog last pooped."
   (max mn (min mx x)))
 
 (defn- redraw-progress-indicator!
+  "Redraws the progress indicator."
   [style style-widths label line width counter? total units _ _ _ new-value]   ; Ignored args are required as this fn is also a watch
   ; Make sure this code is non re-entrant
   (locking lock
@@ -138,7 +140,7 @@ since your dog last pooped."
       (flush))))
 
 (defn- valid-width
-  "Returns a valid width for s (throws on zero or non-printing)."
+  "Returns a valid width for `s` (throws on zero or non-printing)."
   [s]
   (when s
     (let [width (w/display-width s)]
@@ -149,36 +151,36 @@ since your dog last pooped."
 
 (defn animatef!
   "Wraps execution of the given function in a determinate progress indicator,
-monitoring atom `a` (a number between 0 and (:total opts), representing
-progress). An optional options map (`opts`) may also be provided.
+  monitoring atom `a` (a number between `0` and `(:total opts)`, representing
+  progress).
 
-Note that the `animate!` macro is preferred over this function.
+  **Note: the [[animate!]] macro is preferred over this function.**
 
-opts is a map, optionally containing these keys:
-   :style     - a map defining the style (characters, colours, and attributes)
-                to use when printing the progress indicator
-                Optional, default: (:ascii-basic styles)
-   :label     - a String to display before the progress indicator - this could
-                be the filename for a lengthy file download, for example
-                Optional, default: nil
-   :line      - the line number on the screen at which to display the progress
-                indicator (note: 1-based)
-                Optional, default: nil (display at current location)
-   :width     - the (approximate) desired width of the progress indicator,
-                including any labels and counters.  This is approximate because
-                emoji-based styles may not take up an even fraction of the
-                desired width
-                Optional, default: 72
-   :total     - the final number that the atom will reach
-                Optional, default: 100 (i.e. the atom represents a %age)
-   :units     - a unit label (String) to display after the counter
-                Optional, default: nil
-   :preserve? - flag indicating whether to preserve the progress indicator on
-                screen after it finishes (vs erasing it)
-                Optional, default: false (erase it)
-   :counter?  - whether to display a counter to the right of the progress
-                indicator
-                Optional, default: true (display a counter)"
+  The optional `opts` map may have an/all of these keys:
+
+  * `:style`     - a map defining the style (characters, colours, and
+                   attributes) to use when printing the progress indicator.
+                   Optional, default: `(:ascii-basic styles)`
+  * `:label`     - a `String` to display before the progress indicator - this
+                   could be the filename for a lengthy file download, for
+                   example. Optional, default: `nil`
+  * `:line`      - the line number on the screen at which to display the
+                   progress indicator (note: 1-based). Optional, default: `nil`
+                   (display at current location)
+  * `:width`     - the (approximate) desired width of the progress indicator,
+                   including any labels and counters. This is approximate
+                   because emoji-based styles may not take up an even fraction
+                   of the desired width. Optional, default: `72`
+  * `:total`     - the final number that the atom will reach. Optional, default:
+                   `100` (i.e. the atom represents a %age)
+  * `:units`     - a unit label (`String`) to display after the counter - this
+                   could be a file size unit (`\"KB\"`, `\"MB\"`, etc.), for
+                   example. Optional, default: `nil`
+  * `:preserve?` - flag indicating whether to preserve the progress indicator on
+                   screen after it finishes (vs erasing it). Optional, default:
+                   `false` (erase it)
+  * `:counter?`  - whether to display a counter to the right of the progress
+                   indicator. Optional, default: `true` (display a counter)"
   ([a f] (animatef! a nil f))
   ([a opts f]
     (when (and a f)
@@ -228,35 +230,33 @@ opts is a map, optionally containing these keys:
 
 (defmacro animate!
   "Wraps execution of the given forms in a determinate progress indicator,
-monitoring atom `a` (a number between 0 and (:total opts), representing
-progress). If the first form is the keyword `:opts`, the second form must be an
-opts map.
+  monitoring atom `a` (a number between `0` and `(:total opts)`, representing
+  progress). If the first form is the keyword `:opts`, the second form _must_ be
+  a map, containing any/all of these keys:
 
-The opts map (if present) may optionally contain these keys:
-   :style     - a map defining the style (characters, colours, and attributes)
-                to use when printing the progress indicator
-                Optional, default: (:ascii-basic styles)
-   :label     - a String to display before the progress indicator - this could
-                be the filename for a lengthy file download, for example
-                Optional, default: nil
-   :line      - the line number on the screen at which to display the progress
-                indicator (note: 1-based)
-                Optional, default: nil (display at current location)
-   :width     - the (approximate) desired width of the progress indicator,
-                including any labels and counters.  This is approximate because
-                emoji-based styles may not take up an even fraction of the
-                desired width
-                Optional, default: 72
-   :total     - the final number that the atom will reach
-                Optional, default: 100 (i.e. the atom represents a %age)
-   :units     - a unit label (String) to display after the counter
-                Optional, default: nil
-   :preserve? - flag indicating whether to preserve the progress indicator on
-                screen after it finishes (vs erasing it)
-                Optional, default: false (erase it)
-   :counter?  - whether to display a counter to the right of the progress
-                indicator
-                Optional, default: true (display a counter)"
+  * `:style`     - a map defining the style (characters, colours, and
+                   attributes) to use when printing the progress indicator.
+                   Optional, default: `(:ascii-basic styles)`
+  * `:label`     - a `String` to display before the progress indicator - this
+                   could be the filename for a lengthy file download, for
+                   example. Optional, default: `nil`
+  * `:line`      - the line number on the screen at which to display the
+                   progress indicator (note: 1-based). Optional, default: `nil`
+                   (display at current location)
+  * `:width`     - the (approximate) desired width of the progress indicator,
+                   including any labels and counters. This is approximate
+                   because emoji-based styles may not take up an even fraction
+                   of the desired width. Optional, default: `72`
+  * `:total`     - the final number that the atom will reach. Optional, default:
+                   `100` (i.e. the atom represents a %age)
+  * `:units`     - a unit label (`String`) to display after the counter - this
+                   could be a file size unit (`\"KB\"`, `\"MB\"`, etc.), for
+                   example. Optional, default: `nil`
+  * `:preserve?` - flag indicating whether to preserve the progress indicator on
+                   screen after it finishes (vs erasing it). Optional, default:
+                   `false` (erase it)
+  * `:counter?`  - whether to display a counter to the right of the progress
+                   indicator. Optional, default: `true` (display a counter)"
   [a & body]
   (if (= :opts (first body))
     `(animatef! ~a ~(second body) (fn [] ~@(rest (rest body))))

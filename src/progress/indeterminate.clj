@@ -17,11 +17,12 @@
 ;
 
 (ns progress.indeterminate
-  "Indetermine progress indicator (aka a \"spinner\"), for the case where the progress of a long-running task cannot be determined."
-  (:require [clojure.string :as s]
-            [jansi-clj.core :as jansi]
-            [progress.ansi  :as ansi]
-            [progress.util  :as u])
+  "Indeterminate progress indicator (aka a \"spinner\"), for the case where the
+  progress of a long-running task cannot be determined."
+  (:require [clojure.string     :as s]
+            [jansi-clj.core     :as jansi]
+            [progress.ansi      :as ansi]
+            [progress.3rd-party :as tp])
   (:refer-clojure :exclude [print]))
 
 (def ^:private fut  (atom nil))
@@ -30,9 +31,10 @@
 
 (defn state
   "What state is the indeterminate progress indicator currently in?  One of:
-   * :inactive
-   * :active
-   * :shutting-down"
+
+  * `:inactive`
+  * `:active`
+  * `:shutting-down`"
   []
   @s)
 
@@ -42,12 +44,18 @@
   (= :active @s))
 
 (defn print
-  "Schedules the given values for printing (ala clojure.core/print), since clojure.core/print (and similar output fns) interfere with an active indeterminate progress indicator.
+  "Schedules the given values for printing (via [clojure.core/print]), since
+  [clojure.core/print] and related output fns interfere with an active
+  indeterminate progress indicator.
 
-Notes:
-   * output is emitted in between 'frames' of the progress indicator, so may not appear immediately
-   * values are space delimited (as in clojure.core/print) - use clojure.core/str for finer control
-   * no newlines are inserted - if message(s) are to appear on new lines the caller needs to include \\newline in the value(s)"
+  Notes:
+
+  * output is emitted in between 'frames' of the progress indicator, so may not
+    appear immediately
+  * values are space delimited (as in [clojure.core/print]) - use
+    [clojure.core/str], [clojure.core/format], etc. for finer control
+  * no newlines are inserted - if message(s) are to appear on new lines the
+    caller needs to include `\\n` in the value(s)"
   [& more]
   (when (seq more)
     (let [msg (s/join " " more)]
@@ -61,14 +69,15 @@ Notes:
 (defn- print-pending-messages
   "Prints all pending messages"
   []
-  (when-let [messages (first (u/swap*! msgs (constantly nil)))]
+  (when-let [messages (first (tp/swap*! msgs (constantly nil)))]
     (clojure.core/print messages)
     (flush)
     (ansi/save-cursor!)))
 
-
 (def default-style
-  "The default indeterminate progress indicator style used, if one isn't specified.  This is known to function on all platforms."
+  "The default indeterminate progress indicator style used, if one isn't
+  specified, as a `keyword` that has an associated entry in [styles]. This style
+  is known to function on all platforms."
   :ascii-spinner)
 
 (def default-delay-ms
@@ -76,9 +85,10 @@ Notes:
   100)
 
 (def styles
-  "A selection of predefined styles of indeterminate progress indicators. Only ASCII progress indicators are known to
-work reliably - other styles depend on the operating system, terminal font & encoding, phase of the moon, and how
-long since your dog last pooped."
+  "A selection of predefined styles of determinate progress indicators,
+  represented as a `map`. Only ASCII progress indicators are known to work
+  reliably - other styles depend on the operating system, terminal font &
+  encoding, phase of the moon, and how long since your dog last pooped."
   {
     ; ASCII indeterminate progress indicators are reliable across platforms
     :ascii-spinner        [\| \/ \- \\]
@@ -111,7 +121,8 @@ long since your dog last pooped."
   })
 
 (defn- indeterminate-progress-indicator
-  "Indeterminate progress indicator logic, for use in a future or Thread or wotnot"
+  "Indeterminate progress indicator logic, for use in a `future` or `Thread` or
+  wotnot."
   ([] (indeterminate-progress-indicator nil))
   ([{:keys [delay-in-ms frames fg-colour bg-colour attributes]
      :or   {delay-in-ms default-delay-ms
@@ -119,52 +130,69 @@ long since your dog last pooped."
             fg-colour   :default
             bg-colour   :default
             attributes  [:default]}}]
-    (ansi/save-cursor!)
-    (loop [i 0]
-      (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames (mod i (count frames))))
-                               " "))
-      (flush)
-      (Thread/sleep ^Long delay-in-ms)
-      (ansi/restore-cursor!)
-      (jansi/erase-line!)
-      (print-pending-messages)
-      (when (active?)
-        (recur (inc i))))
+    (let [delay-in-ms (long (Math/round (double delay-in-ms)))]  ; Coerce delay-in-ms to a long
+      (ansi/save-cursor!)
+      (loop [i 0]
+        (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames (mod i (count frames))))
+                                 " "))
+        (flush)
+        (when (pos? delay-in-ms) (Thread/sleep delay-in-ms))  ; Thread/sleep throws on negative values, and sleeping for 0ms makes no sense
+        (ansi/restore-cursor!)
+        (jansi/erase-line!)
+        (print-pending-messages)
+        (when (active?)
+          (recur (inc i)))))
     nil))
 
-(defn start!
-  "Not intended for public use. Use animate! or animatef! instead."
+(defn ^:no-doc start!
+  "Not intended for public use. Use [animate!] or [animatef!] instead."
   ([] (start! nil))
   ([opts]
    (when-not (compare-and-set! s :inactive :active)
      (throw (java.lang.IllegalStateException. "Progress indicator is already active.")))
-
    (flush)   ; Flush any residual I/O to stdout before we start animating
-   (reset! fut  (future (indeterminate-progress-indicator opts)))
    (reset! msgs nil)
+   (reset! fut  (future (indeterminate-progress-indicator opts)))
    nil))
 
-(defn stop!
-  "Not intended for public use. Use animate! or animatef! instead."
+(defn ^:no-doc stop!
+  "Not intended for public use. Use [animate!] or [animatef!] instead."
   []
   (when (compare-and-set! s :active :shutting-down)
-    @@fut                     ; Wait for the future to stop (deref the atom AND the future)
-    (print-pending-messages)  ; Flush any remaining messages
-    (reset! fut nil)
-    (reset! s   :inactive))
+    (try
+      @@fut                     ; Wait for the future to stop (deref the atom AND the future)
+      (print-pending-messages)  ; Flush any remaining messages
+      (finally
+        (reset! fut nil)
+        (reset! s   :inactive))))
   nil)
 
 (defn animatef!
-  "Starts the indeterminate progress indicator, calls fn f (a function of zero parameters), then stops it. Returns the result of f.
+  "Starts the indeterminate progress indicator, calls fn `f` (a function of zero
+  parameters), then stops the progress indicator. Returns the result of `f`.
 
-  Note that the `animate!` macro is preferred over this function.
+  **Note: the [[animate!]] macro is preferred over this function.**
 
-  opts is a map, optionally containing these keys:
-    :frames     - the frames (a sequence of strings) to use for the indeterminate progress indicator (default is (:ascii-spinner styles))
-    :delay      - the delay (in ms) between frames (default is 100ms)
-    :fg-colour  - the foregound colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :bg-colour  - the background colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :attributes - the attributes of the indeterminate progress indicator (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
+  The optional `opts` map may have an/all of these keys:
+
+  * `:frames`      - the frames (a sequence of `String`s) to use for the
+                     indeterminate progress indicator (default is
+                     `(:ascii-spinner styles)`)
+  * `:delay-in-ms` - the delay (in ms) between frames (default is `100`ms)
+  * `:fg-colour`   - the foregound colour of the indeterminate progress
+                     indicator (default is `:default`) - see [the `jansi-clj`
+                     docs](https://github.com/xsc/jansi-clj#colors) for allowed
+                     values, and prefix with `bright-` to get the bright
+                     equivalent
+  * `:bg-colour`   - the background colour of the indeterminate progress
+                     indicator (default is `:default`) - see [the `jansi-clj`
+                     docs](https://github.com/xsc/jansi-clj#colors) for allowed
+                     values, and prefix with `bright-` to get the bright
+                     equivalent
+  * `:attributes`  - the attributes of the indeterminate progress indicator
+                     (default is `[:default]`) - see [the `jansi-clj`
+                     docs](https://github.com/xsc/jansi-clj#attributes) for
+                     allowed values"
   ([f] (animatef! nil f))
   ([opts f]
     (when f
@@ -175,12 +203,28 @@ long since your dog last pooped."
          (stop!))))))
 
 (defmacro animate!
-  "Wraps the given forms in the indeterminate progress indicator. If the first form is the keyword `:opts`, the second form must be a map, optionally containing these keys:
-    :frames     - the frames (a sequence of strings) to use for the indeterminate progress indicator (default is (:ascii-spinner styles))
-    :delay      - the delay (in ms) between frames (default is 100ms)
-    :fg-colour  - the foregound colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :bg-colour  - the background colour of the indeterminate progress indicator (default is :default) - see https://github.com/xsc/jansi-clj#colors for allowed values, and prefix with bright- to get the bright equivalent
-    :attributes - the attributes of the indeterminate progress indicator (default is [:default]) - see https://github.com/xsc/jansi-clj#attributes for allowed values"
+  "Wraps the given forms in an indeterminate progress indicator. If the first
+  form is the keyword `:opts`, the second form _must_ be a map, containing
+  any/all of these keys:
+
+  * `:frames`      - the frames (a sequence of `String`s) to use for the
+                     indeterminate progress indicator (default is
+                     `(:ascii-spinner styles)`)
+  * `:delay-in-ms` - the delay (in ms) between frames (default is `100`ms)
+  * `:fg-colour`   - the foregound colour of the indeterminate progress
+                     indicator (default is `:default`) - see [the `jansi-clj`
+                     docs](https://github.com/xsc/jansi-clj#colors) for allowed
+                     values, and prefix with `bright-` to get the bright
+                     equivalent
+  * `:bg-colour`   - the background colour of the indeterminate progress
+                     indicator (default is `:default`) - see [the `jansi-clj`
+                     docs](https://github.com/xsc/jansi-clj#colors) for allowed
+                     values, and prefix with `bright-` to get the bright
+                     equivalent
+  * `:attributes`  - the attributes of the indeterminate progress indicator
+                     (default is `[:default]`) - see [the `jansi-clj`
+                     docs](https://github.com/xsc/jansi-clj#attributes) for
+                     allowed values"
   [& body]
   (if (= :opts (first body))
     `(animatef! ~(second body) (fn [] ~@(rest (rest body))))
