@@ -77,11 +77,11 @@
 
   (testing "Custom everything"
     (is (= nil (pi/animate! :opts {:frames     (:box-fade pi/styles)
-                                  :delay      (/ pi/default-delay-ms 2)
-                                  :fg-colour  :bright-yellow
-                                  :bg-colour  :bright-red
-                                  :attributes [:bold :blink-fast]}
-                 (Thread/sleep 250)))))
+                                  :delay-in-ms (/ pi/default-delay-ms 4)  ; Hyperspeed!
+                                  :fg-colour   :bright-yellow
+                                  :bg-colour   :bright-red
+                                  :attributes  [:bold :blink-fast]}
+                 (Thread/sleep 1000)))))
 
   (testing "All styles with leading message"
     (doall
