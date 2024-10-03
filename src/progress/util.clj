@@ -17,20 +17,9 @@
 ;
 
 (ns progress.util
-  (:require [clojure.string :as s])
-  (:refer-clojure :exclude [print]))
+  (:require [clojure.string :as s]))
 
 (def is-windows?
-  "Are we running on Windows?  If so, best to stick with ASCII-only progress indicators...  😢"
+  "Are we running on Windows?  If so, best to stick with ASCII-only progress
+  indicators...  😢"
   (s/starts-with? (s/lower-case (System/getProperty "os.name")) "windows"))
-
-(defn swap*!
-  "Like clojure.core/swap! but returns a vector of [old-value new-value].
-   From http://stackoverflow.com/questions/22409638/remove-first-item-from-clojure-vector-atom-and-return-it"
-  [atom f & args]
-  (loop []
-    (let [ov @atom
-          nv (apply f ov args)]
-      (if (compare-and-set! atom ov nv)
-        [ov nv]
-        (recur)))))

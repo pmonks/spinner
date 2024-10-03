@@ -48,7 +48,7 @@
 (deftest display
   (testing "Custom everything"
     (is (= (do (spin/start! {:frames     (:box-fade spin/styles)
-                             :delay      (/ spin/default-delay-ms 2)
+                             :delay      (/ spin/default-delay-ms 2)  ; Note: we use the old/deprecated :delay opt here, to ensure that fix-delay-opt is working correctly
                              :fg-colour  :bright-yellow
                              :bg-colour  :bright-red
                              :attributes [:bold :blink-fast]})
@@ -71,7 +71,7 @@
   (testing "Function"
     (is (= (spin/spin! (fn [] (Thread/sleep 250))
                        {:frames     (:ascii-bouncing-ball spin/styles)
-                        :delay      (* spin/default-delay-ms 2)
+                        :delay      (* spin/default-delay-ms 2)  ; Note: we use the old/deprecated :delay opt here, to ensure that fix-delay-opt is working correctly
                         :fg-colour  :red
                         :bg-colour  :bright-white})
            nil))))

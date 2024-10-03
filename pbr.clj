@@ -16,16 +16,13 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(def lib 'com.github.pmonks/spinner)
-
 #_{:clj-kondo/ignore [:unresolved-namespace]}
-(def version (format "2.0.%s" (b/git-count-revs nil)))
-
 (defn set-opts
   [opts]
   (assoc opts
-         :lib          lib
-         :version      version
+         :lib          'com.github.pmonks/spinner
+         :version      (pbr/calculate-version 2 0)
+         :prod-branch  "release"
          :write-pom    true
          :validate-pom true
          :pom          {:description      "Simple ANSI text progress indicators for command line Clojure apps."
@@ -33,4 +30,6 @@
                         :licenses         [:license   {:name "Apache-2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
                         :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+spinner@gmail.com"}]
                         :scm              {:url "https://github.com/pmonks/spinner" :connection "scm:git:git://github.com/pmonks/spinner.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/spinner.git"}
-                        :issue-management {:system "github" :url "https://github.com/pmonks/spinner/issues"}}))
+                        :issue-management {:system "github" :url "https://github.com/pmonks/spinner/issues"}}
+         :codox        {:namespaces ['progress.determinate 'progress.indeterminate 'progress.util 'spinner.core]
+                        :metadata   {:doc/format :markdown}}))

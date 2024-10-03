@@ -1,9 +1,9 @@
 | | | |
 |---:|:---:|:---:|
-| [**main**](https://github.com/pmonks/spinner/tree/main) | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Amain) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Amain) |
-| [**dev**](https://github.com/pmonks/spinner/tree/dev) | [![CI](https://github.com/pmonks/spinner/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/spinner/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Adev) |
+| [**release**](https://github.com/pmonks/spinner/tree/release) | [![CI](https://github.com/pmonks/spinner/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Arelease) | [![Dependencies](https://github.com/pmonks/spinner/actions/workflows/dependencies.yml/badge.svg?branch=release)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Arelease) |
+| [**dev**](https://github.com/pmonks/spinner/tree/dev) | [![CI](https://github.com/pmonks/spinner/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/spinner/actions/workflows/dependencies.yml/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Adev) |
 
-[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/spinner)](https://clojars.org/com.github.pmonks/spinner/) [![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues) [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/spinner)](https://clojars.org/com.github.pmonks/spinner/) [![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues) [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/release/LICENSE)
 
 # spinner
 
@@ -15,7 +15,7 @@ To give the user of a command line app a visual progress indicator during long r
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/main/spinner-demo.gif"/>
+  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/release/spinner-demo.gif"/>
 </p>
 
 Note that using Unicode characters in progress indicators may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
@@ -96,21 +96,21 @@ Require them in your application:
 
 ### API Documentation
 
-[API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/main/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/main/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
+[API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/release/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/release/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
 
 ## Contributor Information
 
-[Contributing Guidelines](https://github.com/pmonks/spinner/blob/main/.github/CONTRIBUTING.md)
+[Contributing Guidelines](https://github.com/pmonks/spinner/blob/release/.github/CONTRIBUTING.md)
 
 [Bug Tracker](https://github.com/pmonks/spinner/issues)
 
-[Code of Conduct](https://github.com/pmonks/spinner/blob/main/.github/CODE_OF_CONDUCT.md)
+[Code of Conduct](https://github.com/pmonks/spinner/blob/release/.github/CODE_OF_CONDUCT.md)
 
 ### Developer Workflow
 
-This project uses the [git-flow branching strategy](https://nvie.com/posts/a-successful-git-branching-model/), with the caveat that the permanent branches are called `main` and `dev`, and any changes to the `main` branch are considered a release and auto-deployed (JARs to Clojars, API docs to GitHub Pages, etc.).
+This project uses the [git-flow branching strategy](https://nvie.com/posts/a-successful-git-branching-model/), and the permanent branches are called `release` and `dev`.  Any changes to the `release` branch are considered a release and auto-deployed (JARs to Clojars, API docs to GitHub Pages, etc.).
 
-For this reason, **all development must occur either in branch `dev`, or (preferably) in temporary branches off of `dev`.**  All PRs from forked repos must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
+For this reason, **all development must occur either in branch `dev`, or (preferably) in temporary branches off of `dev`.**  All PRs from forked repos must also be submitted against `dev`; the `release` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `release` will be rejected.
 
 ### Build Tasks
 
