@@ -44,16 +44,18 @@
   (= :active @s))
 
 (defn print
-  "Schedules the given values for printing (via [clojure.core/print]), since
-  [clojure.core/print] and related output fns interfere with an active
-  indeterminate progress indicator.
+  "Schedules the given values for printing, since [clojure.core/print](https://clojuredocs.org/clojure.core/print)
+  and related output fns interfere with an active indeterminate progress
+  indicator.
 
   Notes:
 
   * output is emitted in between 'frames' of the progress indicator, so may not
     appear immediately
-  * values are space delimited (as in [clojure.core/print]) - use
-    [clojure.core/str], [clojure.core/format], etc. for finer control
+  * values are space delimited as in [clojure.core/print](https://clojuredocs.org/clojure.core/print)
+    - use [clojure.core/str](https://clojuredocs.org/clojure.core/str),
+    [clojure.core/format](https://clojuredocs.org/clojure.core/format), etc. for
+    finer control
   * no newlines are inserted - if message(s) are to appear on new lines the
     caller needs to include `\\n` in the value(s)"
   [& more]
