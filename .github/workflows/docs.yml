@@ -14,7 +14,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: DeLaGuardo/setup-clojure@12.5
+      - uses: DeLaGuardo/setup-clojure@12.6
         with:
           cli: latest
       - uses: actions/cache@v4
