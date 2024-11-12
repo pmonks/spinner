@@ -40,7 +40,7 @@ To make review of PRs easier, please:
  * Keep PRs small and cohesive - if you have multiple independent contributions, please submit them as independent PRs.
  * Minimise "spurious" changes (e.g. whitespace shenanigans).
  * Ensure all updated files include your copyright information at the top.
- * Ensure all new files include a header comment block containing the [Apache 2.0 license header and your copyright information](https://infra.apache.org/apply-license.html).
+ * Ensure all new files include a header comment block containing the [MPL 2.0 license header and your copyright information](https://www.mozilla.org/en-US/MPL/headers/).
 
 ## Commit and PR Messages
 
