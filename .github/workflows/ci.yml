@@ -1,6 +1,7 @@
 name: CI
-
 on: [push, pull_request]
+env:
+   GITHUB_CI: 'true'  # Don't set to 'false', since the code looks for any value
 
 jobs:
   skip_check:
@@ -24,7 +25,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
-      - uses: DeLaGuardo/setup-clojure@12.5
+      - uses: DeLaGuardo/setup-clojure@13.2
         with:
           cli: latest
       - uses: actions/cache@v4

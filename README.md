@@ -15,7 +15,7 @@ To give the user of a command line app a visual progress indicator during long r
 
 Here it is in action (from the unit tests):
 <p align="center">
-  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/release/spinner-demo.gif"/>
+  <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/dev/spinner-demo.gif"/>
 </p>
 
 Note that using Unicode characters in progress indicators may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
@@ -143,6 +143,6 @@ The library started life providing a single hardcoded animation sequence (the cl
 
 Copyright © 2014 Peter Monks
 
-Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Distributed under the [Mozilla Public License, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
 
-SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
+SPDX-License-Identifier: [`MPL-2.0`](https://spdx.org/licenses/MPL-2.0)
