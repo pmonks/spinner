@@ -16,12 +16,14 @@
 
 (defn slow-counter
   "Counts from 0 to steps-1 in approximately time-to-take milliseconds, updating atom a with the current count as it goes. Returns the sum of the series."
-  [a time-to-take steps]
-  (let [sleep-time (Math/round (double (/ time-to-take steps)))]
-    (reduce + (map #(do (Thread/sleep sleep-time) (swap! a inc) %) (range steps)))))
+  [a time-to-take-ms steps]
+  (let [sleep-time    (double (/ time-to-take-ms steps))
+        sleep-time-ms (long (Math/floor sleep-time))                   ; Round down the ms
+        sleep-time-ns (int (* (- sleep-time sleep-time-ms) 1000000))]  ; And calculate the remainder as ns
+    (reduce + (map #(do (Thread/sleep sleep-time-ms sleep-time-ns) (swap! a inc) %) (range steps)))))
 
 (defn slow-counter-to-100
-  "Counts from 0 to 99 in aooroximately time-to-take milliseconds, updating atom a as it goes. Returns the sum of the series (4950)."
+  "Counts from 0 to 99 in approximately time-to-take milliseconds, updating atom a as it goes. Returns the sum of the series (4950)."
   [a time-to-take]
   (slow-counter a time-to-take 100))
 
@@ -34,6 +36,11 @@
   "Counts from 0 to 99 in 1000ms, updating atom a as it goes. Returns the sum of the series (4950)."
   [a]
   (slow-counter-to-100 a 1000))
+
+(defn slow-counter-to-1000000-in-1000
+  "Counts from 0 to 999999 in 1000ms, updating atom a as it goes. Returns the sum of the series (499999500000)."
+  [a]
+  (slow-counter a 1000 1000000))
 
 (deftest test-function-vs-macro
   (testing "No atom or code provided - animatef! fn"
@@ -85,6 +92,11 @@
                                                   :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
                                                   :foo)))))
   ; These ones run for longer (1 second each) so that they can be visually verified
+  (testing "Custom redraw intervals"
+    (is (= 499999500000 (let [a (atom 0)]
+                          (pd/animate! a :opts {:total 1000000} (slow-counter-to-1000000-in-1000 a)))))  ; First with the default
+    (is (= 499999500000 (let [a (atom 0)]
+                          (pd/animate! a :opts {:total 1000000 :redraw-rate 60} (slow-counter-to-1000000-in-1000 a))))))  ; Then with a fast refresh rate
   (testing "Built-in style - ASCII"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (slow-counter-to-100-in-1000 a))))))
