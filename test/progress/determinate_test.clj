@@ -94,7 +94,7 @@
                                                   :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
                                                   :foo)))))
   ; These ones run for longer (1 second each) so that they can be visually verified
-  (when-not skip-slow-tests?)  ; Because GitHub Actions are fucking garbage
+  (when-not skip-slow-tests?  ; Because GitHub Actions are fucking garbage
     (testing "Custom redraw intervals"
       (is (= 499999500000 (let [a (atom 0)]
                             (pd/animate! a :opts {:total 1000000} (slow-counter-to-1000000-in-1000 a)))))  ; First with the default
