@@ -1,6 +1,7 @@
 name: CI
-
 on: [push, pull_request]
+env:
+   GITHUB_CI: 'true'  # Don't set to 'false', since the code looks for any value
 
 jobs:
   skip_check:

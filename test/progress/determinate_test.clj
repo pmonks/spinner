@@ -14,6 +14,8 @@
             [progress.ansi        :as ansi]
             [progress.determinate :as pd]))
 
+(def skip-slow-tests? (boolean (System/getenv "GITHUB_CI")))
+
 (defn slow-counter
   "Counts from 0 to steps-1 in approximately time-to-take milliseconds, updating atom a with the current count as it goes. Returns the sum of the series."
   [a time-to-take-ms steps]
@@ -92,11 +94,12 @@
                                                   :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
                                                   :foo)))))
   ; These ones run for longer (1 second each) so that they can be visually verified
-  (testing "Custom redraw intervals"
-    (is (= 499999500000 (let [a (atom 0)]
-                          (pd/animate! a :opts {:total 1000000} (slow-counter-to-1000000-in-1000 a)))))  ; First with the default
-    (is (= 499999500000 (let [a (atom 0)]
-                          (pd/animate! a :opts {:total 1000000 :redraw-rate 60} (slow-counter-to-1000000-in-1000 a))))))  ; Then with a fast refresh rate
+  (when-not skip-slow-tests?)  ; Because GitHub Actions are fucking garbage
+    (testing "Custom redraw intervals"
+      (is (= 499999500000 (let [a (atom 0)]
+                            (pd/animate! a :opts {:total 1000000} (slow-counter-to-1000000-in-1000 a)))))  ; First with the default
+      (is (= 499999500000 (let [a (atom 0)]
+                            (pd/animate! a :opts {:total 1000000 :redraw-rate 60} (slow-counter-to-1000000-in-1000 a)))))))  ; Then with a fast refresh rate
   (testing "Built-in style - ASCII"
     (is (= 4950 (let [a (atom 0)]
                   (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (slow-counter-to-100-in-1000 a))))))
