@@ -14,6 +14,7 @@
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]
             [wcwidth.api    :as w]
+            [embroidery.api :as e]
             [progress.ansi  :as ansi]))
 
 (def ^:private lock (Object.))
@@ -59,7 +60,7 @@
 
 (defn- redraw-progress-indicator!
   "Redraws the progress indicator."
-  [style style-widths label line width counter? total units _ _ _ new-value]   ; Ignored args are required as this fn is also a watch
+  [style style-widths label line width counter? total units new-value]
   ; Make sure this code is non re-entrant
   (locking lock
     (let [percent-complete (/ (double new-value) total)
@@ -131,6 +132,20 @@
       (when line (ansi/restore-cursor!))
       (flush))))
 
+(defn- poll-atom
+  "Polls atom `value-atom` every `poll-interval-ms` and calls `render-fn!` (a
+  function of one argument - the current value of the atom), if it has changed.
+  Will stop when `stop-flag-atom` becomes logically `true`."
+  [value-atom stop-flag-atom poll-interval-ms render-fn!]
+  (loop [previous-value nil]
+    (let [current-value @value-atom]
+      (when-not (and @stop-flag-atom
+                     (= current-value previous-value))
+        (render-fn! current-value)
+      (when-not @stop-flag-atom
+        (when (pos? poll-interval-ms) (Thread/sleep poll-interval-ms))
+        (recur current-value))))))
+
 (defn- valid-width
   "Returns a valid width for `s` (throws on zero or non-printing)."
   [s]
@@ -139,7 +154,6 @@
       (if (pos? width)
         width
         (throw (ex-info (str "Invalid width (" width ") for style string " s) {:string s :width width}))))))
-
 
 (defn animatef!
   "Wraps execution of the given function in a determinate progress indicator,
@@ -158,7 +172,7 @@
                    example. Optional, default: `nil`
   * `:line`      - the line number on the screen at which to display the
                    progress indicator (note: 1-based). Optional, default: `nil`
-                   (display at current location)
+                   (display at current line)
   * `:width`     - the (approximate) desired width of the progress indicator,
                    including any labels and counters. This is approximate
                    because emoji-based styles may not take up an even fraction
@@ -168,49 +182,49 @@
   * `:units`     - a unit label (`String`) to display after the counter - this
                    could be a file size unit (`\"KB\"`, `\"MB\"`, etc.), for
                    example. Optional, default: `nil`
+  * `:counter?`  - whether to display a counter to the right of the progress
+                   indicator. Optional, default: `true` (display a counter)
   * `:preserve?` - flag indicating whether to preserve the progress indicator on
                    screen after it finishes (vs erasing it). Optional, default:
                    `false` (erase it)
-  * `:counter?`  - whether to display a counter to the right of the progress
-                   indicator. Optional, default: `true` (display a counter)"
+  * `:redraw-rate` - how many times per second `a` will be checked for changes,
+                   and the progress indicator redrawn if the value of `a` has
+                   changed. Optional, default `10`"
   ([a f] (animatef! a nil f))
-  ([a opts f]
+  ([a
+    {:keys [style label line width total units counter? preserve? redraw-rate]
+       :or {style       (get styles default-style)
+            total       100
+            width       72
+            counter?    true
+            preserve?   false
+            redraw-rate 10}}
+    f]
     (when (and a f)
-      ; Setup logic
-      (let [style      (get opts :style (get styles default-style))
-            label      (:label opts)
-            line       (get opts :line)
-            counter?   (get opts :counter? true)
-            total      (get opts :total 100)
-            units      (:units opts)
-            width      (get opts :width 72)
-            render-fn! (partial redraw-progress-indicator! style
-                                                           ; Precompute style element widths, so that we don't have to do it repeatedly in the tight loop
-                                                           (merge {:empty (valid-width (:empty style))
-                                                                   :full  (valid-width (:full  style))}
-                                                                  (when-not (s/blank? label) {:label (inc (valid-width label))})   ; Include space delimiter
-                                                                  (when (:left  style)       {:left  (valid-width (:left  style))})
-                                                                  (when (:right style)       {:right (valid-width (:right style))})
-                                                                  (when (:tip   style)       {:tip   (valid-width (:tip   style))})
-                                                                  (when-not (s/blank? units) {:units (inc (valid-width units))}))  ; Include space delimiter
-                                                           label
-                                                           line
-                                                           width
-                                                           counter?
-                                                           total
-                                                           units)]
-        (render-fn! nil nil nil @a)  ; Make sure we draw the indicator at least once up front
-        (add-watch a ::determinate-progress-indicator render-fn!)
+      (let [style-widths     (merge {:empty (valid-width (:empty style))
+                                     :full  (valid-width (:full  style))}
+                                    (when-not (s/blank? label) {:label (inc (valid-width label))})   ; Include space delimiter
+                                    (when (:left  style)       {:left  (valid-width (:left  style))})
+                                    (when (:right style)       {:right (valid-width (:right style))})
+                                    (when (:tip   style)       {:tip   (valid-width (:tip   style))})
+                                    (when-not (s/blank? units) {:units (inc (valid-width units))}))  ; Include space delimiter
+            render-fn!       (partial redraw-progress-indicator! style style-widths label line width counter? total units)
+            stop-flag        (atom false)
+            poll-interval-ms (Math/round (double (/ 1000 redraw-rate)))
+            fut              (e/future* (poll-atom a stop-flag poll-interval-ms render-fn!))]
         (try
           (f)
           (finally
             ; Teardown logic
-            (remove-watch a ::determinate-progress-indicator)
-            (locking lock  ; Make sure this isn't re-entrant with the main loop, since the TTY can only save a single cursor position at a time
-              (if (:preserve? opts)
+            (swap! stop-flag (constantly true))
+            (future-cancel fut)  ; Just in case...
+            (locking lock  ; Make sure this isn't re-entrant with the future, since the TTY can only save a single cursor position at a time
+              (if preserve?
+                ; Make sure we draw the indicator with the final value of the atom
                 (do
-                  (render-fn! nil nil nil @a)  ; Make sure we draw the indicator with the final value of the atom
+                  (render-fn! @a)
                   (when-not line (println)))
+                ; Erase the line the indicator was on
                 (do
                   (when line
                     (ansi/save-cursor!)
