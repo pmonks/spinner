@@ -136,7 +136,7 @@
   "Polls atom `value-atom` every `poll-interval-ms` and calls `render-fn!` (a
   function of one argument - the current value of the atom), if it has changed.
   Will stop when `stop-flag-atom` becomes logically `true`."
-  [value-atom stop-flag-atom poll-interval-ms render-fn!]
+  [value-atom stop-flag-atom ^long poll-interval-ms render-fn!]
   (loop [previous-value nil]
     (let [current-value @value-atom]
       (when-not (and @stop-flag-atom
