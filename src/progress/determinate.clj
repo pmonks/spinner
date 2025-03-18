@@ -262,7 +262,10 @@
                    screen after it finishes (vs erasing it). Optional, default:
                    `false` (erase it)
   * `:counter?`  - whether to display a counter to the right of the progress
-                   indicator. Optional, default: `true` (display a counter)"
+                   indicator. Optional, default: `true` (display a counter)
+  * `:redraw-rate` - how many times per second `a` will be checked for changes,
+                   and the progress indicator redrawn if the value of `a` has
+                   changed. Optional, default `10`"
   [a & body]
   (if (= :opts (first body))
     `(animatef! ~a ~(second body) (fn [] ~@(rest (rest body))))

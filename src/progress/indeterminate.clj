@@ -13,6 +13,7 @@
   progress of a long-running task cannot be determined."
   (:require [clojure.string     :as s]
             [jansi-clj.core     :as jansi]
+            [embroidery.api     :as e]
             [progress.ansi      :as ansi]
             [progress.3rd-party :as tp])
   (:refer-clojure :exclude [print]))
@@ -146,7 +147,7 @@
      (throw (java.lang.IllegalStateException. "Progress indicator is already active.")))
    (flush)   ; Flush any residual I/O to stdout before we start animating
    (reset! msgs nil)
-   (reset! fut  (future (indeterminate-progress-indicator opts)))
+   (reset! fut  (e/future* (indeterminate-progress-indicator opts)))
    nil))
 
 (defn ^:no-doc stop!
