@@ -11,6 +11,7 @@
 (ns progress.indeterminate-test
   (:require [clojure.test           :refer [deftest testing is]]
             [jansi-clj.core         :as jansi]
+            [progress.test-utils    :refer [skip-slow-tests?]]
             [progress.indeterminate :as pi]))
 
 (jansi/erase-screen!)
@@ -49,39 +50,40 @@
     (is (= 4 (pi/animate! (Thread/sleep 250) (* 2 2))))))
 
 (deftest test-options
-  (testing "Non-default animation for 1 second - animatef! fn"
-    (is (= nil (pi/animatef! {:frames (:ascii-bouncing-ball pi/styles)} (fn [] (Thread/sleep 250))))))
+  (when-not skip-slow-tests?  ; Because GitHub Actions are hot garbage
+    (testing "Non-default animation for 1 second - animatef! fn"
+      (is (= nil (pi/animatef! {:frames (:ascii-bouncing-ball pi/styles)} (fn [] (Thread/sleep 250))))))
 
-  (testing "Non-default animation for 1 second - animate! macro"
-    (is (= nil (pi/animate! :opts {:frames (:ascii-bouncing-ball pi/styles)} (Thread/sleep 250)))))
+    (testing "Non-default animation for 1 second - animate! macro"
+      (is (= nil (pi/animate! :opts {:frames (:ascii-bouncing-ball pi/styles)} (Thread/sleep 250)))))
 
-  (testing "Custom colours"
-    (is (= nil (pi/animate! :opts {:fg-colour :black :bg-colour :white} (Thread/sleep 250)))))
+    (testing "Custom colours"
+      (is (= nil (pi/animate! :opts {:fg-colour :black :bg-colour :white} (Thread/sleep 250)))))
 
-  (testing "Custom bright colours"
-    (is (= nil (pi/animate! :opts {:fg-colour :bright-yellow :bg-colour :bright-red}))))
+    (testing "Custom bright colours"
+      (is (= nil (pi/animate! :opts {:fg-colour :bright-yellow :bg-colour :bright-red}))))
 
-  (testing "Custom attribute"
-    (is (= nil (pi/animate! :opts {:attributes [:strikethrough]} (Thread/sleep 250)))))
+    (testing "Custom attribute"
+      (is (= nil (pi/animate! :opts {:attributes [:strikethrough]} (Thread/sleep 250)))))
 
-  (testing "Custom attributes"
-    (is (= nil (pi/animate! :opts {:attributes [:strikethrough :bold :underline]} (Thread/sleep 250)))))
+    (testing "Custom attributes"
+      (is (= nil (pi/animate! :opts {:attributes [:strikethrough :bold :underline]} (Thread/sleep 250)))))
 
-  (testing "Custom everything"
-    (is (= nil (pi/animate! :opts {:frames     (:box-fade pi/styles)
-                                  :delay-in-ms (/ pi/default-delay-ms 4)  ; Hyperspeed!
-                                  :fg-colour   :bright-yellow
-                                  :bg-colour   :bright-red
-                                  :attributes  [:bold :blink-fast]}
-                 (Thread/sleep 1000)))))
+    (testing "Custom everything"
+      (is (= nil (pi/animate! :opts {:frames     (:box-fade pi/styles)
+                                    :delay-in-ms (/ pi/default-delay-ms 4)  ; Hyperspeed!
+                                    :fg-colour   :bright-yellow
+                                    :bg-colour   :bright-red
+                                    :attributes  [:bold :blink-fast]}
+                   (Thread/sleep 1000)))))
 
-  (testing "All styles with leading message"
-    (doall
-      (for [style (sort (keys pi/styles))]
-        (do
-          (print (str "\n" (name style) ": "))
-          (flush)
-          (is (= nil (pi/animate! :opts {:frames (style pi/styles)} (Thread/sleep 250))))))))
+    (testing "All styles with leading message"
+      (doall
+        (for [style (sort (keys pi/styles))]
+          (do
+            (print (str "\n" (name style) ": "))
+            (flush)
+            (is (= nil (pi/animate! :opts {:frames (style pi/styles)} (Thread/sleep 250)))))))))
 
   (testing "Printing messages while an animation is active"
     (is (= nil (do

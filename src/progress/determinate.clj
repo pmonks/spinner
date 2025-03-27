@@ -135,16 +135,16 @@
 (defn- poll-atom
   "Polls atom `value-atom` every `poll-interval-ms` and calls `render-fn!` (a
   function of one argument - the current value of the atom), if it has changed.
-  Will stop when `stop-flag-atom` becomes logically `true`."
-  [value-atom stop-flag-atom ^long poll-interval-ms render-fn!]
+  Will stop when `running-promise?` is delivered a logically `false` value,
+  returning `nil`."
+  [value-atom running-promise? ^long poll-interval-ms render-fn!]
   (loop [previous-value nil]
     (let [current-value @value-atom]
-      (when-not (and @stop-flag-atom
-                     (= current-value previous-value))
-        (render-fn! current-value)
-      (when-not @stop-flag-atom
-        (when (pos? poll-interval-ms) (Thread/sleep poll-interval-ms))
-        (recur current-value))))))
+      (when (not= current-value previous-value)
+        (render-fn! current-value))
+      (when (deref running-promise? poll-interval-ms true)
+        (recur current-value))))
+  nil)
 
 (defn- valid-width
   "Returns a valid width for `s` (throws on zero or non-printing)."
@@ -209,14 +209,14 @@
                                     (when (:tip   style)       {:tip   (valid-width (:tip   style))})
                                     (when-not (s/blank? units) {:units (inc (valid-width units))}))  ; Include space delimiter
             render-fn!       (partial redraw-progress-indicator! style style-widths label line width counter? total units)
-            stop-flag        (atom false)
+            running-promise? (promise)
             poll-interval-ms (Math/round (double (/ 1000 redraw-rate)))
-            fut              (e/future* (poll-atom a stop-flag poll-interval-ms render-fn!))]
+            fut              (e/future* (poll-atom a running-promise? poll-interval-ms render-fn!))]
         (try
           (f)
           (finally
             ; Teardown logic
-            (swap! stop-flag (constantly true))
+            (deliver running-promise? false)
             (future-cancel fut)  ; Just in case...
             (locking lock  ; Make sure this isn't re-entrant with the future, since the TTY can only save a single cursor position at a time
               (if preserve?

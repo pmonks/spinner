@@ -11,10 +11,9 @@
 (ns progress.determinate-test
   (:require [clojure.test         :refer [deftest testing is]]
             [wcwidth.api          :as w]
+            [progress.test-utils  :refer [skip-slow-tests?]]
             [progress.ansi        :as ansi]
             [progress.determinate :as pd]))
-
-(def skip-slow-tests? (boolean (System/getenv "GITHUB_CI")))
 
 (defn slow-counter
   "Counts from 0 to steps-1 in approximately time-to-take milliseconds, updating atom a with the current count as it goes. Returns the sum of the series."
@@ -81,139 +80,127 @@
     (is (= 499500 (let [a (atom 0)]
                     (pd/animate! a :opts {:total 1000} (slow-counter a 250 1000)))))))
 
-(deftest test-option-style
-  (testing "Style with zero width characters"
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
-                          (let [a (atom 0)]
-                                     (pd/animate! a
-                                                  :opts {:style {:empty (w/code-point-to-string 0x20DD)}}  ; Combining enclosing circle (zero width)
-                                                  :foo))))
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
-                          (let [a (atom 0)]
-                                     (pd/animate! a
-                                                  :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
-                                                  :foo)))))
-  ; These ones run for longer (1 second each) so that they can be visually verified
-  (when-not skip-slow-tests?  ; Because GitHub Actions are fucking garbage
-    (testing "Custom redraw intervals"
-      (is (= 499999500000 (let [a (atom 0)]
-                            (pd/animate! a :opts {:total 1000000} (slow-counter-to-1000000-in-1000 a)))))  ; First with the default
-      (is (= 499999500000 (let [a (atom 0)]
-                            (pd/animate! a :opts {:total 1000000 :redraw-rate 60} (slow-counter-to-1000000-in-1000 a)))))))  ; Then with a fast refresh rate
-  (testing "Built-in style - ASCII"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (slow-counter-to-100-in-1000 a))))))
-  (testing "Built-in style - double width characters"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:style (:emoji-circles pd/styles)}
-                               (slow-counter-to-100-in-1000 a)))))
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:style (:emoji-boxes pd/styles)}
-                               (slow-counter-to-100-in-1000 a))))))
-  (testing "Custom style - ASCII with colours and attributes"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:style {:left            ">"
-                                              :left-bg-colour  :bright-red
-                                              :left-fg-colour  :bright-yellow
-                                              :left-attrs      [:strikethrough]
-                                              :right           "<"
-                                              :right-bg-colour :bright-red
-                                              :right-fg-colour :bright-yellow
-                                              :right-attrs      [:strikethrough]
-                                              :empty           "."
-                                              :empty-attrs     [:underline]
-                                              :full            "*"
-                                              :full-bg-colour  :bright-yellow
-                                              :full-fg-colour  :black
-                                              :full-attrs      [:bold]
-                                              :tip             "@"
-                                              :tip-bg-colour   :black
-                                              :tip-fg-colour   :bright-yellow
-                                              :tip-attrs       [:italic]}}
-                               (slow-counter-to-100-in-1000 a))))))
-  (testing "Custom style - double width characters"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:style {:left            "🌜"
-                                              :right           "🌛"
-                                              :empty           "🫥"  ; Note - doesn't work properly on ITerm2 due to https://gitlab.com/gnachman/iterm2/-/issues/10509
-                                              :full            "😐"
-                                              :tip             "🤔"}}
-                               (slow-counter-to-100-in-1000 a))))))
-  (testing "Custom style - mixed width characters"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:style {:left            "["
-                                              :right           "]"
-                                              :empty           " "
-                                              :full            "🔀"
-                                              :tip             ">"}}
-                               (slow-counter-to-100-in-1000 a))))))
-  (testing "Custom style - label"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:label "download.zip"}
-                               (slow-counter-to-100-in-1000 a)))))))
-
-(deftest test-option-counter
-  (testing "Options - no counter"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a :opts {:counter? false} (slow-counter-to-100-in-1000 a)))))))
-
-(deftest test-option-units
-  (testing "Options - units"
-    (is (= 74305 (let [a (atom 0)]
-                   (pd/animate! a :opts {:units "MB" :total 386} (slow-counter a 750 386)))))))
-
-(deftest test-option-preserve
-  (testing "Options - preserve"
-    (is (= 45   (let [a (atom 0)]
-                  (pd/animate! a :opts {:total 10 :preserve? true} (slow-counter-to-10-in-250 a)))))))
-
-(deftest test-option-width
-  (testing "Options - custom width"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:width 40}
-                               (slow-counter-to-100-in-1000 a)))))
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:width 20}
-                               (slow-counter-to-100-in-1000 a)))))))
-
-(deftest test-option-line
-  (testing "Options - custom line location"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:line 10}
-                               (slow-counter-to-100-in-1000 a)))))
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:line 1}
-                               (slow-counter-to-100-in-1000 a)))))))
-
-(deftest test-option-combos
-  (testing "Option combos - line with concurrent text output"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:line 2}
-                               (reduce + (map #(do
-                                                 (Thread/sleep 10)
-                                                 (swap! a inc)
-                                                 (ansi/print-at 1 1 "Now up to" %)
-                                                 %)
-                                              (range 100))))))))
-  (testing "Option combos - line and preserve"
-    (is (= 4950 (let [a (atom 0)]
-                  (pd/animate! a
-                               :opts {:line 1 :preserve? true}
-                               (slow-counter-to-100-in-1000 a))))))
-  (testing "Option combos - label, counter and units"
-    (is (= 1087075 (let [a (atom 0)]
-                     (pd/animate! a :opts {:label "download.zip" :units "MB" :total 1475} (slow-counter a 750 1475)))))))
+(deftest test-options
+  (when-not skip-slow-tests?  ; Because GitHub Actions are hot garbage
+    (testing "Style with zero width characters"
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
+                            (let [a (atom 0)]
+                                       (pd/animate! a
+                                                    :opts {:style {:empty (w/code-point-to-string 0x20DD)}}  ; Combining enclosing circle (zero width)
+                                                    :foo))))
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo #"(?i).*invalid\s+width.*"
+                            (let [a (atom 0)]
+                                       (pd/animate! a
+                                                    :opts {:style {:tip (w/code-point-to-string 0x001B)}}  ; ANSI ESC (non-printing)
+                                                    :foo)))))
+    ; These ones run for longer (1 second each) so that they can be visually verified
+      (testing "Custom redraw intervals"
+        (is (= 499999500000 (let [a (atom 0)]
+                              (pd/animate! a :opts {:total 1000000 :redraw-rate 2}  (slow-counter-to-1000000-in-1000 a)))))  ; First with a slower-than-default refresh rate
+        (is (= 499999500000 (let [a (atom 0)]
+                              (pd/animate! a :opts {:total 1000000 :redraw-rate 60} (slow-counter-to-1000000-in-1000 a))))))  ; Then with a faster-than-default refresh rate
+    (testing "Built-in style - ASCII"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a :opts {:style (:ascii-boxes pd/styles)} (slow-counter-to-100-in-1000 a))))))
+    (testing "Built-in style - double width characters"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:style (:emoji-circles pd/styles)}
+                                 (slow-counter-to-100-in-1000 a)))))
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:style (:emoji-boxes pd/styles)}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Custom style - ASCII with colours and attributes"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:style {:left            ">"
+                                                :left-bg-colour  :bright-red
+                                                :left-fg-colour  :bright-yellow
+                                                :left-attrs      [:strikethrough]
+                                                :right           "<"
+                                                :right-bg-colour :bright-red
+                                                :right-fg-colour :bright-yellow
+                                                :right-attrs      [:strikethrough]
+                                                :empty           "."
+                                                :empty-attrs     [:underline]
+                                                :full            "*"
+                                                :full-bg-colour  :bright-yellow
+                                                :full-fg-colour  :black
+                                                :full-attrs      [:bold]
+                                                :tip             "@"
+                                                :tip-bg-colour   :black
+                                                :tip-fg-colour   :bright-yellow
+                                                :tip-attrs       [:italic]}}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Custom style - double width characters"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:style {:left            "🌜"
+                                                :right           "🌛"
+                                                :empty           "🫥"  ; Note - doesn't work properly on ITerm2 due to https://gitlab.com/gnachman/iterm2/-/issues/10509
+                                                :full            "😐"
+                                                :tip             "🤔"}}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Custom style - mixed width characters"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:style {:left            "["
+                                                :right           "]"
+                                                :empty           " "
+                                                :full            "🔀"
+                                                :tip             ">"}}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Custom style - label"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:label "download.zip"}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Options - no counter"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a :opts {:counter? false} (slow-counter-to-100-in-1000 a))))))
+    (testing "Options - units"
+      (is (= 74305 (let [a (atom 0)]
+                     (pd/animate! a :opts {:units "MB" :total 386} (slow-counter a 750 386))))))
+    (testing "Options - preserve"
+      (is (= 45   (let [a (atom 0)]
+                    (pd/animate! a :opts {:total 10 :preserve? true} (slow-counter-to-10-in-250 a))))))
+    (testing "Options - custom width"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:width 40}
+                                 (slow-counter-to-100-in-1000 a)))))
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:width 20}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Options - custom line location"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:line 10}
+                                 (slow-counter-to-100-in-1000 a)))))
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:line 1}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Option combos - line with concurrent text output"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:line 2}
+                                 (reduce + (map #(do
+                                                   (Thread/sleep 10)
+                                                   (swap! a inc)
+                                                   (ansi/print-at 1 1 "Now up to" %)
+                                                   %)
+                                                (range 100))))))))
+    (testing "Option combos - line and preserve"
+      (is (= 4950 (let [a (atom 0)]
+                    (pd/animate! a
+                                 :opts {:line 1 :preserve? true}
+                                 (slow-counter-to-100-in-1000 a))))))
+    (testing "Option combos - label, counter and units"
+      (is (= 1087075 (let [a (atom 0)]
+                       (pd/animate! a :opts {:label "download.zip" :units "MB" :total 1475} (slow-counter a 750 1475))))))))
 
 (defn async-indicator-at-line
   "Asynchronously starts an indicator at line line, running the logic in fn f, a function of one argument (the atom to update)."
