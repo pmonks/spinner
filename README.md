@@ -1,11 +1,12 @@
-| | | |
-|---:|:---:|:---:|
-| [**release**](https://github.com/pmonks/spinner/tree/release) | [![CI](https://github.com/pmonks/spinner/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Arelease) | [![Dependencies](https://github.com/pmonks/spinner/actions/workflows/dependencies.yml/badge.svg?branch=release)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Arelease) |
-| [**dev**](https://github.com/pmonks/spinner/tree/dev) | [![CI](https://github.com/pmonks/spinner/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/spinner/actions/workflows/dependencies.yml/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Adev) |
-
-[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/spinner)](https://clojars.org/com.github.pmonks/spinner/) [![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues) [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/release/LICENSE)
-
 # spinner
+
+[![CI](https://github.com/pmonks/spinner/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3ACI+branch%3Adev)
+[![Dependencies](https://github.com/pmonks/spinner/actions/workflows/dependencies.yml/badge.svg?branch=dev)](https://github.com/pmonks/spinner/actions?query=workflow%3Adependencies+branch%3Adev)
+<br/>
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/spinner)](https://clojars.org/com.github.pmonks/spinner/)
+[![Open Issues](https://img.shields.io/github/issues/pmonks/spinner.svg)](https://github.com/pmonks/spinner/issues)
+[![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/release/LICENSE)
+![Maintained](https://badges.ws/badge/?label=maintained&value=yes,+at+author's+discretion)
 
 Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress cannot be measured) and determinate tasks (those where progress can be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
 
