@@ -50,36 +50,54 @@
                     :tip   "🟡"}
     :emoji-boxes   {:empty "⬛️"
                     :full  "⬜️"
-                    :tip   "🟨"}
-  })
+                    :tip   "🟨"}})
 
 (defn- clamp
   "Clamps a value within a range."
   [mn mx x]
   (max mn (min mx x)))
 
+(defn- round
+  "Rounds `n` to the nearest integer. Unlike `Math/round` returns an integer."
+  [n]
+  (int (Math/round (double n))))
+
+(defn- round-up
+  "Rounds `n` up to the nearest integer. Unlike `Math/ceil` returns an integer."
+  [n]
+  (int (Math/ceil (double n))))
+
+(defn- round-down
+  "Rounds `n` down to the nearest integer. Unlike `Math/floor` returns an integer."
+  [n]
+  (int (Math/floor (double n))))
+
+(defn- pad-to-width
+  "Pads `s` to width `w`, if needed."
+  [s w]
+  (if (< (w/display-width s) w)
+    (str s s)
+    s))
+
 (defn- redraw-progress-indicator!
   "Redraws the progress indicator."
-  [style style-widths label line width counter? total digits-in-total units new-value]
+  [style unit-width-cols body-width-chars label line counter? total digits-in-total units new-value]
   ; Make sure this code is non re-entrant
   (locking lock
-    (let [percent-complete (/ (double new-value) total)
-          body-cols        (- width
-                              (if-not (s/blank? label) (:label style-widths) 0)
-                              (if (:left  style)       (:left  style-widths) 0)
-                              (if (:right style)       (:right style-widths) 0)
-                              (if counter?             (inc (* 2 (count (str total)))) 0)
-                              (if (and counter? (not (s/blank? units))) (:units style-widths) 0))
-          tip-cols         (if (:tip style) 1 0)
-          tip-chars        (* tip-cols (get style-widths :tip 0))
-          fill-cols        (clamp 0 body-cols (Math/ceil (* percent-complete body-cols)))
-          fill-chars       (- (Math/ceil (/ fill-cols (:full style-widths))) tip-chars)
-          empty-cols       (- body-cols (* fill-chars (:full style-widths)))  ; We do it this way due to rounding
-          empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))
+    (let [; How complete are we?
+          percent-complete (/ (double new-value) total)
+
+          ; How many characters of each type?
+          tip-chars        (if (:tip style) 1 0)
+          complete-chars   (clamp 0 body-width-chars (round-up (* percent-complete body-width-chars)))
+          fill-chars       (clamp 0 body-width-chars (- complete-chars tip-chars))
+          empty-chars      (clamp 0 body-width-chars (- body-width-chars complete-chars))
+
+          ; Separately, calculate how much to pad the current value
           counter-pad      (- digits-in-total (count (str new-value)))]
+      (ansi/hide-cursor!)
       (when line
         (ansi/save-cursor!)
-        (ansi/hide-cursor!)
         (jansi/cursor! 1 line))
       (print (str ; Go to the start of the line
                   "\r"
@@ -98,21 +116,23 @@
                                                   (:left-attrs     style)
                                                   (:left           style)))
                   ; Full
-                  (ansi/apply-colours-and-attrs (:full-fg-colour style)
-                                                (:full-bg-colour style)
-                                                (:full-attrs     style)
-                                                (s/join (repeat fill-chars (:full style))))
+                  (when (pos? fill-chars)
+                    (ansi/apply-colours-and-attrs (:full-fg-colour style)
+                                                  (:full-bg-colour style)
+                                                  (:full-attrs     style)
+                                                  (s/join (repeat fill-chars (pad-to-width (:full style) unit-width-cols)))))
                   ; Tip (optional)
-                  (when (:tip style)
+                  (when (and (:tip style) (pos? complete-chars))
                     (ansi/apply-colours-and-attrs (:tip-fg-colour style)
                                                   (:tip-bg-colour style)
                                                   (:tip-attrs     style)
-                                                  (:tip           style)))
+                                                  (pad-to-width (:tip style) unit-width-cols)))
                   ; Empty
-                  (ansi/apply-colours-and-attrs (:empty-fg-colour style)
-                                                (:empty-bg-colour style)
-                                                (:empty-attrs     style)
-                                                (s/join (repeat empty-chars (:empty style))))
+                  (when (pos? empty-chars)
+                    (ansi/apply-colours-and-attrs (:empty-fg-colour style)
+                                                  (:empty-bg-colour style)
+                                                  (:empty-attrs     style)
+                                                  (s/join (repeat empty-chars (pad-to-width (:empty style) unit-width-cols)))))
                   ; Right (optional)
                   (when (:right style)
                     (ansi/apply-colours-and-attrs (:right-fg-colour style)
@@ -205,23 +225,31 @@
             redraw-rate 10}}
     f]
     (when (and a f)
-      (let [style-widths     (merge {:empty (valid-width (:empty style))
-                                     :full  (valid-width (:full  style))}
-                                    (when-not (s/blank? label) {:label (inc (valid-width label))})   ; Include space delimiter
-                                    (when (:left  style)       {:left  (valid-width (:left  style))})
-                                    (when (:right style)       {:right (valid-width (:right style))})
-                                    (when (:tip   style)       {:tip   (valid-width (:tip   style))})
-                                    (when-not (s/blank? units) {:units (inc (valid-width units))}))  ; Include space delimiter
-            render-fn!       (partial redraw-progress-indicator! style style-widths label line width counter? total (count (str total)) units)
+      (let [; We pre-compute a lot of stuff here, so that we're not doing it every pass through the rendering loop
+            label-width      (if-not (s/blank? label) (inc (valid-width label)) 0)  ; Include space delimiter
+            left-width       (if-not (s/blank? (:left style)) (valid-width (:left style)) 0)
+            full-width       (valid-width (:full style))
+            tip-width        (if-not (s/blank? (:tip style)) (valid-width (:tip style)) 0)
+            empty-width      (valid-width (:empty style))
+            right-width      (if-not (s/blank? (:right style)) (valid-width (:right style)) 0)
+            digits-in-total  (count (str total))
+            counter-width    (if counter? (+ 2 (* 2 digits-in-total))  0)  ; Include space delimier, / delimiter, current value and total
+            units-width      (if (and counter? (not (s/blank? (:units style)))) (inc (valid-width (:units style))) 0)  ; Include space delimiter
+            body-width-cols  (- width label-width left-width right-width counter-width units-width)
+            unit-width-cols  (max empty-width full-width tip-width)
+            body-width-chars (round-down (/ body-width-cols unit-width-cols))
+
+            ; Now setup the rendering function with all that pre-computed stuff baked in, and fire it off in a future that polls the atom
+            render-fn!       (partial redraw-progress-indicator! style unit-width-cols body-width-chars label line counter? total digits-in-total units)
             running-promise? (promise)
-            poll-interval-ms (Math/round (double (/ 1000 redraw-rate)))
+            poll-interval-ms (round (/ 1000 redraw-rate))
             fut              (e/future* (poll-atom a running-promise? poll-interval-ms render-fn!))]
         (try
           (f)
           (finally
             ; Teardown logic
             (deliver running-promise? false)
-            (future-cancel fut)  ; Just in case...
+            @fut  ; Ensures any exceptions are rethrown
             (locking lock  ; Make sure this isn't re-entrant with the future, since the TTY can only save a single cursor position at a time
               (if preserve?
                 ; Make sure we draw the indicator with the final value of the atom
