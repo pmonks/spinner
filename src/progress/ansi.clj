@@ -30,15 +30,27 @@
   (print "\u001B8")          ; So we manually send a DEC code too
   (flush))
 
+(defn hide-cursor!
+  []
+  (print "\u001B[25l")
+  (flush))
+
+(defn show-cursor!
+  []
+  (print "\u001B[25h")
+  (flush))
+
 (defn print-at
   "Send text output to the specified screen locations (note: ANSI screen
   coordinates are 1-based). msgs may include jansi formatting."
   [x y & msgs]
   (save-cursor!)
+  (hide-cursor!)
   (jansi/cursor! x y)
   (jansi/erase-line!)
   (apply print msgs)
-  (restore-cursor!))
+  (restore-cursor!)
+  (show-cursor!))
 
 (defn debug-print-at
   "Send debug output to the specified screen location (note: ANSI screen
