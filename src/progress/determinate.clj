@@ -60,7 +60,7 @@
 
 (defn- redraw-progress-indicator!
   "Redraws the progress indicator."
-  [style style-widths label line width counter? total units new-value]
+  [style style-widths label line width counter? total digits-in-total units new-value]
   ; Make sure this code is non re-entrant
   (locking lock
     (let [percent-complete (/ (double new-value) total)
@@ -75,9 +75,11 @@
           fill-cols        (clamp 0 body-cols (Math/ceil (* percent-complete body-cols)))
           fill-chars       (- (Math/ceil (/ fill-cols (:full style-widths))) tip-chars)
           empty-cols       (- body-cols (* fill-chars (:full style-widths)))  ; We do it this way due to rounding
-          empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))]
+          empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))
+          counter-pad      (- digits-in-total (count (str new-value)))]
       (when line
         (ansi/save-cursor!)
+        (ansi/hide-cursor!)
         (jansi/cursor! 1 line))
       (print (str ; Go to the start of the line
                   "\r"
@@ -122,7 +124,8 @@
                     (ansi/apply-colours-and-attrs (:counter-fg-colour style)
                                                   (:counter-bg-colour style)
                                                   (:counter-attrs     style)
-                                                  (str " " (int new-value) "/" (int total)
+                                                  (str (s/join (repeat (inc counter-pad) " "))  ; Left pad current counter value
+                                                       (int new-value) "/" (int total)
                                                        (when-not (s/blank? units)
                                                          (ansi/apply-colours-and-attrs (:units-fg-colour style)
                                                                                        (:units-bg-colour style)
@@ -130,6 +133,7 @@
                                                                                        (str " " units))))))))
       (jansi/erase-line!)
       (when line (ansi/restore-cursor!))
+      (ansi/show-cursor!)
       (flush))))
 
 (defn- poll-atom
@@ -208,7 +212,7 @@
                                     (when (:right style)       {:right (valid-width (:right style))})
                                     (when (:tip   style)       {:tip   (valid-width (:tip   style))})
                                     (when-not (s/blank? units) {:units (inc (valid-width units))}))  ; Include space delimiter
-            render-fn!       (partial redraw-progress-indicator! style style-widths label line width counter? total units)
+            render-fn!       (partial redraw-progress-indicator! style style-widths label line width counter? total (count (str total)) units)
             running-promise? (promise)
             poll-interval-ms (Math/round (double (/ 1000 redraw-rate)))
             fut              (e/future* (poll-atom a running-promise? poll-interval-ms render-fn!))]

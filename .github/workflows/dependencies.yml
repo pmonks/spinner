@@ -11,5 +11,5 @@ jobs:
     container:
       image: uochan/antq
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: java -jar /tmp/antq/antq.jar --skip=pom --exclude=com.github.pmonks/pbr --error-format="::error file={{file}}::{{message}}"
