@@ -127,12 +127,14 @@
             attributes  [:default]}}]
     (let [delay-in-ms (long (Math/round (double delay-in-ms)))]  ; Coerce delay-in-ms to a long
       (ansi/save-cursor!)
+      (ansi/hide-cursor!)
       (loop [i 0]
         (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames (mod i (count frames))))
                                  " "))
         (flush)
         (when (pos? delay-in-ms) (Thread/sleep delay-in-ms))  ; Thread/sleep throws on negative values, and sleeping for 0ms makes no sense
         (ansi/restore-cursor!)
+        (ansi/show-cursor!)
         (jansi/erase-line!)
         (print-pending-messages)
         (when (active?)

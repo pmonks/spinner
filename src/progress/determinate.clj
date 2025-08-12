@@ -78,6 +78,7 @@
           empty-chars      (Math/floor (/ empty-cols (:empty style-widths)))]
       (when line
         (ansi/save-cursor!)
+        (ansi/hide-cursor!)
         (jansi/cursor! 1 line))
       (print (str ; Go to the start of the line
                   "\r"
@@ -130,6 +131,7 @@
                                                                                        (str " " units))))))))
       (jansi/erase-line!)
       (when line (ansi/restore-cursor!))
+      (ansi/show-cursor!)
       (flush))))
 
 (defn- poll-atom
