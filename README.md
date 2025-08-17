@@ -74,7 +74,9 @@ From [`demo.clj`](https://github.com/pmonks/spinner/blob/dev/demo.clj):
 
 (println "And now something countably slow is happening...")
 (let [a (atom 0)]
-  (pd/animate! a :opts {:total 1000000 :redraw-rate 60 :style (:emoji-boxes pd/styles)}
+  (pd/animate! a :opts {:total 1000000
+                        :redraw-rate 60
+                        :style (:ascii-boxes pd/styles)}  ; :emoji-boxes is also fun to try
     (run! (fn [_] (Thread/sleep 0 10) (swap! a inc)) (range 1000000))))  ; Count up to a million, slowly
 (println)
 ```
