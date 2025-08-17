@@ -55,7 +55,7 @@ Doesn't work properly, for the same reason the `clj` command line doesn't work p
 
 ### Demo
 
-From `demo.clj`:
+From [`demo.clj`](https://github.com/pmonks/spinner/blob/dev/demo.clj):
 
 ```clojure
 ;; Indeterminate Task (aka "spinner")
