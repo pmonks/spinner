@@ -56,17 +56,15 @@
     (let [msg (s/join " " more)]
       (if (= @s :active)
         (swap! msgs str msg)
-        (do
-          (clojure.core/print msg)   ; If a progress indicator isn't active, just print immediately
-          (flush)))))
+        (clojure.core/print msg))))   ; If a progress indicator isn't active, just print immediately
   nil)
 
 (defn- print-pending-messages
   "Prints all pending messages"
   []
   (when-let [messages (first (tp/swap*! msgs (constantly nil)))]
+    (jansi/erase-line!)
     (clojure.core/print messages)
-    (flush)
     (ansi/save-cursor!)))
 
 (def default-style
@@ -125,20 +123,30 @@
             fg-colour   :default
             bg-colour   :default
             attributes  [:default]}}]
-    (let [delay-in-ms (long (Math/round (double delay-in-ms)))]  ; Coerce delay-in-ms to a long
+    (let [delay-in-ms (long (Math/round (double delay-in-ms)))]  ; Coerce delay-in-ms to a long (especially if it's a Clojure ratio)
+      ; Setup logic
       (ansi/save-cursor!)
       (ansi/hide-cursor!)
+      (jansi/erase-line!)
+      (flush)   ; Flush any outstanding I/O to stdout before we start animating
+      ; Main animation loop
       (loop [i 0]
-        (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames (mod i (count frames))))
+        (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames i))
                                  " "))
-        (flush)
-        (when (pos? delay-in-ms) (Thread/sleep delay-in-ms))  ; Thread/sleep throws on negative values, and sleeping for 0ms makes no sense
-        (ansi/restore-cursor!)
         (ansi/show-cursor!)
-        (jansi/erase-line!)
+        (flush)                 ; Flush I/O to stdout at least once per loop
+        (when (pos? delay-in-ms) (Thread/sleep delay-in-ms))
+        (ansi/hide-cursor!)
+        (ansi/restore-cursor!)
         (print-pending-messages)
         (when (active?)
-          (recur (inc i)))))
+          (recur (mod (inc i) (count frames))))))
+    ; Clean up logic
+    (ansi/restore-cursor!)
+    (jansi/erase-line!)
+    (print-pending-messages)
+    (ansi/show-cursor!)
+    (flush)                  ; Flush any outstanding I/O to stdout
     nil))
 
 (defn ^:no-doc start!
@@ -147,7 +155,6 @@
   ([opts]
    (when-not (compare-and-set! s :inactive :active)
      (throw (java.lang.IllegalStateException. "Progress indicator is already active.")))
-   (flush)   ; Flush any residual I/O to stdout before we start animating
    (reset! msgs nil)
    (reset! fut  (e/future* (indeterminate-progress-indicator opts)))
    nil))
@@ -157,8 +164,7 @@
   []
   (when (compare-and-set! s :active :shutting-down)
     (try
-      @@fut                     ; Wait for the future to stop (deref the atom AND the future)
-      (print-pending-messages)  ; Flush any remaining messages
+      @@fut    ; Wait for the future to stop (deref the atom AND the future)
       (finally
         (reset! fut nil)
         (reset! s   :inactive))))

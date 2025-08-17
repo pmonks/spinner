@@ -83,7 +83,7 @@
           (do
             (print (str "\n" (name style) ": "))
             (flush)
-            (is (= nil (pi/animate! :opts {:frames (style pi/styles)} (Thread/sleep 250)))))))))
+            (is (= nil (pi/animate! :opts {:frames (style pi/styles)} (Thread/sleep 500)))))))))
 
   (testing "Printing messages while an animation is active"
     (is (= nil (do

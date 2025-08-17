@@ -8,13 +8,14 @@
 [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/release/LICENSE)
 ![Maintained](https://badges.ws/badge/?label=maintained&value=yes,+at+author's+discretion)
 
-Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress cannot be measured) and determinate tasks (those where progress can be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
+Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress _cannot_ be measured) and determinate tasks (those where progress _can_ be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
 
-## What is it useful for?
+#### Why?
 
 To give the user of a command line app a visual progress indicator during long running processes.
 
-Here it is in action (from the unit tests):
+Here it is in action (from the [demo script](https://github.com/pmonks/spinner/blob/dev/demo.clj)):
+
 <p align="center">
   <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/dev/spinner-demo.gif"/>
 </p>
@@ -24,6 +25,10 @@ Note that using Unicode characters in progress indicators may be unreliable, dep
 ## Installation
 
 `spinner` is available as a Maven artifact from [Clojars](https://clojars.org/com.github.pmonks/spinner).
+
+## Usage
+
+[API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/release/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/release/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
 
 ### Trying it Out
 
@@ -49,55 +54,31 @@ $ lein trampoline try com.github.pmonks/spinner
 
 Doesn't work properly, for the same reason the `clj` command line doesn't work properly (`rlwrap` intercepts the ANSI escape sequences emitted by this library and misinterprets them).
 
-#### Simple REPL Session
-
-##### Indeterminate Task (aka "spinner")
+### [Demo](https://github.com/pmonks/spinner/blob/dev/demo.clj)
 
 ```clojure
-(require '[progress.indeterminate :as pi] :reload-all)
+;; Indeterminate Task (aka "spinner")
 
-(pi/animate!
-  (pi/print "A long running process...")
-  (Thread/sleep 2500)   ; Simulate a long running process
-  (pi/print "\nAnother long running process...")
-  (Thread/sleep 2500)   ; Simulate another long running process
-  (pi/print "\nAll done!\n"))  
-```
+(require '[progress.indeterminate :as pi])
 
-##### Determinate Task (aka "progress bar")
+(print "Something uncountably slow is happening... ")
+(pi/animate! :opts {:frames (:clocks pi/styles)}
+  (Thread/sleep 5000))
+(println)
 
-```clojure
-(require '[progress.determinate :as pd] :reload-all)
 
+;; Determinate Task (aka "progress bar")
+
+(require '[progress.determinate :as pd])
+
+(println "And now something countably slow is happening...")
 (let [a (atom 0)]
-  ; Add up all the numbers from 1 to 100... ...slowly
-  (pd/animate!
-    a
-    (reduce + (map #(do (Thread/sleep 10) (swap! a inc) %) (range 100)))))
+  (pd/animate! a :opts {:total 1000000
+                        :redraw-rate 60  ; Use 60 fps for the demo
+                        :style (:coloured-ascii-boxes pd/styles)}  ; :emoji-boxes is also fun to try
+    (run! (fn [_] (Thread/sleep 0 10) (swap! a inc)) (range 1000000))))  ; Count up to a million, slowly
+(println)
 ```
-
-## Usage
-
-The functionality is provided by the `progress.indeterminate` and `progress.determinate` namespaces.
-
-Require them in the REPL:
-
-```clojure
-(require '[progress.indeterminate :as pi] :reload-all)
-(require '[progress.determinate   :as pd] :reload-all)
-```
-
-Require them in your application:
-
-```clojure
-(ns my-app.core
-  (:require [progress.indeterminate :as pi]
-            [progress.determinate   :as pd]))
-```
-
-### API Documentation
-
-[API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/release/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/release/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
 
 ## Contributor Information
 
