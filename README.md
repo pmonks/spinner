@@ -14,7 +14,8 @@ Progress indicators for command line Clojure apps, including support for indeter
 
 To give the user of a command line app a visual progress indicator during long running processes.
 
-Here it is in action (from the unit tests):
+Here it is in action (from the [demo script](https://github.com/pmonks/spinner/blob/dev/demo.clj):
+
 <p align="center">
   <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/dev/spinner-demo.gif"/>
 </p>
@@ -54,8 +55,6 @@ $ lein trampoline try com.github.pmonks/spinner
 Doesn't work properly, for the same reason the `clj` command line doesn't work properly (`rlwrap` intercepts the ANSI escape sequences emitted by this library and misinterprets them).
 
 ### Demo
-
-From [`demo.clj`](https://github.com/pmonks/spinner/blob/dev/demo.clj):
 
 ```clojure
 ;; Indeterminate Task (aka "spinner")
