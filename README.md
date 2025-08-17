@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/pmonks/spinner.svg)](https://github.com/pmonks/spinner/blob/release/LICENSE)
 ![Maintained](https://badges.ws/badge/?label=maintained&value=yes,+at+author's+discretion)
 
-Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress cannot be measured) and determinate tasks (those where progress can be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
+Progress indicators for command line Clojure apps, including support for indeterminate tasks (those where progress _cannot_ be measured) and determinate tasks (those where progress _can_ be measured).  The former are represented using "spinners", while the latter are represented using "progress bars".
 
 #### Why?
 
