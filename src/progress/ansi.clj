@@ -20,25 +20,23 @@
   "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
   []
   (jansi/save-cursor!)    ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
-  (print "\u001B7")       ; So we manually send a DEC code too
-  (flush))
+  (print "\u001B7"))      ; So we manually send a DEC code too
 
 (defn restore-cursor!
   "Issues both SCO and DEC restore-cursor ANSI codes, for maximum compatibility."
   []
   (jansi/restore-cursor!)    ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
-  (print "\u001B8")          ; So we manually send a DEC code too
-  (flush))
+  (print "\u001B8"))          ; So we manually send a DEC code too
 
 (defn hide-cursor!
+  "Hides the cursor (not implemented by JANSI)."
   []
-  (print "\u001B[25l")
-  (flush))
+  (print "\u001B[25l"))
 
 (defn show-cursor!
+  "Shows the cursor (not implemented by JANSI)."
   []
-  (print "\u001B[25h")
-  (flush))
+  (print "\u001B[25h"))
 
 (defn print-at
   "Send text output to the specified screen locations (note: ANSI screen

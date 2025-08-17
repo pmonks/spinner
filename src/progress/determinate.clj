@@ -157,16 +157,15 @@
       (flush))))
 
 (defn- poll-atom
-  "Polls atom `value-atom` every `poll-interval-ms` and calls `render-fn!` (a
-  function of one argument - the current value of the atom), if it has changed.
-  Will stop when `running-promise?` is delivered a logically `false` value,
-  returning `nil`."
-  [value-atom running-promise? ^long poll-interval-ms render-fn!]
-  (loop [previous-value nil]
-    (let [current-value @value-atom]
+  "Polls atom `a` every `poll-interval-ms` and calls `f` (a function of one
+  argument - the current value of the atom), if it has changed.  Will return
+  `nil` when promise `p` is delivered a logically `false` value"
+  [a p ^long poll-interval-ms f]
+  (loop [previous-value ::undefined]
+    (let [current-value @a]
       (when (not= current-value previous-value)
-        (render-fn! current-value))
-      (when (deref running-promise? poll-interval-ms true)
+        (f current-value))
+      (when (deref p poll-interval-ms true)
         (recur current-value))))
   nil)
 
@@ -233,7 +232,7 @@
             empty-width      (valid-width (:empty style))
             right-width      (if-not (s/blank? (:right style)) (valid-width (:right style)) 0)
             digits-in-total  (count (str total))
-            counter-width    (if counter? (+ 2 (* 2 digits-in-total))  0)  ; Include space delimier, / delimiter, current value and total
+            counter-width    (if counter? (+ 2 (* 2 digits-in-total))  0)  ; Include space delimiter, / delimiter, current value and total
             units-width      (if (and counter? (not (s/blank? (:units style)))) (inc (valid-width (:units style))) 0)  ; Include space delimiter
             body-width-cols  (- width label-width left-width right-width counter-width units-width)
             unit-width-cols  (max empty-width full-width tip-width)
