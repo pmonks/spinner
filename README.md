@@ -54,7 +54,7 @@ $ lein trampoline try com.github.pmonks/spinner
 
 Doesn't work properly, for the same reason the `clj` command line doesn't work properly (`rlwrap` intercepts the ANSI escape sequences emitted by this library and misinterprets them).
 
-### Demo
+### [Demo](https://github.com/pmonks/spinner/blob/dev/demo.clj)
 
 ```clojure
 ;; Indeterminate Task (aka "spinner")
@@ -75,7 +75,7 @@ Doesn't work properly, for the same reason the `clj` command line doesn't work p
 (let [a (atom 0)]
   (pd/animate! a :opts {:total 1000000
                         :redraw-rate 60
-                        :style (:ascii-boxes pd/styles)}  ; :emoji-boxes is also fun to try
+                        :style (:coloured-ascii-boxes pd/styles)}  ; :emoji-boxes is also fun to try
     (run! (fn [_] (Thread/sleep 0 10) (swap! a inc)) (range 1000000))))  ; Count up to a million, slowly
 (println)
 ```

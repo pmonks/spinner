@@ -32,25 +32,31 @@
   encoding, phase of the moon, and how long since your dog last pooped."
   {
     ; ASCII determinate progress indicators are reliable across platforms
-    :ascii-basic {:left  "["
-                  :right "]"
-                  :empty " "
-                  :full  "#"}   ; Note: does not have a :tip
-    :ascii-boxes {:left  "▉"
-                  :right "▉"
-                  :empty " "
-                  :full  "░"
-                  :tip   "▓"}
+    :ascii-basic          {:left  "["
+                           :right "]"
+                           :empty " "
+                           :full  "#"}   ; Note: does not have a :tip
+    :ascii-boxes          {:left  "▉"
+                           :right "▉"
+                           :empty " "
+                           :full  "░"
+                           :tip   "▓"}
+    :coloured-ascii-boxes {:empty "▉"
+                           :empty-fg-colour :bright-black
+                           :full  "▉"
+                           :full-fg-colour :bright-white
+                           :tip   "▉"
+                           :tip-fg-colour :bright-yellow}
 
     ; Emoji determinate progress indicators are unreliable across platforms (especially Windows)
-    :emoji-circles {:left  "【" ; Note: double width without whitespace, despite appearances
-                    :right "】" ; Note: double width without whitespace, despite appearances
-                    :empty "⚫"
-                    :full  "⚪️"
-                    :tip   "🟡"}
-    :emoji-boxes   {:empty "⬛️"
-                    :full  "⬜️"
-                    :tip   "🟨"}})
+    :emoji-circles        {:left  "【" ; Note: double width without whitespace, despite appearances
+                           :right "】" ; Note: double width without whitespace, despite appearances
+                           :empty "⚫"
+                           :full  "⚪️"
+                           :tip   "🟡"}
+    :emoji-boxes          {:empty "⬛️"
+                           :full  "⬜️"
+                           :tip   "🟨"}})
 
 (defn- clamp
   "Clamps a value within a range."
