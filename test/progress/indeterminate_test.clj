@@ -69,6 +69,9 @@
     (testing "Custom attributes"
       (is (= nil (pi/animate! :opts {:attributes [:strikethrough :bold :underline]} (Thread/sleep 250)))))
 
+    (testing "No space after indicator"
+      (is (= nil (pi/animate! :opts {:space-after-indicator? false} (Thread/sleep 250)))))
+
     (testing "Custom everything"
       (is (= nil (pi/animate! :opts {:frames     (:box-fade pi/styles)
                                     :delay-in-ms (/ pi/default-delay-ms 4)  ; Hyperspeed!
