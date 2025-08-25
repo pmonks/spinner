@@ -124,7 +124,8 @@
             bg-colour              :default
             attributes             [:default]
             space-after-indicator? true}}]
-    (let [delay-in-ms (long (Math/round (double delay-in-ms)))]  ; Coerce delay-in-ms to a long (especially if it's a Clojure ratio)
+    (let [delay-in-ms (long (Math/round (double delay-in-ms)))  ; Coerce delay-in-ms to a long (especially if it's a Clojure ratio)
+          frame-count (count frames)]
       ; Setup logic
       (ansi/save-cursor!)
       (ansi/hide-cursor!)
@@ -141,7 +142,7 @@
         (ansi/restore-cursor!)
         (print-pending-messages)
         (when (active?)
-          (recur (mod (inc i) (count frames))))))
+          (recur (int (mod (inc i) frame-count))))))
     ; Clean up logic
     (ansi/restore-cursor!)
     (jansi/erase-line!)
