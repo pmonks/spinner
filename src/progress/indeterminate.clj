@@ -117,13 +117,15 @@
   "Indeterminate progress indicator logic, for use in a `future` or `Thread` or
   wotnot."
   ([] (indeterminate-progress-indicator nil))
-  ([{:keys [delay-in-ms frames fg-colour bg-colour attributes]
-     :or   {delay-in-ms default-delay-ms
-            frames      (default-style styles)
-            fg-colour   :default
-            bg-colour   :default
-            attributes  [:default]}}]
-    (let [delay-in-ms (long (Math/round (double delay-in-ms)))]  ; Coerce delay-in-ms to a long (especially if it's a Clojure ratio)
+  ([{:keys [delay-in-ms frames fg-colour bg-colour attributes space-after-indicator?]
+     :or   {delay-in-ms            default-delay-ms
+            frames                 (default-style styles)
+            fg-colour              :default
+            bg-colour              :default
+            attributes             [:default]
+            space-after-indicator? true}}]
+    (let [delay-in-ms (long (Math/round (double delay-in-ms)))  ; Coerce delay-in-ms to a long (especially if it's a Clojure ratio)
+          frame-count (count frames)]
       ; Setup logic
       (ansi/save-cursor!)
       (ansi/hide-cursor!)
@@ -131,8 +133,8 @@
       (flush)   ; Flush any outstanding I/O to stdout before we start animating
       ; Main animation loop
       (loop [i 0]
-        (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames i))
-                                 " "))
+        (clojure.core/print (str (ansi/apply-colours-and-attrs fg-colour bg-colour attributes (nth frames i))))
+        (when  space-after-indicator? (clojure.core/print " "))
         (ansi/show-cursor!)
         (flush)                 ; Flush I/O to stdout at least once per loop
         (when (pos? delay-in-ms) (Thread/sleep delay-in-ms))
@@ -140,7 +142,7 @@
         (ansi/restore-cursor!)
         (print-pending-messages)
         (when (active?)
-          (recur (mod (inc i) (count frames))))))
+          (recur (int (mod (inc i) frame-count))))))
     ; Clean up logic
     (ansi/restore-cursor!)
     (jansi/erase-line!)
@@ -195,7 +197,12 @@
   * `:attributes`  - the attributes of the indeterminate progress indicator
                      (default is `[:default]`) - see [the `jansi-clj`
                      docs](https://github.com/xsc/jansi-clj#attributes) for
-                     allowed values"
+                     allowed values
+  * `:space-after-indicator?` - whether a single space character should be
+                     printed after the indeterminate progress indicator. This
+                     can be more visually appealing when using Unicode frames as
+                     it creates some separation with the cursor.
+                     (default is `true`)"
   ([f] (animatef! nil f))
   ([opts f]
     (when f
@@ -227,7 +234,12 @@
   * `:attributes`  - the attributes of the indeterminate progress indicator
                      (default is `[:default]`) - see [the `jansi-clj`
                      docs](https://github.com/xsc/jansi-clj#attributes) for
-                     allowed values"
+                     allowed values
+  * `:space-after-indicator?` - whether a single space character should be
+                     printed after the indeterminate progress indicator. This
+                     can be more visually appealing when using Unicode frames as
+                     it creates some separation with the cursor.
+                     (default is `true`)"
   [& body]
   (if (= :opts (first body))
     `(animatef! ~(second body) (fn [] ~@(rest (rest body))))
