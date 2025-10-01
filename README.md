@@ -20,7 +20,7 @@ Here it is in action (from the [demo script](https://github.com/pmonks/spinner/b
   <img alt="Spinner example screenshot" src="https://raw.githubusercontent.com/pmonks/spinner/dev/spinner-demo.gif"/>
 </p>
 
-Note that using Unicode characters in progress indicators may be unreliable, depending on your OS, terminal, font, encoding, phase of the moon, etc.
+Note that using Unicode characters in progress indicators may be unreliable, depending on your OS, terminal, font, encoding, etc.
 
 ## Installation
 
