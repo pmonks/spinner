@@ -213,9 +213,10 @@
          (stop!))))))
 
 (defmacro animate!
-  "Wraps the given forms in an indeterminate progress indicator. If the first
-  form is the keyword `:opts`, the second form _must_ be a map, containing
-  any/all of these keys:
+  "Equivalent to `clojure.core/do`, but displays an indeterminate progress
+  indicator (aka 'spinner') while the forms are executing. If the first form is
+  the keyword `:opts`, the second form _must_ be a map, containing any/all of
+  these keys:
 
   * `:frames`      - the frames (a sequence of `String`s) to use for the
                      indeterminate progress indicator (default is

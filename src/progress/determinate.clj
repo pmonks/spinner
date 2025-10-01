@@ -272,10 +272,11 @@
               (flush))))))))
 
 (defmacro animate!
-  "Wraps execution of the given forms in a determinate progress indicator,
-  monitoring atom `a` (a number between `0` and `(:total opts)`, representing
-  progress). If the first form is the keyword `:opts`, the second form _must_ be
-  a map, containing any/all of these keys:
+  "Equivalent to `clojure.core/do`, but displays a determinate progress
+  indicator (aka 'progress bar') while the forms are executing. Monitors atom
+  `a` (a number between `0` and `(:total opts)`), representing progress by those
+  forms. If the first form is the keyword `:opts`, the second form _must_ be a
+  map, containing any/all of these keys:
 
   * `:style`     - a map defining the style (characters, colours, and
                    attributes) to use when printing the progress indicator.
