@@ -11,6 +11,7 @@
 (ns progress.indeterminate-test
   (:require [clojure.test           :refer [deftest testing is]]
             [jansi-clj.core         :as jansi]
+            [progress.ansi          :as ansi]
             [progress.test-utils    :refer [skip-slow-tests?]]
             [progress.indeterminate :as pi]))
 
@@ -26,8 +27,10 @@
   (testing "Not active when not running"
     (is (false? (pi/active?))))
 
-  (testing "Active when running"
-    (is (true? (pi/animatef! (fn [] (pi/active?)))))))
+  (testing "Active when running on ANSI-enabled terminal"
+    (if ansi/available?
+      (is (true?  (pi/animatef! (fn [] (pi/active?)))))
+      (is (false? (pi/animatef! (fn [] (pi/active?))))))))
 
 (deftest test-function-vs-macro
   (testing "No code provided - animatef! fn"

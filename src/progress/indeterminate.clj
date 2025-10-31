@@ -54,9 +54,10 @@
   [& more]
   (when (seq more)
     (let [msg (s/join " " more)]
-      (if (= @s :active)
+      ; If ANSI escape sequences aren't available or a progress indicator isn't active, print immediately
+      (if (and ansi/available? (= @s :active))
         (swap! msgs str msg)
-        (clojure.core/print msg))))   ; If a progress indicator isn't active, just print immediately
+        (clojure.core/print msg))))
   nil)
 
 (defn- print-pending-messages
@@ -202,20 +203,31 @@
                      printed after the indeterminate progress indicator. This
                      can be more visually appealing when using Unicode frames as
                      it creates some separation with the cursor.
-                     (default is `true`)"
+                     (default is `true`)
+
+  Notes:
+
+  * When the JVM's stdout stream doesn't support ANSI escape sequences (e.g.
+    when output is redirected to a file), `f` will be executed without any
+    animation occurring"
   ([f] (animatef! nil f))
   ([opts f]
     (when f
-      (start! opts)
-      (try
-       (f)
-       (finally
-         (stop!))))))
+      ; Only animate if stdout attached to the running JVM supports ANSI
+      (if-not ansi/available?
+        (f)
+        (do
+          (start! opts)
+          (try
+           (f)
+           (finally
+             (stop!))))))))
 
 (defmacro animate!
-  "Wraps the given forms in an indeterminate progress indicator. If the first
-  form is the keyword `:opts`, the second form _must_ be a map, containing
-  any/all of these keys:
+  "Equivalent to `clojure.core/do`, but displays an indeterminate progress
+  indicator (aka 'spinner') while the forms are executing. If the first form is
+  the keyword `:opts`, the second form _must_ be a map, containing any/all of
+  these keys:
 
   * `:frames`      - the frames (a sequence of `String`s) to use for the
                      indeterminate progress indicator (default is
@@ -239,7 +251,13 @@
                      printed after the indeterminate progress indicator. This
                      can be more visually appealing when using Unicode frames as
                      it creates some separation with the cursor.
-                     (default is `true`)"
+                     (default is `true`)
+
+  Notes:
+
+  * When the JVM's stdout stream doesn't support ANSI escape sequences (e.g.
+    when output is redirected to a file), the forms will be executed without any
+    animation occurring"
   [& body]
   (if (= :opts (first body))
     `(animatef! ~(second body) (fn [] ~@(rest (rest body))))

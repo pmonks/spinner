@@ -16,6 +16,13 @@
 
 (jansi/enable!)
 
+(def available?
+  "Are ANSI escape sequences available on this JVM's stdout?"
+  (case (.name (.getType (org.fusesource.jansi.AnsiConsole/out)))
+    "Unsupported" false
+    "Redirected"  false
+    true))
+
 (defn save-cursor!
   "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
   []
