@@ -10,7 +10,11 @@
 
 (ns progress.ansi
   "Handy ANSI related functionality. Note: requiring this namespace has the side
-  effect of enabling [JANSI](https://github.com/fusesource/jansi?tab=readme-ov-file#example-usage)."
+  effect of enabling [JANSI](https://github.com/fusesource/jansi?tab=readme-ov-file#example-usage).
+
+  Note:
+
+  * "
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]))
 
@@ -22,6 +26,14 @@
     "Unsupported" false
     "Redirected"  false
     true))
+
+(defn terminal-width
+  "The width, in display columns, of the terminal window this JVM is running in.
+  Returns `nil` if the width cannot be determined."
+  []
+  (let [w (org.fusesource.jansi.AnsiConsole/getTerminalWidth)]
+    (when (pos? w)
+      w)))
 
 (defn save-cursor!
   "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
