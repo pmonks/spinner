@@ -235,7 +235,7 @@
     {:keys [style label line width total units counter? preserve? redraw-rate]
        :or {style       (get styles default-style)
             total       100
-            width       (if-let [w (ansi/terminal-width)]
+            width       (if-let [w (jansi/terminal-width)]
                           (- w 2)  ; Allow space for the cursor
                           72)
             counter?    true

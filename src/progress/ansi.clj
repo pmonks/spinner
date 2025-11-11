@@ -22,18 +22,10 @@
 
 (def available?
   "Are ANSI escape sequences available on this JVM's stdout?"
-  (case (.name (.getType (org.fusesource.jansi.AnsiConsole/out)))
+  (case (.name (.getType (org.jline.jansi.AnsiConsole/out)))
     "Unsupported" false
     "Redirected"  false
     true))
-
-(defn terminal-width
-  "The width, in display columns, of the terminal window this JVM is running in.
-  Returns `nil` if the width cannot be determined."
-  []
-  (let [w (org.fusesource.jansi.AnsiConsole/getTerminalWidth)]
-    (when (pos? w)
-      w)))
 
 (defn save-cursor!
   "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
