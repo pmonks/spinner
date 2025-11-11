@@ -16,7 +16,11 @@
             [progress.indeterminate :as pi]))
 
 (jansi/erase-screen!)
-(println "\n☔️ Running tests on Clojure" (clojure-version) "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " v" (System/getProperty "java.vm.version") ")"))
+
+(println "\n☔️ Running tests on Clojure" (clojure-version)
+         "/ JVM" (System/getProperty "java.version") (str "(" (System/getProperty "java.vm.name") " " (System/getProperty "java.vm.version") ")")
+         "/ ANSI escape sequences available?" (if ansi/available? "✅" (str "❌ (" (.name (.getType (org.jline.jansi.AnsiConsole/out))) ")")))
+
 (println
   (jansi/yellow-bg-bright
     (jansi/red

@@ -1,7 +1,7 @@
 Require clojure
 Output spinner-demo.gif
 Sleep 50ms
-Type "clojure -M demo.clj"
+Type "clojure -J--enable-native-access=ALL-UNNAMED -M demo.clj"
 Sleep 250ms
 Enter
 Wait@90s

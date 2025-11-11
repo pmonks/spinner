@@ -10,7 +10,11 @@
 
 (ns progress.ansi
   "Handy ANSI related functionality. Note: requiring this namespace has the side
-  effect of enabling [JANSI](https://github.com/fusesource/jansi?tab=readme-ov-file#example-usage)."
+  effect of enabling [JANSI](https://github.com/fusesource/jansi?tab=readme-ov-file#example-usage).
+
+  Note:
+
+  * "
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]))
 
@@ -18,7 +22,7 @@
 
 (def available?
   "Are ANSI escape sequences available on this JVM's stdout?"
-  (case (.name (.getType (org.fusesource.jansi.AnsiConsole/out)))
+  (case (.name (.getType (org.jline.jansi.AnsiConsole/out)))
     "Unsupported" false
     "Redirected"  false
     true))
