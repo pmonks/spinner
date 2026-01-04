@@ -66,7 +66,7 @@
   (when-let [messages (first (tp/swap*! msgs (constantly nil)))]
     (jansi/erase-line!)
     (clojure.core/print messages)
-    (ansi/save-cursor!)))
+    (jansi/save-cursor!)))
 
 (def default-style
   "The default indeterminate progress indicator style used, if one isn't
@@ -128,7 +128,7 @@
     (let [delay-in-ms (long (Math/round (double delay-in-ms)))  ; Coerce delay-in-ms to a long (especially if it's a Clojure ratio)
           frame-count (count frames)]
       ; Setup logic
-      (ansi/save-cursor!)
+      (jansi/save-cursor!)
       (ansi/hide-cursor!)
       (jansi/erase-line!)
       (flush)   ; Flush any outstanding I/O to stdout before we start animating
@@ -140,12 +140,12 @@
         (flush)                 ; Flush I/O to stdout at least once per loop
         (when (pos? delay-in-ms) (Thread/sleep delay-in-ms))
         (ansi/hide-cursor!)
-        (ansi/restore-cursor!)
+        (jansi/restore-cursor!)
         (print-pending-messages)
         (when (active?)
           (recur (int (mod (inc i) frame-count))))))
     ; Clean up logic
-    (ansi/restore-cursor!)
+    (jansi/restore-cursor!)
     (jansi/erase-line!)
     (print-pending-messages)
     (ansi/show-cursor!)

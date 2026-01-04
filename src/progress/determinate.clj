@@ -103,7 +103,7 @@
           counter-pad      (- digits-in-total (count (str new-value)))]
       (ansi/hide-cursor!)
       (when line
-        (ansi/save-cursor!)
+        (jansi/save-cursor!)
         (jansi/cursor! 1 line))
       (print (str ; Go to the start of the line
                   "\r"
@@ -158,7 +158,7 @@
                                                                                        (:units-attrs     style)
                                                                                        (str " " units))))))))
       (jansi/erase-line!)
-      (when line (ansi/restore-cursor!))
+      (when line (jansi/restore-cursor!))
       (ansi/show-cursor!)
       (flush))))
 
@@ -290,11 +290,11 @@
                       ; Erase the line the indicator was on
                       (do
                         (when line
-                          (ansi/save-cursor!)
+                          (jansi/save-cursor!)
                           (jansi/cursor! 1 line))
                         (print "\r")
                         (jansi/erase-line!)
-                        (when line (ansi/restore-cursor!))))
+                        (when line (jansi/restore-cursor!))))
                     (flush))))))))))
 
 (defmacro animate!

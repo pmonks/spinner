@@ -9,12 +9,12 @@
 ;
 
 (ns progress.ansi
-  "Handy ANSI related functionality. Note: requiring this namespace has the side
-  effect of enabling [JANSI](https://github.com/fusesource/jansi?tab=readme-ov-file#example-usage).
+  "Handy ANSI related functionality.  This namespace is not part of the public
+  API of spinner, and may change without warning.
 
   Note:
 
-  * "
+  * requiring this namespace has the side effect of enabling [JANSI](https://github.com/fusesource/jansi?tab=readme-ov-file#example-usage)."
   (:require [clojure.string :as s]
             [jansi-clj.core :as jansi]))
 
@@ -26,18 +26,6 @@
     "Unsupported" false
     "Redirected"  false
     true))
-
-(defn save-cursor!
-  "Issues both SCO and DEC save-cursor ANSI codes, for maximum compatibility."
-  []
-  (jansi/save-cursor!)    ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
-  (print "\u001B7"))      ; So we manually send a DEC code too
-
-(defn restore-cursor!
-  "Issues both SCO and DEC restore-cursor ANSI codes, for maximum compatibility."
-  []
-  (jansi/restore-cursor!)    ; JANSI uses SCO code for cursor positioning, which is unfortunate as they're less widely supported
-  (print "\u001B8"))          ; So we manually send a DEC code too
 
 (defn hide-cursor!
   "Hides the cursor (not implemented by JANSI)."
@@ -53,12 +41,12 @@
   "Send text output to the specified screen locations (note: ANSI screen
   coordinates are 1-based). msgs may include jansi formatting."
   [x y & msgs]
-  (save-cursor!)
+  (jansi/save-cursor!)
   (hide-cursor!)
   (jansi/cursor! x y)
   (jansi/erase-line!)
   (apply print msgs)
-  (restore-cursor!)
+  (jansi/restore-cursor!)
   (show-cursor!))
 
 (defn debug-print-at
