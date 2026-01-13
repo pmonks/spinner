@@ -10,7 +10,7 @@
 
 {:deps
    {jansi-clj/jansi-clj           {:mvn/version "2.0.0"}
-    com.github.pmonks/clj-wcwidth {:mvn/version "1.0.125"}
+    com.github.pmonks/clj-wcwidth {:mvn/version "1.0.145"}
     com.github.pmonks/embroidery  {:mvn/version "1.0.44"}}
  :aliases
    {:build {:deps       {com.github.pmonks/pbr {:mvn/version "RELEASE"}}
