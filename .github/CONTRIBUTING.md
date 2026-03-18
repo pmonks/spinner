@@ -14,6 +14,10 @@ When you make a contribution to the project, you agree:
 
 **By submitting a contribution to the project you agree to the above statements.**
 
+## A Note on "AI" Generated Code
+
+Because anyone who contributes "AI" generated code cannot guarantee requirements #1 and #3, such code will not be accepted into this project.
+
 # Contributing Issues
 
 ## Prerequisites
