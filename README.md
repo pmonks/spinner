@@ -26,6 +26,8 @@ Note that using Unicode characters in progress indicators may be unreliable, dep
 
 `spinner` is available as a Maven artifact from [Clojars](https://clojars.org/com.github.pmonks/spinner).
 
+Note: `jansi`, the underlying ANSI library used by `spinner`, no longer supports JVMs before version 11.
+
 ## Usage
 
 [API documentation is available here](https://pmonks.github.io/spinner/).  The [unit](https://github.com/pmonks/spinner/blob/release/test/progress/indeterminate_test.clj) [tests](https://github.com/pmonks/spinner/blob/release/test/progress/determinate_test.clj) provide comprehensive usage examples (alternative animation sets, formatting, etc.).
